@@ -21,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _confirmPasswordError;
   String? _verificationCodeError;
   String _verificationMessage = '';
+  final String _verificationCode = 'abcdef'; // 인증코드 샘플 데이터
 
   void _validateFields() {
     setState(() {
@@ -32,7 +33,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           : (_passwordController.text != _confirmPasswordController.text
           ? '비밀번호가 일치하지 않습니다'
           : null);
-      _verificationCodeError = _verificationCodeController.text.isEmpty ? '인증 코드를 입력하세요' : null;
     });
   }
 
@@ -40,16 +40,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {
       if (_emailController.text.isEmpty) {
         _emailError = '이메일을 입력하세요';
-        _verificationMessage = ''; // 오류 시 인증 메시지 제거
+        _verificationMessage = '';
       } else {
         _emailError = null;
-        _verificationMessage = '이메일 인증 코드가 발송되었습니다.';
+        _verificationMessage = '인증 코드가 이메일로 발송되었습니다.';
+      }
+    });
+  }
+
+  void _verifyCode() {
+    setState(() {
+      if (_verificationCodeController.text.isEmpty) {
+        _verificationCodeError = '인증 코드를 입력하세요';
+      } else if (_verificationCodeController.text != _verificationCode) {
+        _verificationCodeError = '인증 코드가 올바르지 않습니다';
+      } else {
+        _verificationCodeError = null;
+        _verificationMessage = '인증이 완료되었습니다!';
       }
     });
   }
 
   void _signUp() {
     _validateFields();
+    _verifyCode();
 
     if (_nameError == null &&
         _emailError == null &&
@@ -148,7 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    onPressed: _signUp,
+                    onPressed: _verifyCode,
                     child: const Text('확인', style: TextStyle(fontSize: 16, color: Colors.black)),
                   ),
                 ),
