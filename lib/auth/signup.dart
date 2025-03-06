@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart'; // 로그인 화면 import
+import '../Common/ApiService.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -16,6 +17,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _verificationCodeController = TextEditingController();
+
+  // 스프링부트 요청 1: ApiService 생성
+  final ApiService _apiService = ApiService();
 
   String? _nameError;
   String? _emailError;
@@ -38,16 +42,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void _requestVerificationCode() {
+  void _requestVerificationCode() async {
     setState(() {
       if (_emailController.text.isEmpty) {
         _emailError = '이메일을 입력하세요';
         _verificationMessage = '';
+        return;
       } else {
         _emailError = null;
         _verificationMessage = '인증 코드가 이메일로 발송되었습니다.';
       }
     });
+    final result = await _apiService.sendVerificationEmail("v1/email/send", {"email":_emailController.text});
   }
 
   void _verifyCode() {
@@ -69,7 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final password = _passwordController.text;
 
     _validateFields();
-    _verifyCode();
+    // _verifyCode();
 
     if (_nameError == null &&
         _emailError == null &&
@@ -128,8 +134,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
       }
     }
+  }
+  Future<void> _EmailCheck() async {
+    final verifyCode = _verificationCodeController.text;
+    final email = _emailController.text;
 
+    // _verifyCode();
 
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/api/v1/email/check'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        "email": email,
+        "authnum": verifyCode,
+      }),
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        _verificationCodeError = null;
+        _verificationMessage = '인증이 완료되었습니다!';
+      });
+    }
+    else {
+      setState(() {
+        _verificationCodeError = '인증 코드가 올바르지 않습니다';
+      });
+    }
   }
 
 /*
@@ -236,7 +268,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    onPressed: _verifyCode,
+                    onPressed: _EmailCheck,
                     child: const Text('확인', style: TextStyle(fontSize: 16, color: Colors.black)),
                   ),
                 ),
