@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'login.dart'; // 로그인 화면 import
 import '../Common/ApiService.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -67,6 +69,76 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  Future<void> _signUp() async {
+    final username = _nameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    _validateFields();
+    _verifyCode();
+
+    if (_nameError == null &&
+        _emailError == null &&
+        _passwordError == null &&
+        _confirmPasswordError == null &&
+        _verificationCodeError == null) {
+      final response = await http.post(
+        Uri.parse('http://localhost:8080/api/v1/user/createUser'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "username": username,
+          "email": email,
+          "password": password,
+        }),
+      );
+      if (response.statusCode == 200) {
+        // 회원가입
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('회원가입 성공!'),
+              content: Text('확인 코드: ${response.statusCode}'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('확인'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+      else {
+        // 실패 처리: 서버에서 반환된 에러 코드 표시
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("회원가입 실패"),
+              content: Text("에러 코드: ${response.statusCode}"),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('확인'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+
+
+  }
+
+/*
   void _signUp() {
     _validateFields();
     _verifyCode();
@@ -82,6 +154,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
     }
   }
+
+ */
 
   @override
   Widget build(BuildContext context) {

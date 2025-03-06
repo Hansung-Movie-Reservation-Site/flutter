@@ -4,6 +4,8 @@ import 'package:movie/main.dart'; // HomeScreen을 가져옴
 import 'package:movie/mypage/mypage.dart'; // mypage.dart import
 import 'package:movie/auth/signup.dart';
 import 'package:movie/providers/auth_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,6 +25,64 @@ class _LoginScreenState extends State<LoginScreen> {
     'password': '123456'
   };
 
+  Future<void> login() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/api/v1/user/login'), // 백엔드 API URL
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        "email": email,
+        "password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // 로그인 성공
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('로그인 성공!'),
+            content: Text('확인 코드: ${response.statusCode}'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    else {
+      // 실패 처리: 서버에서 반환된 에러 코드 표시
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('로그인 실패'),
+            content: Text('에러 코드: ${response.statusCode}'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+/*
   void _login() {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -43,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  onPressed: _login,
+                  onPressed: login,
                   child: const Text(
                     '로그인',
                     style: TextStyle(fontSize: 16, color: Colors.white),
