@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login.dart'; // 로그인 화면 import
+import '../Common/ApiService.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,6 +15,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _verificationCodeController = TextEditingController();
+
+  // 스프링부트 요청 1: ApiService 생성
+  final ApiService _apiService = ApiService();
 
   String? _nameError;
   String? _emailError;
@@ -36,16 +40,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void _requestVerificationCode() {
+  void _requestVerificationCode() async {
     setState(() {
       if (_emailController.text.isEmpty) {
         _emailError = '이메일을 입력하세요';
         _verificationMessage = '';
+        return;
       } else {
         _emailError = null;
         _verificationMessage = '인증 코드가 이메일로 발송되었습니다.';
       }
     });
+    final result = await _apiService.sendVerificationEmail("v1/email/send", {"email":_emailController.text});
   }
 
   void _verifyCode() {
