@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login.dart'; // 로그인 화면 import
 import '../Common/ApiService.dart';
 import 'package:http/http.dart' as http;
+import 'package:movie/auth/SignupFeatures.dart';
 import 'dart:convert';
 
 class SignUpScreen extends StatefulWidget {
@@ -27,7 +28,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _confirmPasswordError;
   String? _verificationCodeError;
   String _verificationMessage = '';
-  final String _verificationCode = 'abcdef'; // 인증코드 샘플 데이터
 
   void _validateFields() {
     setState(() {
@@ -42,6 +42,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
+  //이메일 인증 코드 전송
   void _requestVerificationCode() async {
     setState(() {
       if (_emailController.text.isEmpty) {
@@ -56,132 +57,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final result = await _apiService.sendVerificationEmail("v1/email/send", {"email":_emailController.text});
   }
 
-  void _verifyCode() {
+  //이메일 인증 코드 확인
+  void _verifyCode() async {
+    bool isVerified = await SignupFeautures.emailCheck(
+      email: _emailController.text,
+      verifyCode: _verificationCodeController.text
+    );
     setState(() {
-      if (_verificationCodeController.text.isEmpty) {
-        _verificationCodeError = '인증 코드를 입력하세요';
-      } else if (_verificationCodeController.text != _verificationCode) {
-        _verificationCodeError = '인증 코드가 올바르지 않습니다';
-      } else {
+      if (isVerified) {
         _verificationCodeError = null;
         _verificationMessage = '인증이 완료되었습니다!';
+      } else {
+        _verificationCodeError = '인증 코드가 올바르지 않습니다';
       }
     });
   }
-
-  Future<void> _signUp() async {
-    final username = _nameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    _validateFields();
-    // _verifyCode();
-
-    if (_nameError == null &&
-        _emailError == null &&
-        _passwordError == null &&
-        _confirmPasswordError == null &&
-        _verificationCodeError == null) {
-      final response = await http.post(
-        Uri.parse('http://localhost:8080/api/v1/user/createUser'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          "username": username,
-          "email": email,
-          "password": password,
-        }),
-      );
-      if (response.statusCode == 200) {
-        // 회원가입
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('회원가입 성공!'),
-              content: Text('확인 코드: ${response.statusCode}'),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('확인'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-      else {
-        // 실패 처리: 서버에서 반환된 에러 코드 표시
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("회원가입 실패"),
-              content: Text("에러 코드: ${response.statusCode}"),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('확인'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    }
-  }
-  Future<void> _EmailCheck() async {
-    final verifyCode = _verificationCodeController.text;
-    final email = _emailController.text;
-
-    // _verifyCode();
-
-    final response = await http.post(
-      Uri.parse('http://localhost:8080/api/v1/email/check'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        "email": email,
-        "authnum": verifyCode,
-      }),
-    );
-    if (response.statusCode == 200) {
-      setState(() {
-        _verificationCodeError = null;
-        _verificationMessage = '인증이 완료되었습니다!';
-      });
-    }
-    else {
-      setState(() {
-        _verificationCodeError = '인증 코드가 올바르지 않습니다';
-      });
-    }
-  }
-
-/*
-  void _signUp() {
-    _validateFields();
-    _verifyCode();
-
-    if (_nameError == null &&
-        _emailError == null &&
-        _passwordError == null &&
-        _confirmPasswordError == null &&
-        _verificationCodeError == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    }
-  }
-
- */
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    onPressed: _EmailCheck,
+                    onPressed: _verifyCode,
                     child: const Text('확인', style: TextStyle(fontSize: 16, color: Colors.black)),
                   ),
                 ),
@@ -311,7 +201,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                 ),
-                onPressed: _signUp,
+                onPressed: () {
+                  SignupFeautures.signup(
+                      context: context,
+                      username: _nameController.text,
+                      email: _emailController.text,
+                      password: _passwordController.text
+                  );
+                },
                 child: const Text('회원가입', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
             ),

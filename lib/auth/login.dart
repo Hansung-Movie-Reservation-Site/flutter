@@ -4,6 +4,7 @@ import 'package:movie/main.dart'; // HomeScreen을 가져옴
 import 'package:movie/mypage/mypage.dart'; // mypage.dart import
 import 'package:movie/auth/signup.dart';
 import 'package:movie/providers/auth_provider.dart';
+import 'package:movie/auth/LoginFeatures.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -18,92 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
-
-  // 샘플 유저 데이터
-  final Map<String, String> sampleUser = {
-    'email': 'test@example.com',
-    'password': '123456'
-  };
-
-  Future<void> login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    final response = await http.post(
-      Uri.parse('http://localhost:8080/api/v1/user/login'), // 백엔드 API URL
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        "email": email,
-        "password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // 로그인 성공
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('로그인 성공!'),
-            content: Text('확인 코드: ${response.statusCode}'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('확인'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-    else {
-      // 실패 처리: 서버에서 반환된 에러 코드 표시
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('로그인 실패'),
-            content: Text('에러 코드: ${response.statusCode}'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('확인'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-/*
-  void _login() {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-
-    if (email == sampleUser['email'] && password == sampleUser['password']) {
-      // 로그인 성공 시 AuthProvider의 상태 변경
-      Provider.of<AuthProvider>(context, listen: false).login();
-
-      // 홈 화면으로 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      // 로그인 실패
-      setState(() {
-        _errorMessage = '이메일과 비밀번호를 확인하세요';
-      });
-    }
-  }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  onPressed: login,
+                  onPressed: () {
+                    LoginFeatures.login(
+                        context: context,
+                        email: _emailController.text,
+                        password: _passwordController.text);
+                  },
                   child: const Text(
                     '로그인',
                     style: TextStyle(fontSize: 16, color: Colors.white),
