@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movie/auth/loginUI.dart';
-import 'package:movie/mypage/Mypage_login.dart';
+import 'package:movie/auth/LoginUI.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
 import 'package:movie/auth/LoginFeatures.dart';
