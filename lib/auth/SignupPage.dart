@@ -74,10 +74,11 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // Set the AppBar background color to white
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black), // Set the arrow color to black for visibility
+          icon: const Icon(Icons.arrow_back, color: Colors.black),  // 뒤로가기 버튼
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -85,10 +86,10 @@ class _SignupPageState extends State<SignupPage> {
             );
           },
         ),
-        elevation: 0, // Remove the shadow from the AppBar
+        elevation: 0,
       ),
       body: Container(
-        color: Colors.white, // Set the background color of the body to white
+        color: Colors.white,
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
           child: Column(
@@ -100,7 +101,6 @@ class _SignupPageState extends State<SignupPage> {
               ),
               const SizedBox(height: 40),
 
-              // Call SignupUI to manage the form UI
               SignupUI(
                 nameController: _nameController,
                 emailController: _emailController,
