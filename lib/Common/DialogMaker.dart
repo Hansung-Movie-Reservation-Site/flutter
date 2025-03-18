@@ -7,6 +7,7 @@ class DialogMaker {
       builder: (context) {
         return AlertDialog(
           title: Text(title),
+          backgroundColor: Colors.white,
           content: Text(content),
           actions: <Widget>[
             TextButton(
