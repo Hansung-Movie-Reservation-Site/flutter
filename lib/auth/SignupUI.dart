@@ -44,7 +44,7 @@ class SignupUI extends StatelessWidget {
         _buildInputField(controller: emailController, label: '이메일', errorText: emailError),
         const SizedBox(height: 15),
 
-        // 이메일 인증 버튼 and message
+        // 이메일 인증 버튼
         Row(
           children: [
             SizedBox(
@@ -86,7 +86,7 @@ class SignupUI extends StatelessWidget {
         _buildInputField(controller: passwordController, label: '비밀번호', errorText: passwordError, obscureText: true),
         const SizedBox(height: 15),
         _buildInputField(controller: confirmPasswordController, label: '비밀번호 확인', errorText: confirmPasswordError, obscureText: true),
-        const SizedBox(height: 100),
+        const SizedBox(height: 50),
 
         // 회원가입 버튼
         SizedBox(
@@ -103,6 +103,7 @@ class SignupUI extends StatelessWidget {
             child: const Text('회원가입', style: TextStyle(fontSize: 16, color: Colors.white)),
           ),
         ),
+        const SizedBox(height: 50),
       ],
     );
   }

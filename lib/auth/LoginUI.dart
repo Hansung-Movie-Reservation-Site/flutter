@@ -42,7 +42,7 @@ class LoginUI extends StatelessWidget {
         if (errorMessage.isNotEmpty)
           _buildErrorMessage(errorMessage),
 
-        const SizedBox(height: 150), // 여백 조정
+        const SizedBox(height: 150),
 
         // 회원가입 안내 문구
         const Text(
@@ -57,7 +57,6 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // Reusable method for creating input fields
   Widget _buildInputField({
     required TextEditingController controller,
     required String label,
@@ -75,7 +74,7 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // Reusable method for creating the login button
+  // 로그인 버튼
   Widget _buildLoginButton(VoidCallback onPressed) {
     return SizedBox(
       width: double.infinity,
@@ -96,7 +95,7 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // Reusable method for displaying error messages
+  // 에러 메세지
   Widget _buildErrorMessage(String message) {
     return Text(
       message,
@@ -104,7 +103,7 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // Reusable method for creating the sign-up button
+  // 회원가입 버튼
   Widget _buildSignUpButton(VoidCallback onPressed) {
     return SizedBox(
       width: double.infinity,

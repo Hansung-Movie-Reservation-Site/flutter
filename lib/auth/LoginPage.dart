@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 160), // 로그인 폼과의 간격 추가
+              const SizedBox(height: 160),
 
               // 로그인 안내 문구
               const Text(
@@ -54,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 32),
 
-              // Call the LoginUI widget for input fields and buttons
               LoginUI(
                 emailController: _emailController,
                 passwordController: _passwordController,
