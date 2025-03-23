@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +9,9 @@ class MovieCategoryChips extends StatefulWidget {
 }
 
 class _MovieCategoryChipsState extends State<MovieCategoryChips> {
-  final List<String> categories = ['내 극장만', '별점 순', '관객수 순'];
-  String selectedCategory = '별점 순'; // 기본 선택값
+  late final DateTime date;
+  final List<String> categories = [/*데이터 받아서 이곳에 삽입*/];
+  String selectedCategory = ''; // 기본 선택값
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +20,18 @@ class _MovieCategoryChipsState extends State<MovieCategoryChips> {
       child: Wrap(
         spacing: 10, // Chip 간 간격
         children: categories.map((category) {
+          bool isSelected = category == selectedCategory;
           return ChoiceChip(
-            label: Text(category),
-            selected: selectedCategory == category,
+            label: Text(
+              category,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black, // 선택시 글자 색상 변환
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            selected: isSelected,
             selectedColor: Colors.redAccent, // 선택된 배경색
             backgroundColor: Colors.grey[200], // 선택 안 됐을 때 배경색
-            labelStyle: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
             onSelected: (_) {
               setState(() {
                 selectedCategory = category;

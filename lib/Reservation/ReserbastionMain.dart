@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie/auth/SignupPage.dart';
+import 'package:video_player/video_player.dart';
 import '../Common/MovieCategoryChips.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
@@ -18,79 +19,27 @@ class Product {
   });
 }
 
-class ProductListPage extends StatefulWidget {
-  const ProductListPage({super.key});
+class ReservationMain extends StatefulWidget {
+  const ReservationMain({super.key});
 
 
   @override
-  State<ProductListPage> createState() => _ProductListPageState();
+  State<ReservationMain> createState() => _ReservationMainState();
 }
 
-class _ProductListPageState extends State<ProductListPage> {
+class _ReservationMainState extends State<ReservationMain> {
+  late VideoPlayerController _controller;
 
   String searchKeyword = ''; // 검색어 상태
 
-  // 검색 필터링 함수
-  List<Product> get filteredProducts {
-    if (searchKeyword.isEmpty) return products;
-    return products
-        .where((p) => p.name.contains(searchKeyword))
-        .toList();
-  }
-
-  //더미 데이터
-  final List<Product> products = [
-    Product(
-        name: '미키 17',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '스트리밍',
-        price: 8.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89483/89483_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '백설공주',
-        price: 12.50,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000088/88630/88630_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '승부',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89485/89485_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '3일',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89461/89461_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '퇴마록',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89386/89386_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '플로우',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89450/89450_320.jpg',
-        director: '봉준호'
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('영화부기'),
+        title: const Text('AI가 추천하는 영화'),
         actions: [
-          IconButton( // 검색 아이콘 관련
+          IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               showModalBottomSheet(
@@ -101,9 +50,9 @@ class _ProductListPageState extends State<ProductListPage> {
                   return GestureDetector(
                     onTap: () => FocusScope.of(context).unfocus(),
                     child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
                       child: SearchModalWidget(
                           onSearch: (searchKeyword) {
                             setState(() {
@@ -137,8 +86,8 @@ class _ProductListPageState extends State<ProductListPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
                       'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg',
-                      width: 160,
-                      height: 240,
+                      width: 220,
+                      height: 330,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -151,14 +100,15 @@ class _ProductListPageState extends State<ProductListPage> {
                       children: [
                         const Text(
                           '미키 17 (15세)',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
-                        const Text('2시간 17분', style: TextStyle(fontSize: 16)),
+                        const Text('2시간 17분', style: TextStyle(fontSize: 18)),
+                        const Text('내 상영관 (건대입구)', style: TextStyle(fontSize: 18)),
                         const SizedBox(height: 4),
-                        const Text('감독: 봉준호', style: TextStyle(fontSize: 16)),
-                        const Text('장르: 어드벤처, SF, 드라마', style: TextStyle(fontSize: 16)),
-                        const Text('개봉: 2025.02.28', style: TextStyle(fontSize: 16)),
+                        const Text('감독: 봉준호', style: TextStyle(fontSize: 18)),
+                        const Text('장르: 어드벤처, SF, 드라마', style: TextStyle(fontSize: 18)),
+                        const Text('개봉: 2025.02.28', style: TextStyle(fontSize: 18)),
                         const SizedBox(height: 10),
 
                         // 예매하기 버튼
@@ -215,61 +165,6 @@ class _ProductListPageState extends State<ProductListPage> {
               const SizedBox(height: 8),
               // 영화 목록 (GridView 등)
             ],
-          ),
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 20,
-            childAspectRatio: 0.65,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: products.map((product) {
-              return Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 3),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          product.imageUrl,
-                          width: double.infinity,
-                          height: 195, //이미지 크기
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween, //좌우 정렬
-                          children: [
-                            Text(
-                              product.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: IconButton(
-                                icon: const Icon(Icons.keyboard_arrow_right),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const SignupPage()), //이후 수정해야함
-                                  );
-                                },
-                              ),
-                            ),
-                          ]
-                      )
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
           ),
         ],
       ),

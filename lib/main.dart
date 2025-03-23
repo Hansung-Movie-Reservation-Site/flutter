@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/Common/navbar.dart';
 import 'package:movie/Recommend/recommendpage.dart';
+import 'package:movie/mypage/Mypage_logout.dart';
+
 
 
 void main() {
@@ -16,6 +18,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: ProductListPage(),
+
+      routes: {
+        '/recommendpage': (context) => ProductListPage(),
+        '/MyPage_Logout': (context) => MyPage_Logout(),
+      },
     );
   }
 }

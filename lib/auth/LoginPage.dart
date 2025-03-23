@@ -3,6 +3,7 @@ import 'package:movie/auth/LoginUI.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
 import 'package:movie/auth/LoginFeatures.dart';
+import 'package:movie/Common/navbar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
