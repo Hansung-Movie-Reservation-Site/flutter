@@ -3,6 +3,7 @@ import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/Common/navbar.dart';
 import 'package:movie/Recommend/recommendpage.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
+import 'package:movie/mypage/ProfilePage.dart';
 
 
 
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ProductListPage(),
+      home: ProfilePage(),
 
       routes: {
         '/recommendpage': (context) => ProductListPage(),

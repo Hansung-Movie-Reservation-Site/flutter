@@ -101,7 +101,7 @@ class ProfileUI {
             children: [
               TextField(
                 controller: newNameController,
-                obscureText: true,
+                obscureText: false,
                 decoration: const InputDecoration(labelText: "이름"),
               ),
             ],

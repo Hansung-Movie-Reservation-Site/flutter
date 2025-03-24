@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:movie/auth/SignupPage.dart';
-import 'package:video_player/video_player.dart';
 import '../Common/MovieCategoryChips.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
@@ -28,7 +27,6 @@ class ReservationMain extends StatefulWidget {
 }
 
 class _ReservationMainState extends State<ReservationMain> {
-  late VideoPlayerController _controller;
 
   String searchKeyword = ''; // 검색어 상태
 
