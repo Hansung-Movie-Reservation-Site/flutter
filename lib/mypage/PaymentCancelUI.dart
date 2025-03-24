@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../Common/DialogMaker.dart';
+
 class PaymentCancelUI extends StatefulWidget {
   final List<Map<String, String>> paymentcancel;
 
@@ -116,6 +118,11 @@ class _PaymentCancelUIState extends State<PaymentCancelUI> {
                         right: 8,
                         child: ElevatedButton(
                           onPressed: () {
+                            DialogMaker.dialog(
+                              context, // Pass the context here
+                              '결제취소 확인',
+                              '결제 취소 하시겠습니까?',
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.redAccent,
