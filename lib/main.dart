@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/', // 기본 화면
         routes: {
         // '/': (context) => const LoginPage(), // 로그인 페이지
-          '/': (context) => const MovieScreen()
-       // '/movie': (context) => const MovieScreen(), // 영화 예매 페이지
+        '/movie': (context) => const MovieScreen(), // 영화 예매 페이지
          }
     );
   }
