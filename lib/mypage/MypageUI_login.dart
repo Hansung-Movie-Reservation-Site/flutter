@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:movie/mypage/ProfilePage.dart';
 import '../Common/DialogMaker.dart';
+import '../auth/AuthService.dart'; // AuthService 추가
 
 // 로그인 마이페이지 UI
-// 네비게이션바 : 현성님이 만들면 추가할 예정
 
 class MyPageUI_Login {
-
-  static Widget buildLoginCard(BuildContext context) {
+  static Widget buildLoginCard(BuildContext context, String username) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -33,7 +32,7 @@ class MyPageUI_Login {
             SizedBox(width: 15),
             Expanded(
               child: Text(
-                '(사용자이름) 님 안녕하세요!',  // API 연동으로 로그인한 사용자 이름 나타나게 할 예정
+                '$username 님 안녕하세요!', // API 연동으로 로그인한 사용자 이름 나타나게 할 예정
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -83,12 +82,33 @@ class MyPageUI_Login {
   // 로그아웃 버튼
   static Widget buildLogoutButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        DialogMaker.dialog(
-          context, // Pass the context here
-          '로그아웃 확인',
-          '로그아웃 하시겠습니까?',
-        );
+      onTap: () async {
+        bool confirmLogout = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('로그아웃 확인'),
+            content: Text('로그아웃 하시겠습니까?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('확인'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('취소'),
+              ),
+            ],
+          ),
+        ) ?? false;
+
+        if (confirmLogout) {
+          await AuthService.logout();
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/MyPage_Logout',
+                (route) => false, // 모든 이전 페이지 제거
+          );
+        }
       },
       child: Container(
         width: 450,
@@ -121,6 +141,4 @@ class MyPageUI_Login {
       ),
     );
   }
-
 }
-

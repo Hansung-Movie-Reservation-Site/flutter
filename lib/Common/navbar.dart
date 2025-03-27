@@ -2,8 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/Recommend/recommendpage.dart';
 
-class NavBar extends StatelessWidget {
+import '../auth/AuthService.dart';
+
+class NavBar extends StatefulWidget {
   const NavBar({super.key});
+
+  @override
+  State<NavBar> createState() => _NavBarState();
+}
+
+class _NavBarState extends State<NavBar> {
+  String myPageRoute = '/MyPage_Logout'; // 기본값
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  // 로그인 여부 확인 후 경로 변경
+  Future<void> _checkLoginStatus() async {
+    bool isLoggedIn = await AuthService.isLoggedIn();
+    setState(() {
+      myPageRoute = isLoggedIn ? '/MyPage_Login' : '/MyPage_Logout';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +57,7 @@ class NavBar extends StatelessWidget {
             context,
             icon: Icons.map_outlined,
             label: '예매',
-            routeName: '', //이후 수정
+            routeName: '', // 이후 수정 필요
             isActive: currentPage == '',
             activeColor: activeColor,
             inactiveColor: inactiveColor,
@@ -43,8 +66,8 @@ class NavBar extends StatelessWidget {
             context,
             icon: Icons.person_outline,
             label: '마이페이지',
-            routeName: '/MyPage_Logout', //이후 수정
-            isActive: currentPage == '/MyPage_Logout',
+            routeName: myPageRoute,
+            isActive: currentPage == myPageRoute,
             activeColor: activeColor,
             inactiveColor: inactiveColor,
           ),

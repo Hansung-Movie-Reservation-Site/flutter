@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie/auth/AuthService.dart';
 
 class ProfileUI {
 
@@ -88,6 +89,8 @@ class ProfileUI {
 
   // 이름 변경 다이얼로그
   static void showNameChangeDialog(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
     TextEditingController newNameController = TextEditingController();
 
     showDialog(
@@ -100,9 +103,19 @@ class ProfileUI {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                controller: emailController,
+                obscureText: false,
+                decoration: const InputDecoration(labelText: "현재 이메일"),
+              ),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: "현재 비밀번호"),
+              ),
+              TextField(
                 controller: newNameController,
                 obscureText: false,
-                decoration: const InputDecoration(labelText: "이름"),
+                decoration: const InputDecoration(labelText: "바꿀 이름"),
               ),
             ],
           ),
@@ -110,14 +123,11 @@ class ProfileUI {
             // 확인 버튼, 완료 네비게이션바 표시
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("이름 변경이 완료되었습니다.", style: TextStyle(color: Colors.black)),
-                    backgroundColor: Colors.white,
-                    behavior: SnackBarBehavior.floating,
-                    elevation: 4,
-                  ),
+                AuthService.changeName( //변경 즉시 갱신되게 하고 싶은데 알아보는중
+                  context: context,
+                  email: emailController.text,
+                  password: passwordController.text,
+                  after: newNameController.text,
                 );
               },
               child: const Text("확인"),
@@ -137,7 +147,8 @@ class ProfileUI {
 // 이메일 변경 다이얼로그
   static void showEmailChangeDialog(BuildContext context) {
     TextEditingController emailController = TextEditingController();
-    TextEditingController verificationCodeController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
+    TextEditingController newEmailController = TextEditingController();
 
     showDialog(
       context: context,
@@ -148,67 +159,77 @@ class ProfileUI {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 이메일 입력 필드
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: "새 이메일"),
+                obscureText: false,
+                decoration: const InputDecoration(labelText: "현재 이메일"),
               ),
-              const SizedBox(height: 16),
-
-              // 이메일 인증 버튼
-              Row(
-                children: [
-                  // 인증 코드 입력 필드
-                  Expanded(
-                    child: TextField(
-                      controller: verificationCodeController,
-                      decoration: const InputDecoration(labelText: "인증 코드"),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  // 이메일 인증 버튼
-                  ElevatedButton(
-                    onPressed: () {
-                      // 이메일 인증 로직을 추가
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("이메일 인증 코드가 발송되었습니다.", style: TextStyle(color: Colors.black)),
-                          backgroundColor: Colors.white,
-                          behavior: SnackBarBehavior.floating,
-                          elevation: 4,
-                        ),
-                      );
-                    },
-                    child: const Text("이메일 인증"),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    ),
-                  ),
-                ],
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: "현재 비밀번호"),
               ),
+              TextField(
+                controller: newEmailController,
+                obscureText: false,
+                decoration: const InputDecoration(labelText: "바꿀 이메일"),
+              ),
+              // // 이메일 입력 필드 추후 복구 예정
+              // TextField(
+              //   controller: emailController,
+              //   decoration: const InputDecoration(labelText: "새 이메일"),
+              // ),
+              // const SizedBox(height: 16),
+              //
+              // // 이메일 인증 버튼
+              // Row(
+              //   children: [
+              //     // 인증 코드 입력 필드
+              //     Expanded(
+              //       child: TextField(
+              //         controller: verificationCodeController,
+              //         decoration: const InputDecoration(labelText: "인증 코드"),
+              //       ),
+              //     ),
+              //     const SizedBox(width: 10),
+              //
+              //     // 이메일 인증 버튼
+              //     ElevatedButton(
+              //       onPressed: () {
+              //         // 이메일 인증 로직을 추가
+              //         ScaffoldMessenger.of(context).showSnackBar(
+              //           const SnackBar(
+              //             content: Text("이메일 인증 코드가 발송되었습니다.", style: TextStyle(color: Colors.black)),
+              //             backgroundColor: Colors.white,
+              //             behavior: SnackBarBehavior.floating,
+              //             elevation: 4,
+              //           ),
+              //         );
+              //       },
+              //       child: const Text("이메일 인증"),
+              //       style: ElevatedButton.styleFrom(
+              //         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
           actions: [
-            // 확인 버튼
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // 확인을 눌렀을 때 다이얼로그 닫기
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("이메일 변경이 완료되었습니다.", style: TextStyle(color: Colors.black)),
-                    backgroundColor: Colors.white,
-                    behavior: SnackBarBehavior.floating,
-                    elevation: 4,
-                  ),
+                AuthService.changeEmail(
+                  context: context,
+                  email: emailController.text,
+                  password: passwordController.text,
+                  after: newEmailController.text,
                 );
               },
               child: const Text("확인"),
             ),
-            // 취소 버튼
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // 다이얼로그 닫기
+                Navigator.pop(context);
               },
               child: const Text("취소"),
             ),
@@ -220,8 +241,9 @@ class ProfileUI {
 
   // 비밀번호 변경 다이얼로그
   static void showPasswordChangeDialog(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
     TextEditingController newPasswordController = TextEditingController();
-    TextEditingController confirmPasswordController = TextEditingController();
 
     showDialog(
       context: context,
@@ -233,12 +255,17 @@ class ProfileUI {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: newPasswordController,
+                controller: emailController,
+                obscureText: false,
+                decoration: const InputDecoration(labelText: "현재 이메일"),
+              ),
+              TextField(
+                controller: passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(labelText: "기존 비밀번호"),
               ),
               TextField(
-                controller: confirmPasswordController,
+                controller: newPasswordController,
                 obscureText: true,
                 decoration: const InputDecoration(labelText: "새 비밀번호"),
               ),
@@ -247,19 +274,15 @@ class ProfileUI {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("비밀번호 변경이 완료되었습니다.", style: TextStyle(color: Colors.black)),
-                    backgroundColor: Colors.white,
-                    behavior: SnackBarBehavior.floating,
-                    elevation: 4,
-                  ),
+                AuthService.changePassword(
+                  context: context,
+                  email: emailController.text,
+                  password: passwordController.text,
+                  after: newPasswordController.text,
                 );
               },
               child: const Text("확인"),
             ),
-            // 취소 버튼
             TextButton(
               onPressed: () {
                 Navigator.pop(context);

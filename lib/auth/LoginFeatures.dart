@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/DialogMaker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' show Platform;
@@ -27,10 +28,22 @@ class LoginFeatures {
       }),
     );
 
+    final responseData = json.decode(response.body);
     if (response.statusCode == 200) {
-      DialogMaker.dialog(context, '로그인 성공!', '확인 코드: ${response.statusCode}');
+
+      int userId = responseData['userDetailDTO']['user_id'];
+      String userName = responseData['userDetailDTO']['username'];
+      String userEmail = responseData['userDetailDTO']['email'];
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('user_id', userId);
+      await prefs.setString('username', userName);
+      await prefs.setString('email', userEmail);
+      await prefs.setBool('isLoggedIn', true);
+      await DialogMaker.dialog(context, '로그인 성공!', '환영합니다! $userName님');
+      Navigator.pushNamed(context, '/recommendpage');
     } else {
-      DialogMaker.dialog(context, '로그인 실패', '이메일: $email\n 에러 코드: ${response.statusCode}');
+      DialogMaker.dialog(context, '로그인 실패', '에러 코드: ${response.statusCode}');
     }
   }
 }

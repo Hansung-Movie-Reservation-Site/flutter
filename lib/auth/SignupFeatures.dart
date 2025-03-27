@@ -4,6 +4,7 @@ import '../Common/DialogMaker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:movie/auth/LoginPage.dart';
 
 class SignupFeautures {
   static Future<void> signup({
@@ -13,10 +14,10 @@ class SignupFeautures {
     required final String password,
   }) async {
     final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/user/login'
+        ? "http://localhost:8080/api/v1/user/createUser"
         : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/user/login'
-        : 'http://localhost:8080/api/v1/user/login';
+        ? "http://10.0.2.2:8080/api/v1/user/createUser"
+        : "http://localhost:8080/api/v1/user/createUser";
     final response = await http.post(
       Uri.parse(url), // 백엔드 API URL
       headers: <String, String>{
@@ -30,7 +31,8 @@ class SignupFeautures {
     );
 
     if (response.statusCode == 200) {
-      DialogMaker.dialog(context, '회원가입 성공!', '이메일: $email\n 확인 코드: ${response.statusCode}');
+      await DialogMaker.dialog(context, '회원가입 성공!', '이메일: $email\n 확인 코드: ${response.statusCode}');
+      Navigator.pushNamed(context, 'LoginPage');
     } else {
       DialogMaker.dialog(context, '로그인 실패', '이메일: $email\n 에러 코드: ${response.statusCode}');
     }
@@ -41,9 +43,13 @@ class SignupFeautures {
     required final String email,
     required final String verifyCode
   }) async {
-
+    final String url = kIsWeb // 백엔드 API URL 설정
+        ? 'http://localhost:8080/api/v1/user/check'
+        : Platform.isAndroid
+        ? 'http://10.0.2.2:8080/api/v1/user/check'
+        : 'http://localhost:8080/api/v1/user/check';
     final response = await http.post(
-      Uri.parse('http://localhost:8080/api/v1/email/check'),
+      Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
