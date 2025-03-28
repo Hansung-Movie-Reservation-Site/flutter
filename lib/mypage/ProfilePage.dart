@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:movie/mypage/Mypage_login.dart';
+import 'package:movie/auth/AuthService.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'ProfileUI.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? '알 수 없음';
+      email = prefs.getString('email') ?? '알 수 없음';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,11 +57,11 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 40),
-            ProfileUI.buildProfileField('이름', '홍길동'),
+            ProfileUI.buildProfileField('이름', username),
             const SizedBox(height: 30),
-            ProfileUI.buildProfileField('이메일', 'sample@gmail.com'),
+            ProfileUI.buildProfileField('이메일', email),
             const SizedBox(height: 30),
-            ProfileUI.buildProfileField('비밀번호', '1234'),
+            ProfileUI.buildProfileField('내 극장', '건대 입구'),
             const SizedBox(height: 30),
             const Spacer(),
             ProfileUI.buildMemberSettings(context),

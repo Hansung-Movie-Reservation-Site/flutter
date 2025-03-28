@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/reserve/movieScreen.dart';
+import 'package:movie/Common/navbar.dart';
+import 'package:movie/Recommend/recommendpage.dart';
+import 'package:movie/mypage/Mypage_logout.dart';
+import 'package:movie/mypage/ProfilePage.dart';
+import 'mypage/Mypage_login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,11 +18,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-        initialRoute: '/', // 기본 화면
-        routes: {
-        //'/': (context) => const LoginPage(), // 로그인 페이지
-          '/': (context) => const MovieScreen(),
-         }
+      home: ProductListPage(),
+
+      routes: {
+        '/recommendpage': (context) => ProductListPage(),
+        '/MyPage_Logout': (context) => MyPage_Logout(),
+        '/MyPage_Login': (context) => MyPage_Login(),
+        '/ProfilePage': (context) => ProfilePage(),
+      },
     );
   }
 }

@@ -1,10 +1,16 @@
 import 'package:dio/dio.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class ApiService {
-  // flutter run -d chrome --web-port=8000 무조건 터미널에서 이 명령어로 실행.
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: "http://localhost:8080/api/", // 서버 기본 URL 설정
+      baseUrl: kIsWeb // 백엔드 API URL 설정
+          ? 'http://localhost:8080/api/'
+          : Platform.isAndroid
+          ? 'http://10.0.2.2:8080/api/'
+          : 'http://localhost:8080/api/',
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",

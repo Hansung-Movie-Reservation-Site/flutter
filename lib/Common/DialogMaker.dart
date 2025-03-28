@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 
 class DialogMaker {
-  static void dialog(BuildContext context, String title, String content) {
-    showDialog(
+  static Future<void> dialog(BuildContext context, String title, String message) {
+    return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          backgroundColor: Colors.white,
-          content: Text(content),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('확인'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // 다이얼로그 닫기
+            child: const Text('확인'),
+          ),
+        ],
+      ),
     );
   }
+
 }
