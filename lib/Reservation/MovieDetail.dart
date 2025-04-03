@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
 
@@ -17,8 +18,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String Mytheater = '건대입구'; //장르
   String StartDate = '개봉날짜'; ///개봉날짜(이건 임시 값 추후에 정해야함)
   String Director = '감독명';
-  String ShortStory = '줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리'; //줄거리
+  String ShortStory = '줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리'; //줄거리
   String imageUrl = 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg';
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
 
   @override
@@ -27,8 +34,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       appBar: AppBar(
         title: const Text('영화부기'),
       ),
-      body:
-        Column(
+      body: SingleChildScrollView(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -80,26 +87,26 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                             style: const TextStyle(fontSize: 16),
                           ),
                           Align( /// 예매 버튼
-                            alignment: Alignment.centerRight,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                // 버튼 클릭 시 실행할 코드
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Colors.grey), // 테두리 색상
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10), // 둥근 테두리
+                              alignment: Alignment.centerRight,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  // 버튼 클릭 시 실행할 코드
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(color: Colors.grey), // 테두리 색상
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10), // 둥근 테두리
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 안쪽 여백
                                 ),
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 안쪽 여백
-                              ),
-                              child: Text(
-                                '예매 하기',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
+                                child: Text(
+                                  '예매 하기',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                           ),
                         ]
                     )
@@ -108,40 +115,74 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
               ),
             ),
             const SizedBox(height: 20),
-            Text( /// 개봉 날짜
-              '이곳에 예고편 동영상 삽입 예정',
-              style: const TextStyle(fontSize: 16),
+
+            Padding( // 예고편 동영상
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child:
+              SizedBox(
+                height: 200,
+                child: WebViewWidget(
+                  controller: WebViewController()
+                    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                    ..loadRequest(Uri.parse('https://www.youtube.com/embed/MFXWhpcuIg4')),
+                ),
+              ),
             ),
+
             const SizedBox(height: 30),
-            ExpandableText( // 더보기 기능 있는 텍스트 상자
+
+            Padding( // 더보기 기능 있는 텍스트 상자
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child:
+              ExpandableText( // 더보기 기능 있는 텍스트 상자 함수
                 text: ShortStory,
                 maxLines: 3,
+              ),
             ),
+
             const SizedBox(height: 30),
-            Container(
-              child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '등장인물 / 감독',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    const SizedBox(height: 10),
-                    ClipOval(
-                      child: Image.network(
-                        imageUrl,
-                        width: 20,
-                        height: 30, //이미지 크기
-                        fit: BoxFit.cover,
+
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '등장인물 / 감독',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
-                    ),
+                      Row (
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Column( //감독 및 등장인물이 실제로 출력되는 부분인데 추후에 받는 데이터의 갯수에 따라 조절해야함 (함수 추가)
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const SizedBox(height: 10),
+                                ClipOval(
+                                  child: Image.network(
+                                    imageUrl,
+                                    width: 80,
+                                    height: 80, //이미지 크기
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Text(
+                                  Director,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ]
+                          )
+                        ],
+                      )
+
                     ]
-              )
-            )
-
+                )
+            ),
           ],
+        ),
+      )
 
-        )
     );
   }}
