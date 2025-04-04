@@ -182,7 +182,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ),
           ],
         ),
-      )
-
+      ),
+        bottomNavigationBar: const NavBar(),
     );
   }}

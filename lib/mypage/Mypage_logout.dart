@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:movie/mypage/MypageUI_logout.dart';
 
+import '../Common/navbar.dart';
+
 // 로그아웃 상태일 때 나타나는 마이페이지
 class MyPage_Logout extends StatelessWidget {
   @override
@@ -27,6 +29,7 @@ class MyPage_Logout extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const NavBar(),
     );
   }
 }
