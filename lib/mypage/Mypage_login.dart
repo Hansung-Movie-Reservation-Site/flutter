@@ -6,6 +6,8 @@ import 'package:movie/mypage/PaymentCancelPage.dart';
 import 'package:movie/mypage/MypageUI_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Common/navbar.dart';
+
 // 로그인 상태일 때 나타나는 마이페이지 화면
 
 class MyPage_Login extends StatefulWidget {
@@ -60,6 +62,7 @@ class _MyPage_LoginState extends State<MyPage_Login> {
           MyPageUI_Login.buildLogoutButton(context),
         ],
       ),
+      bottomNavigationBar: const NavBar(),
     );
   }
 }
