@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie/auth/AuthService.dart';
+import 'package:movie/auth/SignupFeatures.dart';
+import 'package:movie/Common/ApiService.dart';
 
 class ProfileUI {
 
@@ -125,7 +127,6 @@ class ProfileUI {
               onPressed: () {
                 AuthService.changeName( //변경 즉시 갱신되게 하고 싶은데 알아보는중
                   context: context,
-                  email: emailController.text,
                   password: passwordController.text,
                   after: newNameController.text,
                 );
@@ -146,94 +147,125 @@ class ProfileUI {
 
 // 이메일 변경 다이얼로그
   static void showEmailChangeDialog(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController newEmailController = TextEditingController();
+    TextEditingController verificationCodeController = TextEditingController();
+    bool EmailCheck = false;
+    final ApiService _apiService = ApiService();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("이메일 변경"),
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: emailController,
-                obscureText: false,
-                decoration: const InputDecoration(labelText: "현재 이메일"),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("이메일 변경"),
+              backgroundColor: Colors.white,
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: "현재 비밀번호"),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: newEmailController,
+                          decoration: const InputDecoration(labelText: "새 이메일"),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (newEmailController != null)
+                          {
+                            await _apiService.sendVerificationEmail("v1/email/send", {"email": newEmailController.text});
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("인증번호가 전송되었습니다.", style: TextStyle(color: Colors.black)),
+                                backgroundColor: Colors.white,
+                                behavior: SnackBarBehavior.floating,
+                                elevation: 4,
+                              ),
+                            );
+                          }
+                          else
+                          {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("이메일을 입력해 주세요.", style: TextStyle(color: Colors.black)),
+                                backgroundColor: Colors.white,
+                                behavior: SnackBarBehavior.floating,
+                                elevation: 4,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        ),
+                        child: const Text("전송"),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // 이메일 인증 버튼
+                  Row(
+                    children: [
+                      // 인증 코드 입력 필드
+                      Expanded(
+                        child: TextField(
+                          controller: verificationCodeController,
+                          decoration: const InputDecoration(labelText: "인증 코드"),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // 이메일 인증 버튼
+                      ElevatedButton(
+                        onPressed: () async {
+                          bool isVerified = await SignupFeautures.emailCheck(
+                            email: newEmailController.text,
+                            verifyCode: verificationCodeController.text,
+                          );
+                          setState(() {
+                            EmailCheck = isVerified;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(EmailCheck ? "인증되었습니다." : "인증번호가 틀렸습니다."),
+                              backgroundColor: Colors.white,
+                            )
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        ),
+                        child: const Text("인증"),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "현재 비밀번호"),
-              ),
-              TextField(
-                controller: newEmailController,
-                obscureText: false,
-                decoration: const InputDecoration(labelText: "바꿀 이메일"),
-              ),
-              // // 이메일 입력 필드 추후 복구 예정
-              // TextField(
-              //   controller: emailController,
-              //   decoration: const InputDecoration(labelText: "새 이메일"),
-              // ),
-              // const SizedBox(height: 16),
-              //
-              // // 이메일 인증 버튼
-              // Row(
-              //   children: [
-              //     // 인증 코드 입력 필드
-              //     Expanded(
-              //       child: TextField(
-              //         controller: verificationCodeController,
-              //         decoration: const InputDecoration(labelText: "인증 코드"),
-              //       ),
-              //     ),
-              //     const SizedBox(width: 10),
-              //
-              //     // 이메일 인증 버튼
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         // 이메일 인증 로직을 추가
-              //         ScaffoldMessenger.of(context).showSnackBar(
-              //           const SnackBar(
-              //             content: Text("이메일 인증 코드가 발송되었습니다.", style: TextStyle(color: Colors.black)),
-              //             backgroundColor: Colors.white,
-              //             behavior: SnackBarBehavior.floating,
-              //             elevation: 4,
-              //           ),
-              //         );
-              //       },
-              //       child: const Text("이메일 인증"),
-              //       style: ElevatedButton.styleFrom(
-              //         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                AuthService.changeEmail(
-                  context: context,
-                  email: emailController.text,
-                  password: passwordController.text,
-                  after: newEmailController.text,
-                );
-              },
-              child: const Text("확인"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("취소"),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: EmailCheck ? () {
+                    AuthService.changeEmail(
+                      context: context,
+                      password: passwordController.text,
+                      after: newEmailController.text,
+                    );
+                  } : null, //EmailCheck가 false면 확인 버튼 안눌림
+                  child: const Text("확인"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("취소"),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -276,7 +308,7 @@ class ProfileUI {
               onPressed: () {
                 AuthService.changePassword(
                   context: context,
-                  email: emailController.text,
+                  // email: emailController.text,
                   password: passwordController.text,
                   after: newPasswordController.text,
                 );

@@ -81,7 +81,6 @@ class AuthService {
   ///이름 변경
   static Future<void> changeName({
     required BuildContext context,
-    required final String email,
     required final String password,
     required final String after,
   }) async {
@@ -90,13 +89,15 @@ class AuthService {
         : Platform.isAndroid
         ? 'http://10.0.2.2:8080/api/v1/detail/change/username'
         : 'http://localhost:8080/api/v1/detail/change/username';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id');
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: json.encode({
-        "email": email,
+        "user_id": userId,
         "password": password,
         "after": after,
       }),
@@ -120,7 +121,6 @@ class AuthService {
   ///비밀번호 변경
   static Future<void> changePassword({
     required BuildContext context,
-    required final String email,
     required final String password,
     required final String after,
   }) async {
@@ -129,13 +129,15 @@ class AuthService {
         : Platform.isAndroid
         ? 'http://10.0.2.2:8080/api/v1/detail/change/password'
         : 'http://localhost:8080/api/v1/detail/change/password';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id');
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: json.encode({
-        "email": email,
+        "user_id": userId,
         "password": password,
         "after": after,
       }),
@@ -158,7 +160,6 @@ class AuthService {
 
   static Future<void> changeEmail({
     required BuildContext context,
-    required final String email,
     required final String password,
     required final String after,
   }) async {
@@ -167,14 +168,15 @@ class AuthService {
         : Platform.isAndroid
         ? 'http://10.0.2.2:8080/api/v1/detail/change/email'
         : 'http://localhost:8080/api/v1/detail/change/email';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id');
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
       body: json.encode({
-        "email": email,
-        "password": password,
+        "user_id": userId,
         "after": after,
       }),
     );

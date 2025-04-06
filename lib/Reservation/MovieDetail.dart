@@ -20,8 +20,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String Director = '감독명';
   String ShortStory = '줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리'; //줄거리
   String imageUrl = 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg';
-
-
+  
+  ///리뷰 페이지 여기에 넣을거임 추가해야함
+  ///
+  
   @override
   void initState() {
     super.initState();
