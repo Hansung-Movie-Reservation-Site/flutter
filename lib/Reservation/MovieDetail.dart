@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
+import 'DetailReservation.dart';
 
 class MovieDetailPage extends StatefulWidget {
   const MovieDetailPage({super.key});
@@ -12,18 +13,19 @@ class MovieDetailPage extends StatefulWidget {
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
   //나중에 객체로 받을 예정
-  String MovieName = '미키 17'; //영화 이름
-  String Runtime = '상영시간'; ///상영시간(이건 임시 값 추후에 정해야함)
+  String movieName = '미키 17'; //영화 이름
+  String runTime = '상영시간'; ///상영시간(이건 임시 값 추후에 정해야함)
   String Genre = '장르'; //장르
   String Mytheater = '건대입구'; //장르
   String StartDate = '개봉날짜'; ///개봉날짜(이건 임시 값 추후에 정해야함)
   String Director = '감독명';
   String ShortStory = '줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리'; //줄거리
   String imageUrl = 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg';
-  
+  String cinema = '건대입구';
+
   ///리뷰 페이지 여기에 넣을거임 추가해야함
   ///
-  
+
   @override
   void initState() {
     super.initState();
@@ -65,11 +67,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween, //좌우 정렬
                         children: [
                           Text( /// 영화 제목
-                            MovieName,
+                            movieName,
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
                           ),
                           Text( /// 상영 시간
-                            Runtime,
+                            runTime,
                             style: const TextStyle(fontSize: 18),
                           ),
                           Text( /// 내 영화관
@@ -92,7 +94,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               alignment: Alignment.centerRight,
                               child: OutlinedButton(
                                 onPressed: () {
-                                  // 버튼 클릭 시 실행할 코드
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => DetailReservation(
+                                          movieName: movieName,
+                                          cinema: cinema,
+                                          runTime: runTime)));
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: Colors.grey), // 테두리 색상
@@ -185,6 +192,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           ],
         ),
       ),
-        bottomNavigationBar: const NavBar(),
+      bottomNavigationBar: const NavBar(),
     );
   }}

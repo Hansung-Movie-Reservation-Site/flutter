@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/reserve/movieScreen.dart';
 import 'package:movie/Common/navbar.dart';
@@ -6,10 +7,12 @@ import 'package:movie/Recommend/recommendpage.dart';
 import 'package:movie/Reservation/MovieDetail.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/mypage/ProfilePage.dart';
+import 'package:movie/Reservation/ReservastionMain.dart';
 import 'mypage/Mypage_login.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
+  await initializeDateFormatting('ko');
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/MyPage_Logout': (context) => MyPage_Logout(),
         '/MyPage_Login': (context) => MyPage_Login(),
         '/ProfilePage': (context) => ProfilePage(),
+        '/Reservation': (context) => ReservationMain(),
       },
     );
   }

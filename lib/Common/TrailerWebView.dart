@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TrailerWebView extends StatefulWidget {
+class TrailerWebView extends StatefulWidget { // 디테일 페이지에 예고편 넣을 때 사용함
   const TrailerWebView({super.key});
 
   @override

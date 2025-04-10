@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/Recommend/recommendpage.dart';
+import 'package:movie/Reservation/ReservastionMain.dart';
 
 import '../auth/AuthService.dart';
 
@@ -57,8 +58,8 @@ class _NavBarState extends State<NavBar> {
             context,
             icon: Icons.map_outlined,
             label: '예매',
-            routeName: '', // 이후 수정 필요
-            isActive: currentPage == '',
+            routeName: '/Reservation', // 이후 수정 필요
+            isActive: currentPage == '/Reservation',
             activeColor: activeColor,
             inactiveColor: inactiveColor,
           ),
