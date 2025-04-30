@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../Common/navbar.dart';
 import 'MovieSelectionPage.dart';
 
 class TheaterUI extends StatefulWidget {
@@ -85,7 +86,6 @@ class _TheaterUIState extends State<TheaterUI> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 선택 정보 표시
             if (selectedCinema != null && selectedDate != null)
               Container(
                 padding: const EdgeInsets.all(12),
@@ -111,8 +111,6 @@ class _TheaterUIState extends State<TheaterUI> {
                   ],
                 ),
               ),
-
-            // 극장 선택
             const Text('극장', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Expanded(
@@ -139,10 +137,7 @@ class _TheaterUIState extends State<TheaterUI> {
                 }).toList(),
               ),
             ),
-
             const SizedBox(height: 10),
-
-            // 날짜 선택 (슬라이드 + 버튼 + 스냅)
             const Text('날짜', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             Row(
@@ -169,7 +164,6 @@ class _TheaterUIState extends State<TheaterUI> {
                                 date.year == selectedDate!.year &&
                                 date.month == selectedDate!.month &&
                                 date.day == selectedDate!.day;
-
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -222,10 +216,7 @@ class _TheaterUIState extends State<TheaterUI> {
                 ),
               ],
             ),
-
             const SizedBox(height: 20),
-
-            // 조회 버튼
             Center(
               child: SizedBox(
                 width: double.infinity,
@@ -248,7 +239,6 @@ class _TheaterUIState extends State<TheaterUI> {
                       );
                     }
                   },
-
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade800,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -260,7 +250,7 @@ class _TheaterUIState extends State<TheaterUI> {
           ],
         ),
       ),
+      bottomNavigationBar: const NavBar(),
     );
   }
 }
-
