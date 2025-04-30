@@ -49,7 +49,7 @@ class _SignupPageState extends State<SignupPage> {
         return;
       } else {
         _emailError = null;
-        _verificationMessage = '인증 코드가 이메일로 발송되었습니다.';
+        _verificationMessage = '인증 코드 전송 완료.';
       }
     });
     await _apiService.sendVerificationEmail("v1/user/verifyEmail", {"email": _emailController.text});

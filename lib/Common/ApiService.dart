@@ -6,11 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: kIsWeb // 백엔드 API URL 설정
-          ? 'http://localhost:8080/api/'
-          : Platform.isAndroid
-          ? 'http://10.0.2.2:8080/api/'
-          : 'http://localhost:8080/api/',
+      baseUrl: "http://43.200.184.143:8080/api/",
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",
