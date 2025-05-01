@@ -8,6 +8,7 @@ class LoginUI extends StatelessWidget {
   final VoidCallback onSignUp;
 
   const LoginUI({
+    super.key,
     required this.emailController,
     required this.passwordController,
     required this.errorMessage,
@@ -17,43 +18,60 @@ class LoginUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // 이메일 입력 필드
-        _buildInputField(
-          controller: emailController,
-          label: '이메일을 입력해 주세요',
-          obscureText: false,
-        ),
-        const SizedBox(height: 16),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double maxWidth = constraints.maxWidth > 400 ? 400 : constraints.maxWidth * 0.9;
 
-        // 비밀번호 입력 필드
-        _buildInputField(
-          controller: passwordController,
-          label: '비밀번호를 입력해 주세요',
-          obscureText: true,
-        ),
-        const SizedBox(height: 24),
+        return Center(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 이메일 입력 필드
+                  _buildInputField(
+                    controller: emailController,
+                    label: '이메일을 입력해 주세요',
+                    obscureText: false,
+                  ),
+                  const SizedBox(height: 16),
 
-        // 로그인 버튼
-        _buildLoginButton(onLogin),
+                  // 비밀번호 입력 필드
+                  _buildInputField(
+                    controller: passwordController,
+                    label: '비밀번호를 입력해 주세요',
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 24),
 
-        // 에러 메시지 (로그인 실패 시 표시)
-        if (errorMessage.isNotEmpty)
-          _buildErrorMessage(errorMessage),
+                  // 로그인 버튼
+                  _buildLoginButton(onLogin),
 
-        const SizedBox(height: 150),
+                  const SizedBox(height: 12),
 
-        // 회원가입 안내 문구
-        const Text(
-          '아직 회원이 아니신가요?',
-          style: TextStyle(fontSize: 14, color: Colors.black54),
-        ),
-        const SizedBox(height: 8),
+                  // 에러 메시지
+                  if (errorMessage.isNotEmpty)
+                    _buildErrorMessage(errorMessage),
 
-        // 회원가입 버튼
-        _buildSignUpButton(onSignUp),
-      ],
+                  const SizedBox(height: 100),
+
+                  const Center(
+                    child: Text(
+                      '아직 회원이 아니신가요?',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // 회원가입 버튼
+                  _buildSignUpButton(onSignUp),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -74,10 +92,8 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // 로그인 버튼
   Widget _buildLoginButton(VoidCallback onPressed) {
     return SizedBox(
-      width: double.infinity,
       height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
@@ -95,18 +111,19 @@ class LoginUI extends StatelessWidget {
     );
   }
 
-  // 에러 메세지
   Widget _buildErrorMessage(String message) {
-    return Text(
-      message,
-      style: const TextStyle(color: Colors.red, fontSize: 14),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Text(
+        message,
+        style: const TextStyle(color: Colors.red, fontSize: 14),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
-  // 회원가입 버튼
   Widget _buildSignUpButton(VoidCallback onPressed) {
     return SizedBox(
-      width: double.infinity,
       height: 50,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
