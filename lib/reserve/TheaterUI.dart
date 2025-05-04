@@ -13,10 +13,10 @@ class _TheaterUIState extends State<TheaterUI> {
   String? selectedRegion;
   String? selectedCinema;
   DateTime? selectedDate;
+  String searchKeyword = '';
 
   final PageController _pageController = PageController(viewportFraction: 0.95);
   final int daysPerPage = 4;
-
   int currentPage = 0;
 
   final Map<String, List<String>> cinemaMap = {
@@ -70,6 +70,13 @@ class _TheaterUIState extends State<TheaterUI> {
       },
     );
 
+    final filteredCinemas = searchKeyword.isEmpty
+        ? null
+        : cinemaMap.entries
+        .expand((entry) => entry.value)
+        .where((cinema) => cinema.contains(searchKeyword))
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -113,9 +120,29 @@ class _TheaterUIState extends State<TheaterUI> {
               ),
             const Text('극장', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
+
+            // 🔍 영화관 검색창
+            TextField(
+              decoration: InputDecoration(
+                labelText: '영화관 검색',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                prefixIcon: const Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchKeyword = value.trim();
+                });
+              },
+            ),
+            const SizedBox(height: 15),
+
+            // 📍 검색 결과 리스트 또는 지역별 리스트
             Expanded(
-              child: ListView(
-                children: cinemaMap.entries.map((entry) {
+              child: searchKeyword.isNotEmpty && filteredCinemas!.isEmpty
+                  ? const Center(child: Text('검색 결과가 없습니다.'))
+                  : ListView(
+                children: searchKeyword.isEmpty
+                    ? cinemaMap.entries.map((entry) {
                   final region = entry.key;
                   final cinemas = entry.value;
                   return ExpansionTile(
@@ -134,12 +161,30 @@ class _TheaterUIState extends State<TheaterUI> {
                       );
                     }).toList(),
                   );
-                }).toList(),
+                }).toList()
+                    : filteredCinemas?.map((cinema) {
+                  final isSelected = selectedCinema == cinema;
+                  return ListTile(
+                    title: Text(cinema),
+                    trailing: isSelected ? const Icon(Icons.check, color: Colors.red) : null,
+                    onTap: () {
+                      setState(() {
+                        selectedCinema = cinema;
+                        selectedRegion = cinemaMap.entries
+                            .firstWhere((entry) => entry.value.contains(cinema))
+                            .key;
+                        searchKeyword = '';
+                      });
+                    },
+                  );
+                }).toList() ?? []
               ),
             ),
             const SizedBox(height: 10),
             const Text('날짜', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
+
+            // 📅 날짜 선택
             Row(
               children: [
                 IconButton(
@@ -217,6 +262,8 @@ class _TheaterUIState extends State<TheaterUI> {
               ],
             ),
             const SizedBox(height: 20),
+
+            // 🎫 조회 버튼
             Center(
               child: SizedBox(
                 width: double.infinity,
@@ -250,7 +297,6 @@ class _TheaterUIState extends State<TheaterUI> {
           ],
         ),
       ),
-      bottomNavigationBar: const NavBar(),
     );
   }
 }
