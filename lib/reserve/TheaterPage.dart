@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../Common/navbar.dart';
 import 'TheaterUI.dart';
 
 class TheaterPage extends StatelessWidget {
@@ -12,6 +13,7 @@ class TheaterPage extends StatelessWidget {
         padding: EdgeInsets.all(16.0),
         child: TheaterUI(),
       ),
+      bottomNavigationBar: const NavBar(),
     );
   }
 }
