@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'MyCinemaUI.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCinemaScreen extends StatefulWidget {
   @override
@@ -26,8 +27,10 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
   final List<String> recentCinemas = ['건대입구', '대학로'];
 
   // 영화관 지정 버튼 눌렀을 때 실행할 작업
-  void onCinemaSelected() {
+  Future<void> onCinemaSelected() async {
     if (selectedCinema != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('user_cinema', selectedCinema!);
       // 영화관 지정 완료 메시지
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

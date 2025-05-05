@@ -91,52 +91,54 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                   onPageChanged: (index) => setState(() => currentPage = index),
                   itemBuilder: (context, pageIndex) {
                     final dates = paginatedDates[pageIndex];
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: dates.map((date) {
-                        final isSelected = selectedDate != null &&
-                            date.year == selectedDate!.year &&
-                            date.month == selectedDate!.month &&
-                            date.day == selectedDate!.day;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: dates.map((date) {
+                          final isSelected = selectedDate != null &&
+                              date.year == selectedDate!.year &&
+                              date.month == selectedDate!.month &&
+                              date.day == selectedDate!.day;
 
-                        return GestureDetector(
-                          onTap: () => setState(() => selectedDate = date),
-                          child: Container(
-                            width: 75,
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white, // 항상 흰색 배경
-                              border: Border.all(
-                                color: isSelected ? Colors.red.shade800 : Colors.grey.shade400,
-                                width: 2,
+                          return GestureDetector(
+                            onTap: () => setState(() => selectedDate = date),
+                            child: Container(
+                              width: 75,
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white, // 항상 흰색 배경
+                                border: Border.all(
+                                  color: isSelected ? Colors.red.shade800 : Colors.grey.shade400,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '${_twoDigits(date.month)}.${_twoDigits(date.day)}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black, // <- 항상 검정색
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${_twoDigits(date.month)}.${_twoDigits(date.day)}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black, // <- 항상 검정색
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  _weekdayToKorean(date.weekday),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54, // <- 항상 동일한 회색
+                                  Text(
+                                    _weekdayToKorean(date.weekday),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black54, // <- 항상 동일한 회색
+                                    ),
                                   ),
-                                ),
 
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }).toList(),
+                      ),
                     );
                   },
                 ),

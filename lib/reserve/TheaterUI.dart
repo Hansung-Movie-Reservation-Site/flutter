@@ -162,55 +162,57 @@ class _TheaterUIState extends State<TheaterUI> {
                       },
                       itemBuilder: (context, pageIndex) {
                         final dates = paginatedDates[pageIndex];
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: dates.map((date) {
-                            final isSelected = selectedDate != null &&
-                                date.year == selectedDate!.year &&
-                                date.month == selectedDate!.month &&
-                                date.day == selectedDate!.day;
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: dates.map((date) {
+                              final isSelected = selectedDate != null &&
+                                  date.year == selectedDate!.year &&
+                                  date.month == selectedDate!.month &&
+                                  date.day == selectedDate!.day;
 
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedDate = date;
-                                });
-                              },
-                              child: Container(
-                                width: 70,
-                                margin: const EdgeInsets.symmetric(horizontal: 6),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: isSelected ? Colors.red.shade800 : Colors.grey.shade400,
-                                    width: 2,
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedDate = date;
+                                  });
+                                },
+                                child: Container(
+                                  width: 70,
+                                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: isSelected ? Colors.red.shade800 : Colors.grey.shade400,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${date.month}.${_twoDigits(date.day)}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        _weekdayToKorean(date.weekday),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${date.month}.${_twoDigits(date.day)}',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      _weekdayToKorean(date.weekday),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                              );
+                            }).toList(),
+                          ),
                         );
                       },
                     ),

@@ -1,22 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:movie/auth/SignupPage.dart';
 import '../Common/MovieCategoryChips.dart';
+import '../Common/movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
+import 'package:http/http.dart' as http;
 
-class Product {
-  final String name;
-  final double price;
-  final String imageUrl;
-  final String director;
-
-  Product({
-    required this.name,
-    required this.price,
-    required this.imageUrl,
-    required this.director
-  });
-}
+import '../Reservation/MovieDetail.dart';
+import '../reserve/TheaterPage.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -30,59 +22,35 @@ class _ProductListPageState extends State<ProductListPage> {
 
   String searchKeyword = ''; // 검색어 상태
 
-  // 검색 필터링 함수
-  List<Product> get filteredProducts {
-    if (searchKeyword.isEmpty) return products;
-    return products
-        .where((p) => p.name.contains(searchKeyword))
-        .toList();
+  List<Movie> products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
   }
 
-  //더미 데이터
-  final List<Product> products = [
-    Product(
-        name: '미키 17',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '스트리밍',
-        price: 8.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89483/89483_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '백설공주',
-        price: 12.50,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000088/88630/88630_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '승부',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89485/89485_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '3일',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89461/89461_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '퇴마록',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89386/89386_320.jpg',
-        director: '봉준호'
-    ),
-    Product(
-        name: '플로우',
-        price: 10.99,
-        imageUrl: 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89450/89450_320.jpg',
-        director: '봉준호'
-    ),
-  ];
+  Future<void> fetchProducts() async {
+    final response = await http.get(Uri.parse('http://43.200.184.143:8080/api/v1/movies/daily'));
+
+    if (response.statusCode == 200) {
+      final utf8Body = utf8.decode(response.bodyBytes);
+      List<dynamic> data = json.decode(utf8Body);
+      final fetched = data.map((json) => Movie.fromJson(json)).toList();
+      print('받아온 영화 수: ${fetched.length}');
+      for (var movie in fetched) {
+        print('제목: ${movie.title}, 이미지: ${movie.posterImage}');
+      }
+      setState(() {
+        products = fetched;
+      });
+    } else {
+      print('에러 코드: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +134,7 @@ class _ProductListPageState extends State<ProductListPage> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const SignupPage()),
+                              MaterialPageRoute(builder: (_) => const TheaterPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -193,18 +161,6 @@ class _ProductListPageState extends State<ProductListPage> {
                 Text(
                   '상영중인 영화',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.keyboard_arrow_right),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SignupPage()), //이후 수정해야함
-                      );
-                    },
-                  ),
                 ),
               ]
           ),
@@ -237,34 +193,35 @@ class _ProductListPageState extends State<ProductListPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          product.imageUrl,
+                          product.posterImage,
                           width: double.infinity,
                           height: 195, //이미지 크기
                           fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween, //좌우 정렬
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              product.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: IconButton(
-                                icon: const Icon(Icons.keyboard_arrow_right),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const SignupPage()), //이후 수정해야함
-                                  );
-                                },
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => MovieDetailPage(title: product.title),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                product.title,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                             ),
-                          ]
-                      )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
