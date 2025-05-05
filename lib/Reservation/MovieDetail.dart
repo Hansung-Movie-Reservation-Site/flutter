@@ -1,34 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../Common/ApiService.dart';
+import '../Common/movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
 import 'DetailReservation.dart';
 
 class MovieDetailPage extends StatefulWidget {
-  const MovieDetailPage({super.key});
+  final String title;
+  const MovieDetailPage({super.key, required this.title});
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  //나중에 객체로 받을 예정
-  String movieName = '미키 17'; //영화 이름
-  String runTime = '상영시간'; ///상영시간(이건 임시 값 추후에 정해야함)
-  String Genre = '장르'; //장르
-  String Mytheater = '건대입구'; //장르
-  String StartDate = '개봉날짜'; ///개봉날짜(이건 임시 값 추후에 정해야함)
-  String Director = '감독명';
-  String ShortStory = '줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리줄거리'; //줄거리
-  String imageUrl = 'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg';
-  String cinema = '건대입구';
+  Movie? movie;
+  String movieName = '';
+  String runTime = '';
+  String Genre = '';
+  String Mytheater = '없음';
+  String StartDate = '';
+  String Director = '';
+  String ShortStory = '';
+  String imageUrl = '';
+  String cinema = '없음';
+  String videoUrl = '';
 
-  ///리뷰 페이지 여기에 넣을거임 추가해야함
-  ///
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    initMovies();
+  }
+
+  Future<void> initMovies() async {
+    final api = ApiService();
+    List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
+
+    if (result.isNotEmpty) {
+      setState(() {
+        movie = result.first;
+        movieName = movie!.title;
+        runTime = "${movie!.runtime}분";
+        Genre = movie!.genres;
+        StartDate = movie!.releaseDate;
+        Director = movie!.director;
+        ShortStory = movie!.overview;
+        imageUrl = movie!.posterImage;
+        videoUrl = movie!.fullVideoLink;
+        isLoading = false;
+      });
+    } else {
+      print("영화의 데이터를 가져올 수 없습니다.");
+      print("받아온 타이틀 ${widget.title}");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
 
@@ -38,103 +68,99 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       appBar: AppBar(
         title: const Text('영화부기'),
       ),
-      body: SingleChildScrollView(
+      body: isLoading ? const Center(
+        child: CircularProgressIndicator(),
+      )
+      : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Card(
-              elevation: 0, //그림자 값
+              elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(height: 10),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
                         imageUrl,
                         width: 200,
-                        height: 300, //이미지 크기
+                        height: 300,
                         fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(width: 20),
-                    Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween, //좌우 정렬
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start, // 텍스트 왼쪽 정렬
                         children: [
-                          Text( /// 영화 제목
+                          Text(
                             movieName,
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
                           ),
-                          Text( /// 상영 시간
-                            runTime,
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          Text( /// 내 영화관
-                            '내 영화관($Mytheater)',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          Text( /// 감독
-                            '감독: $Director',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text( /// 장르
-                            '장르: $Genre',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Text( /// 개봉 날짜
-                            '개봉 날짜: $StartDate',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          Align( /// 예매 버튼
-                              alignment: Alignment.centerRight,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => DetailReservation(
-                                          movieName: movieName,
-                                          cinema: cinema,
-                                          runTime: runTime)));
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey), // 테두리 색상
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10), // 둥근 테두리
+                          const SizedBox(height: 8),
+                          Text(runTime, style: const TextStyle(fontSize: 18)),
+                          Text('내 영화관($Mytheater)', style: const TextStyle(fontSize: 18)),
+                          Text('감독: $Director', style: const TextStyle(fontSize: 16)),
+                          Text('장르: $Genre', style: const TextStyle(fontSize: 16)),
+                          Text('개봉 날짜: $StartDate', style: const TextStyle(fontSize: 16)),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailReservation(
+                                      movieName: movieName,
+                                      cinema: cinema,
+                                      runTime: runTime,
+                                    ),
                                   ),
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 안쪽 여백
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.grey),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text(
-                                  '예매 하기',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              )
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              ),
+                              child: const Text(
+                                '예매 하기',
+                                style: TextStyle(color: Colors.black, fontSize: 14),
+                              ),
+                            ),
                           ),
-                        ]
-                    )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
 
             Padding( // 예고편 동영상
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child:
-              SizedBox(
+              child: videoUrl.isNotEmpty
+                  ? SizedBox(
                 height: 200,
                 child: WebViewWidget(
                   controller: WebViewController()
                     ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                    ..loadRequest(Uri.parse('https://www.youtube.com/embed/MFXWhpcuIg4')),
+                    ..loadRequest(Uri.parse(videoUrl)),
                 ),
+              )
+                  : const SizedBox(
+                height: 200,
+                child: Center(child: Text("예고편을 불러오는 중입니다...")),
               ),
             ),
 
@@ -185,7 +211,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                           )
                         ],
                       )
-
                     ]
                 )
             ),

@@ -5,6 +5,7 @@ class LoginUI extends StatelessWidget {
   final TextEditingController passwordController;
   final String errorMessage;
   final VoidCallback onLogin;
+  final VoidCallback onSocialLogin;
   final VoidCallback onSignUp;
 
   const LoginUI({
@@ -13,6 +14,7 @@ class LoginUI extends StatelessWidget {
     required this.passwordController,
     required this.errorMessage,
     required this.onLogin,
+    required this.onSocialLogin,
     required this.onSignUp,
   });
 
@@ -48,8 +50,11 @@ class LoginUI extends StatelessWidget {
                   // 로그인 버튼
                   _buildLoginButton(onLogin),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 30),
 
+                  _buildSocialLoginButton(onSocialLogin),
+
+                  const SizedBox(height: 130),
                   // 에러 메시지
                   if (errorMessage.isNotEmpty)
                     _buildErrorMessage(errorMessage),
@@ -110,7 +115,28 @@ class LoginUI extends StatelessWidget {
       ),
     );
   }
+  // 소셜 버튼
+  Widget _buildSocialLoginButton(VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blueAccent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        onPressed: onPressed,
+        child: const Text(
+          '소셜 로그인',
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+      ),
+    );
+  }
 
+  // 에러 메세지
   Widget _buildErrorMessage(String message) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),

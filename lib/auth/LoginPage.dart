@@ -4,6 +4,7 @@ import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
 import 'package:movie/auth/LoginFeatures.dart';
 import 'package:movie/Common/navbar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -65,6 +66,16 @@ class _LoginPageState extends State<LoginPage> {
                     email: _emailController.text,
                     password: _passwordController.text,
                   );
+                },
+                onSocialLogin: () async {
+                  final url = Uri.parse('http://hs-cinemagix.duckdns.org:8080/oauth2/authorization/google');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('구글 로그인 페이지를 열 수 없습니다.')),
+                    );
+                  }
                 },
                 onSignUp: () {
                   Navigator.push(

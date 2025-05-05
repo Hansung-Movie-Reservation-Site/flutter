@@ -12,13 +12,8 @@ class LoginFeatures {
     required final String email,
     required final String password,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/user/login'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/user/login'
-        : 'http://localhost:8080/api/v1/user/login';
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/user/login'), // 백엔드 API URL
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

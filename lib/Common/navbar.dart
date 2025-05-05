@@ -58,8 +58,8 @@ class _NavBarState extends State<NavBar> {
             context,
             icon: Icons.map_outlined,
             label: '예매',
-            routeName: '/Reservation', // 이후 수정 필요
-            isActive: currentPage == '/Reservation',
+            routeName: '/Reserve', // 이후 수정 필요
+            isActive: currentPage == '/Reserve',
             activeColor: activeColor,
             inactiveColor: inactiveColor,
           ),

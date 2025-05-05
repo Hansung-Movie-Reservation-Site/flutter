@@ -20,10 +20,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MovieDetailPage(),
+      home: ProductListPage(),
 
       routes: {
-        '/MovieDetail': (context) => MovieDetailPage(),
         '/recommendpage': (context) => ProductListPage(),
         '/MyPage_Logout': (context) => MyPage_Logout(),
         '/MyPage_Login': (context) => MyPage_Login(),

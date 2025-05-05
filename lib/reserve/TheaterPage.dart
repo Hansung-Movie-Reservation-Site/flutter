@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Common/navbar.dart';
 import 'TheaterUI.dart';
-
+///영화 예매 1단계
 class TheaterPage extends StatelessWidget {
   const TheaterPage({super.key});
 

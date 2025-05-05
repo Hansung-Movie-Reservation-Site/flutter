@@ -43,13 +43,8 @@ class AuthService {
     required final String email,
     required final String password,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/user/login'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/user/login'
-        : 'http://localhost:8080/api/v1/user/login';
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/user/login'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -84,15 +79,10 @@ class AuthService {
     required final String password,
     required final String after,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/detail/change/username'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/detail/change/username'
-        : 'http://localhost:8080/api/v1/detail/change/username';
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('user_id');
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/detail/change/username'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -124,15 +114,10 @@ class AuthService {
     required final String password,
     required final String after,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/detail/change/password'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/detail/change/password'
-        : 'http://localhost:8080/api/v1/detail/change/password';
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('user_id');
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/detail/change/password'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -163,15 +148,10 @@ class AuthService {
     required final String password,
     required final String after,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/detail/change/email'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/detail/change/email'
-        : 'http://localhost:8080/api/v1/detail/change/email';
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('user_id');
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/detail/change/email'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

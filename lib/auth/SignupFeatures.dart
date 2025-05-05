@@ -13,13 +13,8 @@ class SignupFeautures {
     required final String email,
     required final String password,
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? "http://localhost:8080/api/v1/user/createUser"
-        : Platform.isAndroid
-        ? "http://10.0.2.2:8080/api/v1/user/createUser"
-        : "http://localhost:8080/api/v1/user/createUser";
     final response = await http.post(
-      Uri.parse(url), // 백엔드 API URL
+      Uri.parse('http://43.200.184.143:8080/api/v1/user/createUser'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
@@ -43,13 +38,8 @@ class SignupFeautures {
     required final String email,
     required final String verifyCode
   }) async {
-    final String url = kIsWeb // 백엔드 API URL 설정
-        ? 'http://localhost:8080/api/v1/user/check'
-        : Platform.isAndroid
-        ? 'http://10.0.2.2:8080/api/v1/user/check'
-        : 'http://localhost:8080/api/v1/user/check';
     final response = await http.post(
-      Uri.parse(url),
+      Uri.parse('http://43.200.184.143:8080/api/v1/user/check'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
