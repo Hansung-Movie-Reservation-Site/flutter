@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Reservation/ReviewUI.dart';
 import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/reserve/movieScreen.dart';
 import 'package:movie/Common/navbar.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         '/MyPage_Logout': (context) => MyPage_Logout(),
         '/MyPage_Login': (context) => MyPage_Login(),
         '/ProfilePage': (context) => ProfilePage(),
-        '/Reserve': (context) => TheaterPage(),
+        '/Reserve': (context) => const TheaterPage(),
       },
     );
   }

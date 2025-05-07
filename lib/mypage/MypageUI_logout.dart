@@ -7,6 +7,8 @@ import 'package:movie/auth/LoginPage.dart';
 class MyPageUI_Logout {
 
   static Widget buildLogoutCard(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -15,8 +17,8 @@ class MyPageUI_Logout {
         );
       },
       child: Container(
-        width: 450,
-        height: 120,
+        width: screenWidth * 0.9, // 화면 너비의 90%
+        height: 100, // 높이는 적절한 고정값
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -31,13 +33,16 @@ class MyPageUI_Logout {
             Icon(Icons.account_circle, size: 60, color: Colors.grey),
             SizedBox(width: 15),
             Expanded(
-              child: Text(
-                '회원서비스 이용을 위해 로그인이 필요합니다',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '회원서비스 이용을 위해 로그인이 필요합니다',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
