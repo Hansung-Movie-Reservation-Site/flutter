@@ -8,7 +8,7 @@ import 'movie.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: "http://43.200.184.143:8080/api/",
+      baseUrl: "https://hs-cinemagix.duckdns.org/api/",
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",

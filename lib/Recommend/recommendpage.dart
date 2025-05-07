@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../Common/ApiService.dart';
 import '../Common/MovieCategoryChips.dart';
 import '../Common/movie.dart';
 import '../Common/navbar.dart';
@@ -31,7 +32,17 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> fetchProducts() async {
-    final response = await http.get(Uri.parse('http://43.200.184.143:8080/api/v1/movies/daily'));
+    final api = ApiService();
+    products = await api.dailyMovie("v1/movies/daily");
+    if (products != []) {
+      print('받아온 영화 수: ${products.length}');
+      setState(() async {
+        products = await api.dailyMovie("v1/movies/daily");
+      });
+    } else {
+
+    }
+
 
     if (response.statusCode == 200) {
       final utf8Body = utf8.decode(response.bodyBytes);
@@ -45,7 +56,7 @@ class _ProductListPageState extends State<ProductListPage> {
         products = fetched;
       });
     } else {
-      print('에러 코드: ${response.statusCode}');
+      print('');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
       );
