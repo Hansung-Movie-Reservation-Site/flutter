@@ -347,9 +347,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         ),
       ),
       const SizedBox(height: 20),
-      Padding(  // 예고편 동영상
+      Padding( // 예고편 동영상
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: videoUrl.isNotEmpty
+            ? (videoUrl.startsWith('http') || videoUrl.startsWith('https'))
             ? SizedBox(
           height: 200,
           child: WebViewWidget(
@@ -360,7 +361,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         )
             : const SizedBox(
           height: 200,
-          child: Center(child: Text("예고편을 불러오는 중입니다...")),
+          child: Center(
+            child: Text("예고편이 제공되지 않는 영화입니다."),
+          ),
+        )
+            : const SizedBox(
+          height: 200,
+          child: Center(
+            child: Text("예고편을 불러오는 중입니다..."),
+          ),
         ),
       ),
       const SizedBox(height: 30),

@@ -6,8 +6,6 @@ import '../Common/MovieCategoryChips.dart';
 import '../Common/movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
-import 'package:http/http.dart' as http;
-
 import '../Reservation/MovieDetail.dart';
 import '../reserve/TheaterPage.dart';
 
@@ -33,30 +31,15 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Future<void> fetchProducts() async {
     final api = ApiService();
-    products = await api.dailyMovie("v1/movies/daily");
-    if (products != []) {
-      print('받아온 영화 수: ${products.length}');
-      setState(() async {
-        products = await api.dailyMovie("v1/movies/daily");
-      });
-    } else {
+    final fetched = await api.dailyMovie("v1/movies/daily");
 
-    }
-
-
-    if (response.statusCode == 200) {
-      final utf8Body = utf8.decode(response.bodyBytes);
-      List<dynamic> data = json.decode(utf8Body);
-      final fetched = data.map((json) => Movie.fromJson(json)).toList();
+    if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');
-      for (var movie in fetched) {
-        print('제목: ${movie.title}, 이미지: ${movie.posterImage}');
-      }
-      setState(() {
+      setState(() async {
         products = fetched;
       });
     } else {
-      print('');
+      print("fetchProducts 함수 동작 실패 / 빈 배열");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
       );
