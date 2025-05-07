@@ -15,8 +15,9 @@ class _TheaterUIState extends State<TheaterUI> {
   DateTime? selectedDate;
   String searchKeyword = '';
 
-  final PageController _pageController = PageController(viewportFraction: 0.95);
-  final int daysPerPage = 4;
+  final PageController _pageController = PageController(viewportFraction: 1.0);
+  final int daysPerPage = 3;
+
   int currentPage = 0;
 
   final Map<String, List<String>> cinemaMap = {
@@ -65,7 +66,9 @@ class _TheaterUIState extends State<TheaterUI> {
       _totalPages,
           (pageIndex) {
         final start = pageIndex * daysPerPage;
-        final end = (start + daysPerPage) > allDates.length ? allDates.length : (start + daysPerPage);
+        final end = (start + daysPerPage) > allDates.length
+            ? allDates.length
+            : (start + daysPerPage);
         return allDates.sublist(start, end);
       },
     );
@@ -112,20 +115,23 @@ class _TheaterUIState extends State<TheaterUI> {
                     Expanded(
                       child: Text(
                         '극장 : $selectedCinema  |  날짜 : ${selectedDate!.year}.${_twoDigits(selectedDate!.month)}.${_twoDigits(selectedDate!.day)} (${_weekdayToKorean(selectedDate!.weekday)})',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
                 ),
               ),
-            const Text('극장', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('극장',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
             // 🔍 영화관 검색창
             TextField(
               decoration: InputDecoration(
                 labelText: '영화관 검색',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (value) {
@@ -137,21 +143,30 @@ class _TheaterUIState extends State<TheaterUI> {
             const SizedBox(height: 15),
 
             // 📍 검색 결과 리스트 또는 지역별 리스트
-            Expanded(
+            Flexible(
               child: searchKeyword.isNotEmpty && filteredCinemas!.isEmpty
                   ? const Center(child: Text('검색 결과가 없습니다.'))
                   : ListView(
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
                 children: searchKeyword.isEmpty
                     ? cinemaMap.entries.map((entry) {
                   final region = entry.key;
                   final cinemas = entry.value;
                   return ExpansionTile(
-                    title: Text(region, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    title: Text(region,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600)),
                     children: cinemas.map((cinema) {
-                      final isSelected = selectedCinema == cinema;
+                      final isSelected =
+                          selectedCinema == cinema;
                       return ListTile(
                         title: Text(cinema),
-                        trailing: isSelected ? const Icon(Icons.check, color: Colors.red) : null,
+                        trailing: isSelected
+                            ? const Icon(Icons.check,
+                            color: Colors.red)
+                            : null,
                         onTap: () {
                           setState(() {
                             selectedRegion = region;
@@ -163,25 +178,32 @@ class _TheaterUIState extends State<TheaterUI> {
                   );
                 }).toList()
                     : filteredCinemas?.map((cinema) {
-                  final isSelected = selectedCinema == cinema;
+                  final isSelected =
+                      selectedCinema == cinema;
                   return ListTile(
                     title: Text(cinema),
-                    trailing: isSelected ? const Icon(Icons.check, color: Colors.red) : null,
+                    trailing: isSelected
+                        ? const Icon(Icons.check,
+                        color: Colors.red)
+                        : null,
                     onTap: () {
                       setState(() {
                         selectedCinema = cinema;
                         selectedRegion = cinemaMap.entries
-                            .firstWhere((entry) => entry.value.contains(cinema))
+                            .firstWhere((entry) =>
+                            entry.value.contains(cinema))
                             .key;
                         searchKeyword = '';
                       });
                     },
                   );
-                }).toList() ?? []
+                }).toList() ??
+                    [],
               ),
             ),
             const SizedBox(height: 10),
-            const Text('날짜', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('날짜',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
             // 📅 날짜 선택
@@ -202,34 +224,56 @@ class _TheaterUIState extends State<TheaterUI> {
                       },
                       itemBuilder: (context, pageIndex) {
                         final dates = paginatedDates[pageIndex];
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: dates.map((date) {
-                            final isSelected = selectedDate != null &&
-                                date.year == selectedDate!.year &&
-                                date.month == selectedDate!.month &&
-                                date.day == selectedDate!.day;
-                            return GestureDetector(
+                        return Align(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: dates.map((date) {
+                              final isSelected = selectedDate != null &&
+                                  date.year == selectedDate!.year &&
+                                  date.month == selectedDate!.month &&
+                                  date.day == selectedDate!.day;
+
+                              return GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     selectedDate = date;
                                   });
                                 },
                                 child: Container(
-                                  width: 70,
-                                  margin: const EdgeInsets.symmetric(horizontal: 6),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  width: 60,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 6),
+                                  padding:
+                                  const EdgeInsets.symmetric(vertical: 8),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: isSelected ? Colors.red.shade800 : Colors.grey.shade400,
+                                      color: isSelected
+                                          ? Colors.red.shade800
+                                          : Colors.grey.shade400,
                                       width: 2,
                                     ),
                                   ),
-                                )
-                            );
-                          }).toList(),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                          '${_twoDigits(date.month)}.${_twoDigits(date.day)}',
+                                          style:
+                                          const TextStyle(fontSize: 13)),
+                                      Text(
+                                          '(${_weekdayToKorean(date.weekday)})',
+                                          style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         );
                       },
                     ),
@@ -262,15 +306,18 @@ class _TheaterUIState extends State<TheaterUI> {
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('영화관과 날짜를 선택해주세요.')),
+                        const SnackBar(
+                            content: Text('영화관과 날짜를 선택해주세요.')),
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade800,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: const Text('조회하기', style: TextStyle(fontSize: 16, color: Colors.white)),
+                  child: const Text('조회하기',
+                      style: TextStyle(fontSize: 16, color: Colors.white)),
                 ),
               ),
             ),
