@@ -13,9 +13,9 @@ class MyPage_Logout extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 50),
+            SizedBox(height: 80),
             Center(child: MyPageUI_Logout.buildLogoutCard(context)),
-            SizedBox(height: 50),
+            SizedBox(height: 30),
             MyPageUI_Logout.buildDivider(450),
             MyPageUI_Logout.buildListItem("내 영화관 지정", Icons.location_on,
                 onTap: () => MyPageUI_Logout.showLoginRequiredDialog(context)),

@@ -7,6 +7,8 @@ import '../auth/AuthService.dart'; // AuthService 추가
 
 class MyPageUI_Login {
   static Widget buildLoginCard(BuildContext context, String username) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -15,8 +17,8 @@ class MyPageUI_Login {
         );
       },
       child: Container(
-        width: 450,
-        height: 120,
+        width: screenWidth * 0.9, // 화면 너비의 90%
+        height: 100, // 높이는 적절한 고정값
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -32,9 +34,9 @@ class MyPageUI_Login {
             SizedBox(width: 15),
             Expanded(
               child: Text(
-                '$username 님 안녕하세요!', // API 연동으로 로그인한 사용자 이름 나타나게 할 예정
+                '$username 님 안녕하세요!',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -142,3 +144,4 @@ class MyPageUI_Login {
     );
   }
 }
+
