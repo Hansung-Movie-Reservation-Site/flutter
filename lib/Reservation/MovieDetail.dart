@@ -36,29 +36,46 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   final TextEditingController reviewController = TextEditingController();
   final List<Map<String, dynamic>> reviews = [];
   final Set<int> spoilerExpanded = {};
-  int _visibleCount = 6;  // 🌟 한 번에 보여줄 리뷰 수
+  int _visibleCount = 6;
 
   @override
   void initState() {
     super.initState();
     initMovies();
+    _fetchReviews();
 
-    // 🌟 백엔드에서 데이터를 불러오는 코드 추가 예정
-    _fetchReviews(); // 리뷰 데이터를 백엔드에서 불러오는 함수 호출
-
-    // 초기 리뷰 샘플데이터
     reviews.addAll([
       {
         'rating': 4.5,
         'review': '정말 재미있었어요!',
         'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
         'spoiler': false,
+        'likes': 2,  // 좋아요 개수
+        'likedByMe': false,  // 내가 좋아요 눌렀는지 여부
       },
       {
         'rating': 3.0,
-        'review': '결말이 예상밖이었어요. (스포일러)',
+        'review': '결말이 예상밖이었어요.',
         'timestamp': DateTime.now().subtract(const Duration(minutes: 5)),
         'spoiler': true,
+        'likes': 5,
+        'likedByMe': false,
+      },
+      {
+        'rating': 1.0,
+        'review': '굳이 찾아 볼 만큼은 아닌 듯',
+        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
+        'spoiler': false,
+        'likes': 2,
+        'likedByMe': false,
+      },
+      {
+        'rating': 4.5,
+        'review': '마지막에 범인 밝혀질 때 너무 놀랐다. 반전 있는 영화',
+        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
+        'spoiler': true,
+        'likes': 0,
+        'likedByMe': false,
       },
     ]);
   }
@@ -76,16 +93,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         'review': reviewController.text.trim(),
         'timestamp': DateTime.now(),
         'spoiler': containsSpoiler,
+        'likes': 0,
+        'likedByMe': false,
       });
       userRating = 0;
       reviewController.clear();
       containsSpoiler = false;
-
-      // 🌟 새로운 리뷰를 백엔드로 전송하는 코드 추가 예정
-      // 예를 들어, http.post('https://your-api.com/reviews', body: {...})를 사용하여
-      // 새로운 리뷰를 백엔드에 저장할 수 있습니다.
     });
-
   }
 
   Future<void> initMovies() async {
@@ -110,23 +124,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     }
   }
 
-  // 🌟 백엔드에서 리뷰 데이터를 불러오는 함수 (예시)
   Future<void> _fetchReviews() async {
-    // 예시 코드: 실제 백엔드 API 호출 코드로 교체 필요
-    // 예를 들어, http.get('https://your-api.com/reviews')를 사용하여 데이터를 가져옵니다.
-
-    // 데이터를 받아오고 나서, state를 업데이트하여 UI에 반영합니다.
     setState(() {
-      // 여기서는 샘플 데이터를 없애고, 실제 API 응답 데이터를 넣어주세요.
-      // 예시로 빈 리스트로 초기화함. 실제로는 백엔드 데이터로 교체해야 합니다.
-      reviews.clear();  // 이전 데이터 초기화
+      reviews.clear();
       reviews.addAll([
-        // 아래에 백엔드에서 받은 데이터를 넣는 방식으로 수정
-        // {
-        //   'rating': fetchedData['rating'],
-        //   'review': fetchedData['review'],
-        //   'timestamp': DateTime.parse(fetchedData['timestamp']),
-        // },
+        // 실제 API 데이터로 대체
       ]);
     });
   }
@@ -147,21 +149,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 영화 상세 정보
               ..._buildMovieDetail(),
-
               const SizedBox(height: 30),
-
-              // 리뷰 작성 & 리스트
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '평균 별점: ${averageRating.toStringAsFixed(1)} / 5.0',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    Text('평균 별점: ${averageRating.toStringAsFixed(1)} / 5.0',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     RatingBar.builder(
                       initialRating: userRating,
@@ -171,15 +167,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                       itemCount: 5,
                       itemSize: 32,
                       unratedColor: Colors.grey.shade300,
-                      itemBuilder: (context, _) =>
-                      const Icon(Icons.star, color: Colors.amber),
-                      onRatingUpdate: (rating) {
-                        setState(() => userRating = rating);
-                      },
+                      itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
+                      onRatingUpdate: (rating) => setState(() => userRating = rating),
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: TextField(
@@ -202,7 +194,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
                             ),
                             child: const Text('등록', style: TextStyle(color: Colors.white)),
                           ),
@@ -212,13 +203,13 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     CheckboxListTile(
                       title: const Text('스포일러가 포함되어 있어요'),
                       value: containsSpoiler,
-                      onChanged: (value) =>
-                          setState(() => containsSpoiler = value ?? false),
+                      onChanged: (value) => setState(() => containsSpoiler = value ?? false),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
                     ),
                     const Divider(),
-                    const Text('리뷰 목록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('리뷰 목록',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     ListView.builder(
                       shrinkWrap: true,
@@ -247,41 +238,88 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         final review = reversedReviews[index];
                         final isSpoiler = review['spoiler'] == true;
                         final isExpanded = spoilerExpanded.contains(index);
-                        final displayText = isSpoiler && !isExpanded ? '' : review['review'];
+                        final displayText = review['review'];
 
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          color: Colors.white,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star, color: Colors.amber),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      review['rating'].toString(),
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    if (isSpoiler && !isExpanded) ...[
+                        return GestureDetector(
+                          onTap: () {
+                            if (isSpoiler) {
+                              setState(() {
+                                if (isExpanded) {
+                                  spoilerExpanded.remove(index);
+                                } else {
+                                  spoilerExpanded.add(index);
+                                }
+                              });
+                            }
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.star, color: Colors.amber),
+                                      const SizedBox(width: 5),
+                                      Text('${review['rating']}',
+                                          style: const TextStyle(fontSize: 16)),
                                       const SizedBox(width: 10),
-                                      const Text(
-                                        '⚠️ 스포일러가 포함된 리뷰입니다.',
-                                        style: TextStyle(color: Colors.black),
+                                      if (isSpoiler)
+                                        const Text(
+                                          '⚠️ 스포일러가 포함된 리뷰입니다.',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            if (!isSpoiler || isExpanded)
+                                              Text(displayText)
+                                            else
+                                              const Text(
+                                                '터치하여 보기',
+                                                style: TextStyle(color: Colors.red),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      Column(
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.thumb_up,
+                                              color: review['likedByMe'] == true
+                                                  ? Colors.red
+                                                  : Colors.grey,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                review['likedByMe'] =
+                                                !(review['likedByMe'] ?? false);
+                                                if (review['likedByMe']) {
+                                                  review['likes'] = (review['likes'] ?? 0) + 1;
+                                                } else {
+                                                  review['likes'] = (review['likes'] ?? 0) - 1;
+                                                }
+                                              });
+                                            },
+                                          ),
+                                          Text('${review['likes'] ?? 0}'),
+                                        ],
                                       ),
                                     ],
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                if (displayText.isNotEmpty) Text(displayText),
-                                if (isSpoiler && !isExpanded)
-                                  TextButton(
-                                    onPressed: () => setState(() => spoilerExpanded.add(index)),
-                                    child: const Text('스포일러 보기', style: TextStyle(color: Colors.red)),
                                   ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -289,7 +327,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -347,7 +385,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         ),
       ),
       const SizedBox(height: 20),
-      Padding(  // 예고편 동영상
+      Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: videoUrl.isNotEmpty
             ? SizedBox(
@@ -374,11 +412,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('등장인물 / 감독', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            const Text('등장인물 / 감독',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             const SizedBox(height: 10),
             Row(
               children: [
-                Column(  //감독 및 등장인물이 실제로 출력되는 부분인데 추후에 받는 데이터의 갯수에 따라 조절해야함 (함수 추가)
+                Column(
                   children: [
                     ClipOval(
                       child: Image.network(imageUrl, width: 80, height: 80, fit: BoxFit.cover),
@@ -394,4 +433,3 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     ];
   }
 }
-
