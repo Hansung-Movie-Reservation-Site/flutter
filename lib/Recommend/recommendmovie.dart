@@ -97,8 +97,78 @@ class _ProductListPageState extends State<RecommendMovie> {
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
-          if (result.isNotEmpty)
-            Text(movie_id.toString()) // movie_id 출력
+          if (result.isNotEmpty)Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Color(0xFFECE6F0),
+                ),
+                child:
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AppContainer(
+                        child:
+                        ClipRRect(
+                          //borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg',
+                            width: MediaQuery.of(context).size.width * 0.8,  // 화면 크기의 80%로 설정
+                            height: MediaQuery.of(context).size.height * 0.4, // 화면 크기의 40%로 설정
+                            fit: BoxFit.contain,
+                          ),
+                        )),
+                    SizedBox(width: 10,height: 10),
+                    AppContainer(child:
+                    Container(child:
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("추천 영화: "+movie_id.toString()),
+                        Text("추천 이유: "+reason),
+                        Align(
+                            alignment: Alignment.center,
+                            child:  ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const TheaterPage()),
+                                  );},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red, // 배경 빨간색
+                                  foregroundColor: Colors.white, // 텍스트 색상 (선택사항)
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),child: Text("예매하기"))
+                        )
+                      ],))),
+                    SizedBox(width: 10,height: 10),
+                    AppContainer(child:
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Summary',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '미키 17 (15세)',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text('2시간 17분', style: TextStyle(fontSize: 16)),
+                          const SizedBox(height: 4),
+                          const Text('감독: 봉준호', style: TextStyle(fontSize: 16)),
+                          const Text('장르: 어드벤처, SF, 드라마', style: TextStyle(fontSize: 16)),
+                          const Text('개봉: 2025.02.28', style: TextStyle(fontSize: 16)),
+                          const SizedBox(height: 10),
+
+                          // 예매하기 버튼
+                        ],),),)],)),)// movie_id 출력
           else
             Center(child: Text('로딩중')),
         ],
