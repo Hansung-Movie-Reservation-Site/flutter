@@ -6,6 +6,8 @@ import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import 'package:http/http.dart' as http;
 
+import '../reserve/TheaterPage.dart';
+
 class RecommendMovie extends StatefulWidget {
   const RecommendMovie({super.key});
 
@@ -16,15 +18,14 @@ class RecommendMovie extends StatefulWidget {
 }
 
 class _ProductListPageState extends State<RecommendMovie> {
-
   var scroll = ScrollController();
-  var result;
-  var movie_id;
-  var reason;
+  Map<String, dynamic> result = {}; // 초기값을 빈 Map으로 설정
+  int movie_id = 0; // 기본값 0으로 설정
+  var reason ="";
 
-  var ai;
   String searchKeyword = ''; // 검색어 상태
   List<Movie> products = [];
+
   sendPost() async {
     var url = Uri.parse('http://localhost:8080/api/v1/AIRecommand/synopsis');
 
@@ -39,35 +40,32 @@ class _ProductListPageState extends State<RecommendMovie> {
     );
 
     if (response.statusCode == 200) {
+      var responseJson = jsonDecode(utf8.decode(response.bodyBytes));
       setState(() {
-        result = utf8.decode(response.bodyBytes);
+        result = responseJson;
+        // null 체크 후 값을 설정
+        movie_id = responseJson['movie_id'] ?? 0; // movie_id가 null일 경우 0으로 설정
+        reason = responseJson['reason'] ?? '알 수 없음'; // reason이 null일 경우 기본값 설정
       });
       print(result);
-      // print('응답 데이터: ${response.body}');
-      // result = utf8.decode(response.bodyBytes);
-      // print("movie_id: " + result['movie_id']);
-      // print("reason: " + result['reason']);
-      // movie_id = result['movie_id'];
-      // reason = result['reason'];
-      // print(result);
     } else {
       print('오류 발생: ${response.statusCode}');
     }
   }
+
   @override
   void initState() {
     super.initState();
-    //fetchProducts();
     sendPost();
   }
-// flutter run -d chrome --web-port=8000
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('영화부기'),
         actions: [
-          IconButton( // 검색 아이콘 관련
+          IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               showModalBottomSheet(
@@ -82,11 +80,11 @@ class _ProductListPageState extends State<RecommendMovie> {
                         bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
                       child: SearchModalWidget(
-                          onSearch: (searchKeyword) {
-                            setState(() {
-                              searchKeyword = searchKeyword;
-                            });
-                          }
+                        onSearch: (searchKeyword) {
+                          setState(() {
+                            searchKeyword = searchKeyword;
+                          });
+                        },
                       ),
                     ),
                   );
@@ -99,14 +97,17 @@ class _ProductListPageState extends State<RecommendMovie> {
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
-          if (result.isNotEmpty)Center(child: Text('완'))
+          if (result.isNotEmpty)
+            Text(movie_id.toString()) // movie_id 출력
           else
             Center(child: Text('로딩중')),
-          ],),
+        ],
+      ),
       bottomNavigationBar: const NavBar(),
     );
   }
 }
+
 
 class AppContainer extends StatelessWidget {
   final Widget child;
