@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'movie.dart';
+import 'package:movie/Response/MovieReview.dart';
+import '../Response/Movie.dart';
+import '../Response/MovieRating.dart';
 
 class ApiService {
   final Dio _dio = Dio(
@@ -49,6 +47,7 @@ class ApiService {
     }
   }
 
+  // 메인페이지 영화 목록 불러오는 함수
   Future<List<Movie>> dailyMovie(String url) async {
     try {
       final response = await _dio.get(url);
@@ -67,4 +66,43 @@ class ApiService {
       return [];
     }
   }
+
+  // 리뷰
+  Future<List<Review>> getReview(String url, Map<String, int> request) async {
+    try {
+      final response = await _dio.get(url, queryParameters: request,);
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        final review = data.map((json) => Review.fromJson(json)).toList();
+        return review;
+      } else {
+        print('에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.');
+        return [];
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰";
+      }
+      return [];
+    }
+  }
+
+  // 별점
+  Future<MovieRating> getRating(String url, Map<String, int> request) async {
+    try {
+      final response = await _dio.get(url, queryParameters: request);
+      if (response.statusCode == 200) {
+        return MovieRating.fromJson(response.data);
+      } else {
+        print('에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.');
+        throw Exception("리뷰 요청 실패");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        throw Exception(e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰");
+      }
+      throw Exception("알 수 없는 오류 발생");
+    }
+  }
+
 }

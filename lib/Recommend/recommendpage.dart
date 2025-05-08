@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../Common/ApiService.dart';
 import '../Common/MovieCategoryChips.dart';
-import '../Common/movie.dart';
+import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import '../Reservation/MovieDetail.dart';

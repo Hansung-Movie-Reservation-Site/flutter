@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:movie/Response/MovieRating.dart';
 import '../Common/ApiService.dart';
-import '../Common/movie.dart';
+import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
 import 'DetailReservation.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+
+YoutubePlayerController? _youtubeController;
 
 class MovieDetailPage extends StatefulWidget {
   final String title;
@@ -17,6 +20,7 @@ class MovieDetailPage extends StatefulWidget {
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
   Movie? movie;
+  int? movieId;
   String movieName = '';
   String runTime = '';
   String Genre = '';
@@ -27,6 +31,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String imageUrl = '';
   String cinema = '없음';
   String videoUrl = '';
+  double averageRating = 3;
 
   bool isLoading = true;
 
@@ -42,6 +47,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   void initState() {
     super.initState();
     initMovies();
+
+
+    if (videoUrl.isNotEmpty && YoutubePlayer.convertUrlToId(videoUrl) != null) {
+      final videoId = YoutubePlayer.convertUrlToId(videoUrl)!;
+
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: videoId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+        ),
+      );
+    }
 
     // 🌟 백엔드에서 데이터를 불러오는 코드 추가 예정
     _fetchReviews(); // 리뷰 데이터를 백엔드에서 불러오는 함수 호출
@@ -63,9 +81,15 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     ]);
   }
 
-  double get averageRating {
-    if (reviews.isEmpty) return 0.0;
-    return reviews.map((r) => r['rating'] as double).reduce((a, b) => a + b) / reviews.length;
+  Future<void> setAverageRating() async {
+    final api = ApiService();
+    if (movieId != null) {
+      final params = {'movieId': movieId!};
+      MovieRating result = await api.getRating("v1/review/rating", params);
+      setState(() {
+        averageRating = result.averageRating;
+      });
+    }
   }
 
   void _submitReview() {
@@ -93,21 +117,39 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
 
     if (result.isNotEmpty) {
+      final movieData = result.first;
+      final videoId = YoutubePlayer.convertUrlToId(movieData.fullVideoLink ?? "");
+
+      if (videoId != null) {
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
+        );
+      }
+
       setState(() {
-        movie = result.first;
-        movieName = movie!.title;
-        runTime = "${movie!.runtime}분";
-        Genre = movie!.genres;
-        StartDate = movie!.releaseDate;
-        Director = movie!.director;
-        ShortStory = movie!.overview;
-        imageUrl = movie!.posterImage;
-        videoUrl = movie!.fullVideoLink;
+        movie = movieData;
+        movieId = movieData.id;
+        movieName = movieData.title;
+        runTime = "${movieData.runtime}분";
+        Genre = movieData.genres;
+        StartDate = movieData.releaseDate;
+        Director = movieData.director;
+        ShortStory = movieData.overview;
+        imageUrl = movieData.posterImage;
+        videoUrl = movieData.fullVideoLink;
         isLoading = false;
       });
+      await setAverageRating();
     } else {
       setState(() => isLoading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _youtubeController?.dispose();
+    super.dispose();
   }
 
   // 🌟 백엔드에서 리뷰 데이터를 불러오는 함수 (예시)
@@ -159,7 +201,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '평균 별점: ${averageRating.toStringAsFixed(1)} / 5.0',
+                      '평균 별점: $averageRating / 5.0',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
@@ -347,29 +389,20 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         ),
       ),
       const SizedBox(height: 20),
-      Padding( // 예고편 동영상
+      Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: videoUrl.isNotEmpty
-            ? (videoUrl.startsWith('http') || videoUrl.startsWith('https'))
-            ? SizedBox(
-          height: 200,
-          child: WebViewWidget(
-            controller: WebViewController()
-              ..setJavaScriptMode(JavaScriptMode.unrestricted)
-              ..loadRequest(Uri.parse(videoUrl)),
-          ),
+        child: (videoUrl.isNotEmpty &&
+            _youtubeController != null &&
+            YoutubePlayer.convertUrlToId(videoUrl) != null)
+            ? YoutubePlayer(
+          controller: _youtubeController!,
+          showVideoProgressIndicator: true,
+          width: double.infinity,
+          aspectRatio: 16 / 9,
         )
             : const SizedBox(
           height: 200,
-          child: Center(
-            child: Text("예고편이 제공되지 않는 영화입니다."),
-          ),
-        )
-            : const SizedBox(
-          height: 200,
-          child: Center(
-            child: Text("예고편을 불러오는 중입니다..."),
-          ),
+          child: Center(child: Text("예고편이 제공되지 않는 영화입니다.")),
         ),
       ),
       const SizedBox(height: 30),
