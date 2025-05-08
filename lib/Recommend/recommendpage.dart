@@ -22,6 +22,7 @@ class _ProductListPageState extends State<ProductListPage> {
   String searchKeyword = ''; // 검색어 상태
 
   List<Movie> products = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -35,11 +36,15 @@ class _ProductListPageState extends State<ProductListPage> {
 
     if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');
-      setState(() async {
+      setState(() {
         products = fetched;
+        isLoading = false;
       });
     } else {
       print("fetchProducts 함수 동작 실패 / 빈 배열");
+      setState(() {
+        isLoading = false; // 로딩 실패
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
       );
@@ -166,6 +171,7 @@ class _ProductListPageState extends State<ProductListPage> {
               // 영화 목록 (GridView 등)
             ],
           ),
+          isLoading ? const Center(child: CircularProgressIndicator()) :
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
