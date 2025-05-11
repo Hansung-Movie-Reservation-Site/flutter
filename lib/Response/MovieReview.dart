@@ -1,9 +1,10 @@
 class Review {
   final int id;
-  final int rating;
+  final double rating;
   final String review;
   final String username;
   final bool spoiler;
+  final String date;
 
   Review({
     required this.id,
@@ -11,6 +12,7 @@ class Review {
     required this.review,
     required this.username,
     required this.spoiler,
+    required this.date,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Review {
       review: json['review'],
       username: json['username'],
       spoiler: json['spoiler'],
+      date: json['review_date']
     );
   }
 }

@@ -74,15 +74,16 @@ class ApiService {
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         final review = data.map((json) => Review.fromJson(json)).toList();
+        print("ApiService / 받아온 리뷰 ${review.length}");
         return review;
       } else {
         print('에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.');
         return [];
       }
-    } catch (e) {
-      if (e is DioException) {
-        return e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰";
-      }
+    } catch (e, stacktrace) {
+      print("리뷰 API 예외 발생");
+      print("예외 객체: $e");
+      print("스택트레이스: $stacktrace");
       return [];
     }
   }
@@ -94,7 +95,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return MovieRating.fromJson(response.data);
       } else {
-        print('에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.');
+        print("에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.");
         throw Exception("리뷰 요청 실패");
       }
     } catch (e) {
@@ -104,5 +105,24 @@ class ApiService {
       throw Exception("알 수 없는 오류 발생");
     }
   }
+
+  //리뷰 저장
+  Future<String> postReview(String url, Map<String, dynamic> request) async {
+    try {
+      final response = await _dio.post(url, data: request);
+      if (response.statusCode == 200) {
+        return "리뷰가 저장되었습니다.";
+      } else {
+        print("에러 코드: ${response.statusCode} / 리뷰 저장 실패");
+        throw Exception("리뷰 저장 실패");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return e.response?.data?['message'] ?? "서버 오류 (리뷰 저장)";
+      }
+      return "알 수 없는 오류 발생";
+    }
+  }
+
 
 }

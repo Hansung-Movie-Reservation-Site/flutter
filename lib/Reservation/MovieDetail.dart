@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie/Response/MovieRating.dart';
+import 'package:movie/Response/MovieReview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/ApiService.dart';
 import '../Response/Movie.dart';
 import '../Common/navbar.dart';
@@ -21,6 +23,7 @@ class MovieDetailPage extends StatefulWidget {
 class _MovieDetailPageState extends State<MovieDetailPage> {
   Movie? movie;
   int? movieId;
+  int? userId;
   String movieName = '';
   String runTime = '';
   String Genre = '';
@@ -31,12 +34,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String imageUrl = '';
   String cinema = '없음';
   String videoUrl = '';
-  double averageRating = 3;
+  double averageRating = 0;
 
   bool isLoading = true;
 
   // 리뷰 관련
-  double userRating = 0;
+  double userRating = 3;
   bool containsSpoiler = false;
   final TextEditingController reviewController = TextEditingController();
   final List<Map<String, dynamic>> reviews = [];
@@ -61,24 +64,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       );
     }
 
-    // 🌟 백엔드에서 데이터를 불러오는 코드 추가 예정
-    _fetchReviews(); // 리뷰 데이터를 백엔드에서 불러오는 함수 호출
-
-    // 초기 리뷰 샘플데이터
-    reviews.addAll([
-      {
-        'rating': 4.5,
-        'review': '정말 재미있었어요!',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-        'spoiler': false,
-      },
-      {
-        'rating': 3.0,
-        'review': '결말이 예상밖이었어요. (스포일러)',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 5)),
-        'spoiler': true,
-      },
-    ]);
   }
 
   Future<void> setAverageRating() async {
@@ -92,27 +77,23 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     }
   }
 
-  void _submitReview() {
+  void _submitReview() async {
     if (userRating == 0 || reviewController.text.trim().isEmpty) return;
-    setState(() {
-      reviews.add({
-        'rating': userRating,
-        'review': reviewController.text.trim(),
-        'timestamp': DateTime.now(),
-        'spoiler': containsSpoiler,
-      });
-      userRating = 0;
-      reviewController.clear();
-      containsSpoiler = false;
-
-      // 🌟 새로운 리뷰를 백엔드로 전송하는 코드 추가 예정
-      // 예를 들어, http.post('https://your-api.com/reviews', body: {...})를 사용하여
-      // 새로운 리뷰를 백엔드에 저장할 수 있습니다.
-    });
-
+    final api = ApiService();
+    final requestData = {
+      "rating": userRating,
+      "review": reviewController.text.trim(),
+      "spoiler": containsSpoiler,
+      "userId": userId,
+      "movieId": movieId,
+    };
+    final result = await api.postReview("v1/review/reviews", requestData);
+    await _fetchReviews();
   }
 
   Future<void> initMovies() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
     final api = ApiService();
     List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
 
@@ -141,6 +122,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         isLoading = false;
       });
       await setAverageRating();
+      await _fetchReviews();
+
     } else {
       setState(() => isLoading = false);
     }
@@ -152,24 +135,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     super.dispose();
   }
 
-  // 🌟 백엔드에서 리뷰 데이터를 불러오는 함수 (예시)
   Future<void> _fetchReviews() async {
-    // 예시 코드: 실제 백엔드 API 호출 코드로 교체 필요
-    // 예를 들어, http.get('https://your-api.com/reviews')를 사용하여 데이터를 가져옵니다.
-
-    // 데이터를 받아오고 나서, state를 업데이트하여 UI에 반영합니다.
+    final api = ApiService();
+    List<Review> result = await api.getReview("v1/review/getReviewsByMovie", {"movieId" : movieId!});
+    print("불러온 리뷰 개수: ${result.length}");
     setState(() {
-      // 여기서는 샘플 데이터를 없애고, 실제 API 응답 데이터를 넣어주세요.
-      // 예시로 빈 리스트로 초기화함. 실제로는 백엔드 데이터로 교체해야 합니다.
       reviews.clear();  // 이전 데이터 초기화
-      reviews.addAll([
-        // 아래에 백엔드에서 받은 데이터를 넣는 방식으로 수정
-        // {
-        //   'rating': fetchedData['rating'],
-        //   'review': fetchedData['review'],
-        //   'timestamp': DateTime.parse(fetchedData['timestamp']),
-        // },
-      ]);
+      reviews.addAll(result.map((review) => {
+        "username": review.username,
+        "rating": review.rating,
+        "review": review.review,
+        "spoiler": review.spoiler,
+        "timestamp": review.date,
+      }));
     });
   }
 
@@ -299,6 +277,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      review['username'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      review['timestamp'].toString(),
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                ),
                                 Row(
                                   children: [
                                     const Icon(Icons.star, color: Colors.amber),
