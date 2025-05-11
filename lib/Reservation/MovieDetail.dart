@@ -93,7 +93,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   Future<void> initMovies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    userId = prefs.getInt('userId');
+    userId = prefs.getInt('user_id');
     final api = ApiService();
     List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
 
