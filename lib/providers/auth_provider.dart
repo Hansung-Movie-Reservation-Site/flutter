@@ -23,18 +23,7 @@ class AuthProvider with ChangeNotifier {
 
 
 class MovieStore with ChangeNotifier {
-  var name = 'jun';
   var movies = [];
-
-  Movie? findMovie(int i){
-    print("호출1");
-    for(Movie m in movies){
-      print("id: "+m.id.toString());
-      if(m.id == i)return m;
-    }
-    print("호출2");
-    return null;
-  }
 
   Future<void> getMovieData() async {
     final response = await http.get(Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/movies/daily'));
@@ -50,11 +39,6 @@ class MovieStore with ChangeNotifier {
     } else {
       print('에러 코드: ${response.statusCode}');
     }
-  }
-
-  changeName(){
-    name = 'john';
-    notifyListeners();
   }
 }
 
