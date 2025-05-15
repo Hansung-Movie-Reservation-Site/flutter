@@ -36,6 +36,7 @@ class _ProductListPageState extends State<RecommendMovie> {
   List<Movie> products = [];
 
   bool isLoading = false;
+  int status = 200;
 
   sendPost() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -69,6 +70,7 @@ class _ProductListPageState extends State<RecommendMovie> {
       print(result);
     } else {
       print('오류 발생: ${response.statusCode}');
+      setState(() {status = response.statusCode;});
     }
   }
 
@@ -82,6 +84,7 @@ class _ProductListPageState extends State<RecommendMovie> {
       movie_detail = data;
     } else {
       print('에러 코드: ${response.statusCode}');
+      setState(() {status = response.statusCode;});
     }
   }
   @override
@@ -156,7 +159,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                 color: Colors.redAccent,
               ),
             ),
-            if(movie_detail != null && movie_id != 0) Align(
+            if(status == 200) Align(
               alignment: Alignment.topCenter,
               child: Padding(
                   padding: const EdgeInsets.only(top: 30),
@@ -265,13 +268,13 @@ class _ProductListPageState extends State<RecommendMovie> {
               setState(() {isLoading = true;});
               await sendPost();
               await findMovie();
-              setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
+              setState(() {movie_poster = movie_detail!.posterImage; isLoading = false; status = 200;});
               },
               icon: Center(
                 child: Column(
                   children: [
                     SizedBox(height: 24,),
-                    Text("ERROR 발생"),
+                    Text("${status} ERROR 발생"),
                     SizedBox(height: 10,),
                     Image.asset("error.png", height: 50, width: 50, color: Colors.white),
                     SizedBox(height: 10,),
