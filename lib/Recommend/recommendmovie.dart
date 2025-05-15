@@ -69,7 +69,6 @@ class _ProductListPageState extends State<RecommendMovie> {
       print(result);
     } else {
       print('오류 발생: ${response.statusCode}');
-      showErrorDialog(context, '오류 발생: ${response.statusCode}');
     }
   }
 
@@ -83,7 +82,6 @@ class _ProductListPageState extends State<RecommendMovie> {
       movie_detail = data;
     } else {
       print('에러 코드: ${response.statusCode}');
-      showErrorDialog(context, '에러 코드: ${response.statusCode}');
     }
   }
   @override
@@ -149,25 +147,23 @@ class _ProductListPageState extends State<RecommendMovie> {
           ? Container(
         child: SingleChildScrollView(
             child: Stack(
-          //: MainAxisSize.min,
-          //crossAxisAlignment: CrossAxisAlignment.center,
           clipBehavior: Clip.none, // ← overflow 허용
           children: [
             Positioned(
               top: 0, left: 0, right: 0,      // 좌우 꽉 채우기
-              height: 150,   // 높이 150
+              height: 180,   // 높이 150
               child: Container(
                 color: Colors.redAccent,
               ),
             ),
-            Align(
+            if(movie_detail != null && movie_id != 0) Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
+                  padding: const EdgeInsets.only(top: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(margin: EdgeInsets.only(left: 30, top: 15),
+                  Container(margin: EdgeInsets.only(left: 30),
                       child: Row(children: [
                         Image.asset('AI.png', width: 50, height: 50, color: Colors.white,),
                         SizedBox(width: 20),
@@ -178,7 +174,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                           await findMovie();
                           setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
                           }, icon: Image.asset("reload.png", height: 20, width: 20, color: Colors.white)),],)),
-                  SizedBox(height: 5,),
+                  SizedBox(height: 20,),
                   Container(
                     padding: EdgeInsets.all(5),
                     //decoration: Border,
@@ -265,7 +261,24 @@ class _ProductListPageState extends State<RecommendMovie> {
                 ],
               ))
             )
-
+            else Center(child: IconButton(onPressed: () async {
+              setState(() {isLoading = true;});
+              await sendPost();
+              await findMovie();
+              setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
+              },
+              icon: Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: 24,),
+                    Text("ERROR 발생"),
+                    SizedBox(height: 10,),
+                    Image.asset("error.png", height: 50, width: 50, color: Colors.white),
+                    SizedBox(height: 10,),
+                    Text("아이콘을 클릭하여 다시 시도하여 주십시오.")
+                  ],
+              ),
+              )))
           ],
         )),
       )
@@ -297,25 +310,6 @@ BoxDecoration commonBoxDecoration({bool top = false, bool bottom = false}) {
         spreadRadius: 0,
       ),
     ],
-  );
-}
-void showErrorDialog(BuildContext context, String status) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('에러 발생'),
-        content: Text("status"),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('확인'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
   );
 }
 
