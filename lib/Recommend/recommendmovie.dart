@@ -158,16 +158,15 @@ class _ProductListPageState extends State<RecommendMovie> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Text(
-                  //   "$username 님을 위한 추천 영화",
-                  //   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-                  // ),
-                  // SizedBox(height: 7,),
                   Container(
                     padding: EdgeInsets.all(5),
                     //decoration: Border,
                     decoration: BoxDecoration(
                       color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.2), // 그림자 색상
@@ -177,7 +176,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                         ),
                       ],
                     ),
-                    child: ClipRRect(borderRadius: BorderRadius.circular(2),
+                    child: ClipRRect(
                       child: Image.network(
                         movie_detail?.posterImage ?? '',
                         width: MediaQuery.of(context).size.width * 0.6,
@@ -186,9 +185,97 @@ class _ProductListPageState extends State<RecommendMovie> {
                       ),
                     ),),
                   SizedBox(height: 5,),
-                  Container(color: Colors.white, child: Text("1")),
-                  SizedBox(height: 5,),
-                  Container(color: Colors.white, child: Text("1")),
+                  Container(
+                      padding: EdgeInsets.all(5),
+                      //decoration: Border,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), // 그림자 색상
+                            offset: Offset(0, 4), // x=0, y=4 → 아래로 그림자
+                            blurRadius: 6,        // 퍼짐 정도
+                            spreadRadius: 0,      // 확장 정도
+                          ),
+                        ],
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.62,
+                      child: Text(
+                        movie_detail!.title,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                      )
+                  ),
+                  Container(
+                      padding: EdgeInsets.all(5),
+                      //decoration: Border,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), // 그림자 색상
+                            offset: Offset(0, 4), // x=0, y=4 → 아래로 그림자
+                            blurRadius: 6,        // 퍼짐 정도
+                            spreadRadius: 0,      // 확장 정도
+                          ),
+                        ],
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.62,
+                      child:
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 2),
+                        Text("추천 이유: $reason"),
+                        const SizedBox(height: 5),
+                        MouseRegion(
+                          onEnter: (_) => setState(() => _isHovering = true),
+                          onExit: (_) => setState(() => _isHovering = false),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MovieDetailPage(title: movie_detail!.title),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "더 자세히...",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: _isHovering ? Colors.white : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        FractionallySizedBox(
+                          widthFactor: 0.8,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const TheaterPage()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              //padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            child: const Text("예매하기"),
+                          ),
+                        ),
+                      ]
+                  )),
                   SizedBox(height: 5,)
                 ],
               ))
