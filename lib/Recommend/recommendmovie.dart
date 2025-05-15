@@ -8,6 +8,7 @@ import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import 'package:http/http.dart' as http;
 
+import '../Reservation/MovieDetail.dart';
 import '../providers/auth_provider.dart';
 import '../reserve/TheaterPage.dart';
 
@@ -24,10 +25,11 @@ class _ProductListPageState extends State<RecommendMovie> {
   var scroll = ScrollController();
   Map<String, dynamic> result = {}; // 초기값을 빈 Map으로 설정
   int movie_id = 0; // 기본값 0으로 설정
-  var reason ="";
+  var reason ='알 수 없음';
   int? user_id = -1;
   String username = "알 수 없음";
   Movie? movie_detail = null;
+  bool _isHovering = false;
 
   String searchKeyword = ''; // 검색어 상태
   List<Movie> products = [];
@@ -59,7 +61,7 @@ class _ProductListPageState extends State<RecommendMovie> {
         result = responseJson;
         // null 체크 후 값을 설정
         movie_id = responseJson['movie_id'] ?? 0; // movie_id가 null일 경우 0으로 설정
-        reason = responseJson['reason'] ?? '알 수 없음'; // reason이 null일 경우 기본값 설정
+        reason = responseJson['reason'] ?? reason; // reason이 null일 경우 기본값 설정
       });
       print(result);
     } else {
@@ -85,7 +87,8 @@ class _ProductListPageState extends State<RecommendMovie> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
-      await sendPost(); // movie_id 값 받아오기
+      if(movie_id != 0) return;
+      await sendPost();// movie_id 값 받아오기
 
       // movie_id가 설정된 후 findMovie 실행
       print("movie_id: "+movie_id.toString());
@@ -104,6 +107,7 @@ class _ProductListPageState extends State<RecommendMovie> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('영화부기'),
         actions: [
@@ -136,59 +140,164 @@ class _ProductListPageState extends State<RecommendMovie> {
           )
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: [
-          if (result.isNotEmpty && movie_detail != null)Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Color(0xFFECE6F0),
-                ),
-                child:
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AppContainer(
-                        child:
-                        ClipRRect(
-                          //borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            movie_detail?.posterImage ?? '',
-                            width: MediaQuery.of(context).size.width * 0.8,  // 화면 크기의 80%로 설정
-                            height: MediaQuery.of(context).size.height * 0.4, // 화면 크기의 40%로 설정
-                            fit: BoxFit.contain,
+      body: result.isNotEmpty && movie_detail != null
+          ? Container(
+        child: SingleChildScrollView(
+            child: Stack(
+          //: MainAxisSize.min,
+          //crossAxisAlignment: CrossAxisAlignment.center,
+          clipBehavior: Clip.none, // ← overflow 허용
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,      // 좌우 꽉 채우기
+              height: 150,   // 높이 150
+              child: Container(
+                color: Colors.redAccent,
+              ),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(margin: EdgeInsets.only(left: 30),
+                      child: Row(children: [ Image.asset('AI.png', width: 50, height: 50, color: Colors.white,),Text("  AI 추천", style: TextStyle(fontSize: 29,color: Colors.white))],)),
+                  SizedBox(height: 5,),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    //decoration: Border,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(5),
+                        topRight: Radius.circular(5),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2), // 그림자 색상
+                          offset: Offset(0, 4), // x=0, y=4 → 아래로 그림자
+                          blurRadius: 6,        // 퍼짐 정도
+                          spreadRadius: 0,      // 확장 정도
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      child: Image.network(
+                        movie_detail?.posterImage ?? '',
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        height: MediaQuery.of(context).size.height * 0.58,
+                        fit: BoxFit.contain,
+                      ),
+                    ),),
+                  SizedBox(height: 5,),
+                  Container(
+                      padding: EdgeInsets.all(5),
+                      //decoration: Border,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), // 그림자 색상
+                            offset: Offset(0, 4), // x=0, y=4 → 아래로 그림자
+                            blurRadius: 6,        // 퍼짐 정도
+                            spreadRadius: 0,      // 확장 정도
                           ),
-                        )),
-                    SizedBox(width: 10,height: 10),
-                    AppContainer(child:
-                    Container(child:
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                        ],
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.62,
+                      child: Text(
+                        movie_detail!.title,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+                      )
+                  ),
+                  Container(
+                      padding: EdgeInsets.all(5),
+                      //decoration: Border,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2), // 그림자 색상
+                            offset: Offset(0, 4), // x=0, y=4 → 아래로 그림자
+                            blurRadius: 6,        // 퍼짐 정도
+                            spreadRadius: 0,      // 확장 정도
+                          ),
+                        ],
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.62,
+                      child:
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(username+"님의 추천 영화: "+movie_detail!.title),
-                        Text("추천 이유: "+reason),
-                        Align(
-                            alignment: Alignment.center,
-                            child:  ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const TheaterPage()),
-                                  );},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red, // 배경 빨간색
-                                  foregroundColor: Colors.white, // 텍스트 색상 (선택사항)
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),child: Text("예매하기"))
-                        )
-                      ],)))],)),)
-          else
-            Center(child: Text('로딩중')),
-        ],
+                        const SizedBox(height: 2),
+                        Text("추천 이유: $reason"),
+                        const SizedBox(height: 5),
+                        MouseRegion(
+                          onEnter: (_) => setState(() => _isHovering = true),
+                          onExit: (_) => setState(() => _isHovering = false),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MovieDetailPage(title: movie_detail!.title),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "더 자세히...",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: _isHovering ? Colors.red : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        FractionallySizedBox(
+                          widthFactor: 1.0,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const TheaterPage()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              //padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            child: const Text("예매하기"),
+                          ),
+                        ),
+                      ]
+                  )),
+                  SizedBox(height: 5,)
+                ],
+              ))
+            )
+
+          ],
+        )),
+      )
+          : const Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 4,
+          color: Colors.redAccent,
+        ),
       ),
       bottomNavigationBar: const NavBar(),
     );
@@ -215,8 +324,8 @@ class AppContainer extends StatelessWidget {
       margin: margin,
       padding: padding ?? const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFD9D9D9),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white70,
+        borderRadius: BorderRadius.circular(5),
       ),
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
