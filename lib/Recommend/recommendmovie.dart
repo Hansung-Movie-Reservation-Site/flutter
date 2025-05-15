@@ -148,8 +148,14 @@ class _ProductListPageState extends State<RecommendMovie> {
           //crossAxisAlignment: CrossAxisAlignment.center,
           clipBehavior: Clip.none, // ← overflow 허용
           children: [
-            Expanded(
-              child: Container(color: Colors.redAccent, height: 150),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,      // 좌우 꽉 채우기
+              height: 150,   // 높이 150
+              child: Container(
+                color: Colors.redAccent,
+              ),
             ),
             Align(
               alignment: Alignment.topCenter,
@@ -158,6 +164,9 @@ class _ProductListPageState extends State<RecommendMovie> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Container(margin: EdgeInsets.only(left: 30),
+                      child: Row(children: [ Image.asset('AI.png', width: 50, height: 50, color: Colors.white,),Text("  AI 추천", style: TextStyle(fontSize: 29,color: Colors.white))],)),
+                  SizedBox(height: 5,),
                   Container(
                     padding: EdgeInsets.all(5),
                     //decoration: Border,
@@ -226,7 +235,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       width: MediaQuery.of(context).size.width * 0.62,
                       child:
                   Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 2),
                         Text("추천 이유: $reason"),
@@ -248,14 +257,14 @@ class _ProductListPageState extends State<RecommendMovie> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: _isHovering ? Colors.white : Colors.black,
+                                color: _isHovering ? Colors.red : Colors.white,
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 10),
                         FractionallySizedBox(
-                          widthFactor: 0.8,
+                          widthFactor: 1.0,
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.push(
