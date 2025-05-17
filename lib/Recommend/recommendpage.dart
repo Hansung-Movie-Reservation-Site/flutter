@@ -8,6 +8,7 @@ import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import '../Reservation/MovieDetail.dart';
 import '../reserve/TheaterPage.dart';
+import 'package:movie/Recommend/recommendmovie.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -50,6 +51,7 @@ class _ProductListPageState extends State<ProductListPage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +229,28 @@ class _ProductListPageState extends State<ProductListPage> {
                 ),
               );
             }).toList(),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // 버튼을 눌렀을 때, 다른 화면으로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecommendMovie(), // 다른 페이지로 이동
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text("AI 영화 추천"),
+            ),
           ),
         ],
       ),

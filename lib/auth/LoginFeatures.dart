@@ -13,7 +13,7 @@ class LoginFeatures {
     required final String password,
   }) async {
     final response = await http.post(
-      Uri.parse('http://43.200.184.143:8080/api/v1/user/login'), // 백엔드 API URL
+      Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/user/login'), // 백엔드 API URL
       headers: <String, String>{
         'Content-Type': 'application/json',
       },

@@ -14,7 +14,7 @@ class SignupFeautures {
     required final String password,
   }) async {
     final response = await http.post(
-      Uri.parse('http://43.200.184.143:8080/api/v1/user/createUser'),
+      Uri.parse('http://localhost:8080/api/v1/user/createUser'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
