@@ -191,9 +191,10 @@ class _ProductListPageState extends State<RecommendMovie> {
                     child: ClipRRect(
                       child: Image.network(
                         movie_poster,
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        height: MediaQuery.of(context).size.height * 0.58,
-                        fit: BoxFit.contain,
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        //height: MediaQuery.of(context).size.height * 0.58,
+                        //fit: BoxFit.cover,
+                          fit: BoxFit.fitWidth
                       ),
                     ),),
                   SizedBox(height: 5,),
@@ -201,7 +202,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       padding: EdgeInsets.all(5),
                       //decoration: Border,
                       decoration: commonBoxDecoration(),
-                      width: MediaQuery.of(context).size.width * 0.62,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       child: Text(
                         movie_detail!.title,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
@@ -211,7 +212,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       padding: EdgeInsets.all(5),
                       //decoration: Border,
                       decoration: commonBoxDecoration(bottom: true),
-                      width: MediaQuery.of(context).size.width * 0.62,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       child:
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
