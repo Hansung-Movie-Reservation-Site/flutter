@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:movie/Response/MovieReview.dart';
+import 'package:movie/Response/ReviewLike.dart';
 import '../Response/Movie.dart';
 import '../Response/MovieRating.dart';
 
@@ -124,5 +125,22 @@ class ApiService {
     }
   }
 
-
+  //리뷰 좋아요 개수 불러오기
+  Future<ReviewLike> getLikeCount(String url, Map<String, int> request) async {
+    try {
+      final response = await _dio.get(url, queryParameters: request);
+      if (response.statusCode == 200) {
+        //print("좋아요 로드 성공 / ApiService");
+        return ReviewLike.fromJson(response.data);
+      } else {
+        print("에러 코드: ${response.statusCode} / 좋아요 로드");
+        throw Exception("좋아요 로드 실패");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return e.response?.data?['message'] ?? "서버 오류 (좋아요 로드)";
+      }
+      throw Exception("알 수 없는 오류 발생 / 좋아요 로드");
+    }
+  }
 }

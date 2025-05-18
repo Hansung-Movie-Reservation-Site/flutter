@@ -8,6 +8,7 @@ import '../Common/ApiService.dart';
 import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
+import '../Response/ReviewLike.dart';
 import 'DetailReservation.dart';
 
 YoutubePlayerController? _youtubeController;
@@ -136,13 +137,16 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     super.dispose();
   }
 
+
   Future<void> _fetchReviews() async {
     final api = ApiService();
+    final likeApi = ApiService();
     List<Review> result = await api.getReview("v1/review/getReviewsByMovie", {"movieId" : movieId!});
     print("불러온 리뷰 개수: ${result.length}");
     setState(() {
       reviews.clear();  // 이전 데이터 초기화
       reviews.addAll(result.map((review) => {
+        "reviewId": review.id,
         "username": review.username,
         "rating": review.rating,
         "review": review.review,
