@@ -3,6 +3,8 @@ import 'package:movie/Response/MovieReview.dart';
 import 'package:movie/Response/ReviewLike.dart';
 import '../Response/Movie.dart';
 import '../Response/MovieRating.dart';
+import '../Response/Region.dart';
+import '../Response/Spot.dart';
 
 class ApiService {
   final Dio _dio = Dio(
@@ -68,7 +70,7 @@ class ApiService {
     }
   }
 
-  // 리뷰
+  // 리뷰불러오기
   Future<List<Review>> getReview(String url, Map<String, int> request) async {
     try {
       final response = await _dio.get(url, queryParameters: request,);
@@ -144,6 +146,7 @@ class ApiService {
     }
   }
 
+  //좋아요 누르기
   Future<void> setLike(String url, Map<String, dynamic> request) async {
     try {
       final response = await _dio.post(url, queryParameters: request);
@@ -159,5 +162,15 @@ class ApiService {
       }
       print("알 수 없는 에러 발생 / ApiService");
     }
+  }
+
+  Future<List<Region>> fetchRegions() async {
+    final response = await _dio.get("v1/regions/getAll");
+    return (response.data as List).map((r) => Region.fromJson(r)).toList();
+  }
+
+  Future<List<Spot>> fetchSpots() async {
+    final response = await _dio.get("v1/spots/getAll");
+    return (response.data as List).map((s) => Spot.fromJson(s)).toList();
   }
 }

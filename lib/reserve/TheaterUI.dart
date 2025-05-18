@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../Common/ApiService.dart';
 import '../Common/navbar.dart';
 import 'MovieSelectionPage.dart';
 
@@ -14,22 +16,49 @@ class _TheaterUIState extends State<TheaterUI> {
   String? selectedCinema;
   DateTime? selectedDate;
   String searchKeyword = '';
+  int? userId;
+  String? userCinema;
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  Future<void> init() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('user_id');
+    userCinema = prefs.getString('user_cinema');
+    await loadCinemaMap();
+  }
 
   final PageController _pageController = PageController(viewportFraction: 1.0);
   final int daysPerPage = 3;
 
   int currentPage = 0;
 
-  final Map<String, List<String>> cinemaMap = {
-    '내영화관': ['대학로'],
-    '서울': ['강남', '건대입구', '대학로', '미아'],
-    '경기': ['남양주', '동탄', '분당', '수원'],
-    '인천': ['검단', '송도', '영종', '인천논현'],
-    '강원': ['남춘천', '속초', '원주혁신', '춘천석사'],
-    '대구': ['대구신세계', '대구이시아', '마산', '창원'],
-    '부산': ['경상대', '덕천', '부산대', '해운대'],
-    '제주': ['서귀포', '제주삼화', '제주아라'],
-  };
+  Map<String, List<String>> cinemaMap = {};
+
+  Future<void> loadCinemaMap() async {
+    final api = ApiService();
+    final regions = await api.fetchRegions();
+    final spots = await api.fetchSpots();
+
+    Map<String, List<String>> tempMap = {
+      '내영화관': userCinema != null ? [userCinema!] : [],
+    };
+
+    for (var region in regions) {
+      tempMap[region.name] = spots
+          .where((spot) => spot.region.id == region.id)
+          .map((spot) => spot.name)
+          .toList();
+    }
+
+    setState(() {
+      cinemaMap = tempMap;
+    });
+  }
 
   List<DateTime> generateDates() {
     final today = DateTime.now();
