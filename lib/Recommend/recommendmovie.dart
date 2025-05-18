@@ -202,7 +202,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       padding: EdgeInsets.all(5),
                       //decoration: Border,
                       decoration: commonBoxDecoration(),
-                      width: MediaQuery.of(context).size.width * 0.8,
+                      width: MediaQuery.of(context).size.width * 0.82,
                       child: Text(
                         movie_detail!.title,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
@@ -212,7 +212,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       padding: EdgeInsets.all(5),
                       //decoration: Border,
                       decoration: commonBoxDecoration(bottom: true),
-                      width: MediaQuery.of(context).size.width * 0.8,
+                      width: MediaQuery.of(context).size.width * 0.82,
                       child:
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
