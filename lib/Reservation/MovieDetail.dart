@@ -67,6 +67,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   }
 
+  //평균 별점
   Future<void> setAverageRating() async {
     final api = ApiService();
     if (movieId != null) {
@@ -78,6 +79,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     }
   }
 
+  //리뷰 작성 완료
   void _submitReview() async {
     if (userRating == 0 || reviewController.text.trim().isEmpty) return;
     final api = ApiService();
@@ -90,9 +92,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     };
     final result = await api.postReview("v1/review/reviews", requestData);
     await _fetchReviews();
-
   }
 
+  void clickLike(int reviewId) async {
+    final api = ApiService();
+    final params = {
+      "userId": userId,
+      "reviewId": reviewId,
+    };
+    final result = await api.setLike("v1/review/likeToggle", params);
+    await _fetchReviews();
+  }
+
+  //영화 데이터 불러오기 및 별점과 리뷰 불러오기 실행
   Future<void> initMovies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
@@ -137,11 +149,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     super.dispose();
   }
 
-
+  //리뷰 불러오기 (실행은 initMovies에서)
   Future<void> _fetchReviews() async {
     final api = ApiService();
-    final likeApi = ApiService();
-    List<Review> result = await api.getReview("v1/review/getReviewsByMovie", {"movieId" : movieId!});
+    List<Review> result = await api.getReview("v1/review/reviewWithLikes", {"movieId" : movieId!, "userId" : userId!});
     print("불러온 리뷰 개수: ${result.length}");
     setState(() {
       reviews.clear();  // 이전 데이터 초기화
@@ -152,6 +163,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         "review": review.review,
         "spoiler": review.spoiler,
         "timestamp": review.date,
+        "likes": review.likeCount,
+        "likedByMe": review.liked,
       }));
     });
   }
@@ -341,14 +354,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                               color: review['likedByMe'] == true ? Colors.red : Colors.grey,
                                             ),
                                             onPressed: () {
-                                              setState(() {
-                                                review['likedByMe'] = !(review['likedByMe'] ?? false);
-                                                if (review['likedByMe']) {
-                                                  review['likes'] = (review['likes'] ?? 0) + 1;
-                                                } else {
-                                                  review['likes'] = (review['likes'] ?? 0) - 1;
-                                                }
-                                              });
+                                              clickLike(review['reviewId']);
                                             },
                                           ),
                                           Text('${review['likes'] ?? 0}'),

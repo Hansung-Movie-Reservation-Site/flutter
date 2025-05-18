@@ -143,4 +143,21 @@ class ApiService {
       throw Exception("알 수 없는 오류 발생 / 좋아요 로드");
     }
   }
+
+  Future<void> setLike(String url, Map<String, dynamic> request) async {
+    try {
+      final response = await _dio.post(url, queryParameters: request);
+      if (response.statusCode == 200) {
+        print("좋아요 성공 / ApiService");
+      } else {
+        print("에러 코드: ${response.statusCode} / 좋아요 실패");
+        throw Exception("좋아요 저장 실패");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return e.response?.data?['message'] ?? "서버 오류 (좋아요 클릭)";
+      }
+      print("알 수 없는 에러 발생 / ApiService");
+    }
+  }
 }
