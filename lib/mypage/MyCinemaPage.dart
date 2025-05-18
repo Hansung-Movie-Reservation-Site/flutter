@@ -8,8 +8,25 @@ class MyCinemaScreen extends StatefulWidget {
 }
 
 class _MyCinemaScreenState extends State<MyCinemaScreen> {
+
+  SharedPreferences? prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    loadPrefs();
+  }
+
+  Future<void> loadPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userCinema = prefs?.getString("user_cinema");
+    });
+  }
+
   String? selectedRegion;
   String? selectedCinema;
+  String? userCinema; //현재 유저 시네마
   String? selectedRecentCinema;
 
   // 샘플 데이터
@@ -74,7 +91,7 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          MyCinemaUI.buildCinemaInfo(selectedCinema), // 선택된 영화관 정보 표시
+          MyCinemaUI.buildCinemaInfo(userCinema), // 선택된 영화관 정보 표시
           const SizedBox(height: 50),
 
           // 영화관 선택 UI

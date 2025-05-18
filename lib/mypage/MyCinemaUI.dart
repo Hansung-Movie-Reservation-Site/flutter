@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCinemaUI {
   // 현재 선택된 영화관 정보 표시
@@ -177,59 +178,59 @@ class MyCinemaUI {
 
         const SizedBox(height: 30),
 
-        // 최근 방문한 영화관 리스트
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            '최근 방문한 영화관',
-            style: TextStyle(
-              color: Colors.black,
-              fontFamily: 'Roboto',
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 15),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Wrap(
-            spacing: 10,
-            children: recentCinemas.map((cinema) {
-              return GestureDetector(
-                onTap: () {
-                  onRecentCinemaSelected(cinema);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: selectedRecentCinema == cinema
-                        ? Colors.red.shade800
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: selectedRecentCinema == cinema
-                          ? Colors.black
-                          : Colors.black,
-                    ),
-                  ),
-                  child: Text(
-                    cinema,
-                    style: TextStyle(
-                      color: selectedRecentCinema == cinema
-                          ? Colors.black
-                          : Colors.black,
-                      fontFamily: 'Roboto',
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        // // 최근 방문한 영화관 리스트
+        // const Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: 20),
+        //   child: Text(
+        //     '최근 방문한 영화관',
+        //     style: TextStyle(
+        //       color: Colors.black,
+        //       fontFamily: 'Roboto',
+        //       fontSize: 17,
+        //       fontWeight: FontWeight.bold,
+        //     ),
+        //   ),
+        // ),
+        //
+        // const SizedBox(height: 15),
+        //
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 20),
+        //   child: Wrap(
+        //     spacing: 10,
+        //     children: recentCinemas.map((cinema) {
+        //       return GestureDetector(
+        //         onTap: () {
+        //           onRecentCinemaSelected(cinema);
+        //         },
+        //         child: Container(
+        //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        //           decoration: BoxDecoration(
+        //             color: selectedRecentCinema == cinema
+        //                 ? Colors.red.shade800
+        //                 : Colors.white,
+        //             borderRadius: BorderRadius.circular(10),
+        //             border: Border.all(
+        //               color: selectedRecentCinema == cinema
+        //                   ? Colors.black
+        //                   : Colors.black,
+        //             ),
+        //           ),
+        //           child: Text(
+        //             cinema,
+        //             style: TextStyle(
+        //               color: selectedRecentCinema == cinema
+        //                   ? Colors.black
+        //                   : Colors.black,
+        //               fontFamily: 'Roboto',
+        //               fontSize: 14,
+        //             ),
+        //           ),
+        //         ),
+        //       );
+        //     }).toList(),
+        //   ),
+        // ),
 
         const SizedBox(height: 20),
       ],

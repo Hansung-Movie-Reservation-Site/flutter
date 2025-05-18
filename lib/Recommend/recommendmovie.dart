@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Common/movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import 'package:http/http.dart' as http;
 
 import '../Reservation/MovieDetail.dart';
+import '../Response/Movie.dart';
 import '../providers/auth_provider.dart';
 import '../reserve/TheaterPage.dart';
 

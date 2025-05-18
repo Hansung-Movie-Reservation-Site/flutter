@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:movie/Response/MovieRating.dart';
+import 'package:movie/Response/MovieReview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../Common/ApiService.dart';
-import '../Common/movie.dart';
+import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
+import '../Response/ReviewLike.dart';
 import 'DetailReservation.dart';
+
+YoutubePlayerController? _youtubeController;
 
 class MovieDetailPage extends StatefulWidget {
   final String title;
@@ -17,6 +23,8 @@ class MovieDetailPage extends StatefulWidget {
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
   Movie? movie;
+  int? movieId;
+  int? userId;
   String movieName = '';
   String runTime = '';
   String Genre = '';
@@ -27,11 +35,12 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String imageUrl = '';
   String cinema = '없음';
   String videoUrl = '';
+  double averageRating = 0;
 
   bool isLoading = true;
 
   // 리뷰 관련
-  double userRating = 0;
+  double userRating = 3;
   bool containsSpoiler = false;
   final TextEditingController reviewController = TextEditingController();
   final List<Map<String, dynamic>> reviews = [];
@@ -44,92 +53,106 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     initMovies();
     _fetchReviews();
 
-    reviews.addAll([
-      {
-        'rating': 4.5,
-        'review': '정말 재미있었어요!',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-        'spoiler': false,
-        'likes': 2,  // 좋아요 개수
-        'likedByMe': false,  // 내가 좋아요 눌렀는지 여부
-      },
-      {
-        'rating': 3.0,
-        'review': '결말이 예상밖이었어요.',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 5)),
-        'spoiler': true,
-        'likes': 5,
-        'likedByMe': false,
-      },
-      {
-        'rating': 1.0,
-        'review': '굳이 찾아 볼 만큼은 아닌 듯',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-        'spoiler': false,
-        'likes': 2,
-        'likedByMe': false,
-      },
-      {
-        'rating': 4.5,
-        'review': '마지막에 범인 밝혀질 때 너무 놀랐다. 반전 있는 영화',
-        'timestamp': DateTime.now().subtract(const Duration(minutes: 10)),
-        'spoiler': true,
-        'likes': 0,
-        'likedByMe': false,
-      },
-    ]);
+    if (videoUrl.isNotEmpty && YoutubePlayer.convertUrlToId(videoUrl) != null) {
+      final videoId = YoutubePlayer.convertUrlToId(videoUrl)!;
+
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: videoId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+        ),
+      );
+    }
+
   }
 
-  double get averageRating {
-    if (reviews.isEmpty) return 0.0;
-    return reviews.map((r) => r['rating'] as double).reduce((a, b) => a + b) / reviews.length;
-  }
-
-  void _submitReview() {
-    if (userRating == 0 || reviewController.text.trim().isEmpty) return;
-    setState(() {
-      reviews.add({
-        'rating': userRating,
-        'review': reviewController.text.trim(),
-        'timestamp': DateTime.now(),
-        'spoiler': containsSpoiler,
-        'likes': 0,
-        'likedByMe': false,
+  Future<void> setAverageRating() async {
+    final api = ApiService();
+    if (movieId != null) {
+      final params = {'movieId': movieId!};
+      MovieRating result = await api.getRating("v1/review/rating", params);
+      setState(() {
+        averageRating = result.averageRating;
       });
-      userRating = 0;
-      reviewController.clear();
-      containsSpoiler = false;
-    });
+    }
+  }
+
+  void _submitReview() async {
+    if (userRating == 0 || reviewController.text.trim().isEmpty) return;
+    final api = ApiService();
+    final requestData = {
+      "rating": userRating,
+      "review": reviewController.text.trim(),
+      "spoiler": containsSpoiler,
+      "userId": userId,
+      "movieId": movieId,
+    };
+    final result = await api.postReview("v1/review/reviews", requestData);
+    await _fetchReviews();
+
   }
 
   Future<void> initMovies() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('user_id');
     final api = ApiService();
     List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
 
     if (result.isNotEmpty) {
+      final movieData = result.first;
+      final videoId = YoutubePlayer.convertUrlToId(movieData.fullVideoLink ?? "");
+
+      if (videoId != null) {
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
+        );
+      }
+
       setState(() {
-        movie = result.first;
-        movieName = movie!.title;
-        runTime = "${movie!.runtime}분";
-        Genre = movie!.genres;
-        StartDate = movie!.releaseDate;
-        Director = movie!.director;
-        ShortStory = movie!.overview;
-        imageUrl = movie!.posterImage;
-        videoUrl = movie!.fullVideoLink;
+        movie = movieData;
+        movieId = movieData.id;
+        movieName = movieData.title;
+        runTime = "${movieData.runtime}분";
+        Genre = movieData.genres;
+        StartDate = movieData.releaseDate;
+        Director = movieData.director;
+        ShortStory = movieData.overview;
+        imageUrl = movieData.posterImage;
+        videoUrl = movieData.fullVideoLink;
         isLoading = false;
       });
+      await setAverageRating();
+      await _fetchReviews();
+
     } else {
       setState(() => isLoading = false);
     }
   }
 
+  @override
+  void dispose() {
+    _youtubeController?.dispose();
+    super.dispose();
+  }
+
+
   Future<void> _fetchReviews() async {
+    final api = ApiService();
+    final likeApi = ApiService();
+    List<Review> result = await api.getReview("v1/review/getReviewsByMovie", {"movieId" : movieId!});
+    print("불러온 리뷰 개수: ${result.length}");
     setState(() {
-      reviews.clear();
-      reviews.addAll([
-        // 실제 API 데이터로 대체
-      ]);
+      reviews.clear();  // 이전 데이터 초기화
+      reviews.addAll(result.map((review) => {
+        "reviewId": review.id,
+        "username": review.username,
+        "rating": review.rating,
+        "review": review.review,
+        "spoiler": review.spoiler,
+        "timestamp": review.date,
+      }));
     });
   }
 
@@ -156,8 +179,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('평균 별점: ${averageRating.toStringAsFixed(1)} / 5.0',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      '평균 별점: $averageRating / 5.0',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 10),
                     RatingBar.builder(
                       initialRating: userRating,
@@ -239,7 +264,6 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         final isSpoiler = review['spoiler'] == true;
                         final isExpanded = spoilerExpanded.contains(index);
                         final displayText = review['review'];
-
                         return GestureDetector(
                           onTap: () {
                             if (isSpoiler) {
@@ -253,8 +277,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                             }
                           },
                           child: Card(
-                            color: Colors.white,
                             margin: const EdgeInsets.symmetric(vertical: 6),
+                            color: Colors.white,
                             child: Padding(
                               padding: const EdgeInsets.all(12),
                               child: Column(
@@ -262,16 +286,33 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                 children: [
                                   Row(
                                     children: [
+                                      Text(
+                                        review['username'],
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Text(
+                                        review['timestamp'].toString(),
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
                                       const Icon(Icons.star, color: Colors.amber),
                                       const SizedBox(width: 5),
-                                      Text('${review['rating']}',
-                                          style: const TextStyle(fontSize: 16)),
-                                      const SizedBox(width: 10),
-                                      if (isSpoiler)
+                                      Text(
+                                        review['rating'].toString(),
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                      if (isSpoiler && !isExpanded) ...[
+                                        const SizedBox(width: 10),
                                         const Text(
                                           '⚠️ 스포일러가 포함된 리뷰입니다.',
                                           style: TextStyle(color: Colors.black),
                                         ),
+                                      ],
                                     ],
                                   ),
                                   const SizedBox(height: 6),
@@ -297,14 +338,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           IconButton(
                                             icon: Icon(
                                               Icons.thumb_up,
-                                              color: review['likedByMe'] == true
-                                                  ? Colors.red
-                                                  : Colors.grey,
+                                              color: review['likedByMe'] == true ? Colors.red : Colors.grey,
                                             ),
                                             onPressed: () {
                                               setState(() {
-                                                review['likedByMe'] =
-                                                !(review['likedByMe'] ?? false);
+                                                review['likedByMe'] = !(review['likedByMe'] ?? false);
                                                 if (review['likedByMe']) {
                                                   review['likes'] = (review['likes'] ?? 0) + 1;
                                                 } else {
@@ -387,18 +425,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       const SizedBox(height: 20),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: videoUrl.isNotEmpty
-            ? SizedBox(
-          height: 200,
-          child: WebViewWidget(
-            controller: WebViewController()
-              ..setJavaScriptMode(JavaScriptMode.unrestricted)
-              ..loadRequest(Uri.parse(videoUrl)),
-          ),
+        child: (videoUrl.isNotEmpty &&
+            _youtubeController != null &&
+            YoutubePlayer.convertUrlToId(videoUrl) != null)
+            ? YoutubePlayer(
+          controller: _youtubeController!,
+          showVideoProgressIndicator: true,
+          width: double.infinity,
+          aspectRatio: 16 / 9,
         )
             : const SizedBox(
           height: 200,
-          child: Center(child: Text("예고편을 불러오는 중입니다...")),
+          child: Center(child: Text("예고편이 제공되지 않는 영화입니다.")),
         ),
       ),
       const SizedBox(height: 30),

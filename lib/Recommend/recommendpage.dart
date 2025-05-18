@@ -1,12 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../Common/ApiService.dart';
 import '../Common/MovieCategoryChips.dart';
-import '../Common/movie.dart';
+import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
-import 'package:http/http.dart' as http;
-
 import '../Reservation/MovieDetail.dart';
 import '../reserve/TheaterPage.dart';
 import 'package:movie/Recommend/recommendmovie.dart';
@@ -24,6 +23,7 @@ class _ProductListPageState extends State<ProductListPage> {
   String searchKeyword = ''; // 검색어 상태
 
   List<Movie> products = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -32,21 +32,20 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> fetchProducts() async {
-    final response = await http.get(Uri.parse('http://43.200.184.143:8080/api/v1/movies/daily'));
+    final api = ApiService();
+    final fetched = await api.dailyMovie("v1/movies/daily");
 
-    if (response.statusCode == 200) {
-      final utf8Body = utf8.decode(response.bodyBytes);
-      List<dynamic> data = json.decode(utf8Body);
-      final fetched = data.map((json) => Movie.fromJson(json)).toList();
+    if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');
-      for (var movie in fetched) {
-        print('제목: ${movie.title}, 이미지: ${movie.posterImage}');
-      }
       setState(() {
         products = fetched;
+        isLoading = false;
       });
     } else {
-      print('에러 코드: ${response.statusCode}');
+      print("fetchProducts 함수 동작 실패 / 빈 배열");
+      setState(() {
+        isLoading = false; // 로딩 실패
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
       );
@@ -174,6 +173,7 @@ class _ProductListPageState extends State<ProductListPage> {
               // 영화 목록 (GridView 등)
             ],
           ),
+          isLoading ? const Center(child: CircularProgressIndicator()) :
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
