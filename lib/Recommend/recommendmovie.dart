@@ -47,6 +47,11 @@ class _ProductListPageState extends State<RecommendMovie> {
     user_id = prefs.getInt("user_id");
     username = prefs.getString("username")?? username;
 
+    if (user_id == -1) {
+      print("user_id가 null입니다. 요청 중단");
+      return;
+    }
+
     var url = Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/AIRecommand/synopsis');
 
     var response = await http.post(
@@ -167,8 +172,9 @@ class _ProductListPageState extends State<RecommendMovie> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(margin: EdgeInsets.only(left: 30),
-                      child: Row(children: [
-                        Image.asset('AI.png', width: 50, height: 50, color: Colors.white,),
+                      child:
+                      Row(children: [
+                        Image.asset('assets/AI.png', width: 50, height: 50, color: Colors.white,),
                         SizedBox(width: 20),
                         Text(username+"님을 위한 AI 추천", style: TextStyle(fontSize: 27,color: Colors.white)), Spacer(),
                         IconButton(onPressed: () async {
@@ -176,7 +182,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                           await sendPost();
                           await findMovie();
                           setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
-                          }, icon: Image.asset("reload.png", height: 20, width: 20, color: Colors.white)),],)),
+                          }, icon: Image.asset("assets/reload.png", height: 20, width: 20, color: Colors.white)),],)),
                   SizedBox(height: 20,),
                   Container(
                     padding: EdgeInsets.all(5),
@@ -276,7 +282,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                     SizedBox(height: 24,),
                     Text("${status} ERROR 발생"),
                     SizedBox(height: 10,),
-                    Image.asset("error.png", height: 50, width: 50, color: Colors.white),
+                    Image.asset("assets/error.png", height: 50, width: 50, color: Colors.white),
                     SizedBox(height: 10,),
                     Text("아이콘을 클릭하여 다시 시도하여 주십시오.")
                   ],
