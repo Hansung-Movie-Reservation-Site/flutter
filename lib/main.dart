@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:movie/Reservation/ReviewUI.dart';
-import 'package:movie/auth/LoginPage.dart';
 import 'package:movie/providers/auth_provider.dart';
-import 'package:movie/reserve/movieScreen.dart';
-import 'package:movie/Common/navbar.dart';
 import 'package:movie/Recommend/recommendpage.dart';
-import 'package:movie/Reservation/MovieDetail.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/mypage/ProfilePage.dart';
 import 'package:movie/reserve/TheaterPage.dart';

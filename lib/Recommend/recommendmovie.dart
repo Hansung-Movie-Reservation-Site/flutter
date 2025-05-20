@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,59 +38,88 @@ class _ProductListPageState extends State<RecommendMovie> {
 
   bool isLoading = false;
   int status = 200;
+  // http://localhost:8080/
+  // https://hs-cinemagix.duckdns.org/
 
-  sendPost() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.getKeys().forEach((key) {
-      print('$key: ${prefs.get(key)} (${prefs.get(key)?.runtimeType})');
-    });
-
-    user_id = prefs.getInt("user_id");
-    username = prefs.getString("username")?? username;
-
-    if (user_id == -1) {
-      print("user_id가 null입니다. 요청 중단");
-      return;
-    }
-
-    var url = Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/AIRecommand/synopsis');
-
-    var response = await http.post(
-      url,
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: "http://localhost:8080/api/",
       headers: {
-        'Content-Type': 'application/json;charset=UTF-8', // JSON 전송 시
+        "Content-Type": "application/json",
+        "Accept": "*/*",
       },
-      body: jsonEncode({
-        "user_id": user_id
-      }),
-    );
+    ),
+  );
+  sendPost() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      user_id = prefs.getInt("user_id");
+      username = prefs.getString("username") ?? username;
 
-    if (response.statusCode == 200) {
-      var responseJson = jsonDecode(utf8.decode(response.bodyBytes));
-      setState(() {
-        result = responseJson;
-        // null 체크 후 값을 설정
-        movie_id = responseJson['movie_id'] ?? 0; // movie_id가 null일 경우 0으로 설정
-        reason = responseJson['reason'] ?? reason; // reason이 null일 경우 기본값 설정
-      });
-      print(result);
-    } else {
-      print('오류 발생: ${response.statusCode}');
-      setState(() {status = response.statusCode;});
+      if (user_id == -1) {
+        print("user_id가 null입니다. 요청 중단");
+        return;
+      }
+
+      print('요청 시작');
+
+      var response = await _dio.post(
+        "v1/AIRecommand/synopsis",
+        data: {"user_id": user_id},
+      );
+
+      print('응답 받음');
+
+      if (response.statusCode == 200) {
+        // Dio는 자동으로 JSON을 디코딩하므로 바로 사용 가능
+        var responseJson = response.data;
+
+        setState(() {
+          result = responseJson;
+          movie_id = responseJson['movie_id'] ?? 0;
+          reason = responseJson['reason'] ?? reason;
+        });
+
+        print(result);
+      }
+      else {
+        print('오류 발생: ${response.statusCode}');
+        setState(() {
+          status = response.statusCode!;
+        });
+      }
+    } catch (e, stack) {
+      if(e is DioException){
+        print(e.response?.statusCode);
+        if(e.response?.statusCode == 403){
+          print("로그인 다시시도");
+          Navigator.pushReplacementNamed(context, '/MyPage_Logout');
+        }
+      }
+      print('예외 발생: $e');
+      print('스택 트레이스: $stack');
     }
   }
 
+
+
   findMovie() async {
-    final response = await http.get(Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/movies/searchById?id=${movie_id}'));
-    ///search/id
-    if (response.statusCode == 200) {
-      final utf8Body = utf8.decode(response.bodyBytes);
-      Movie data = Movie.fromJson(json.decode(utf8Body));
-      //final fetched = data.map((json) => Movie.fromJson(json));
-      movie_detail = data;
-    } else {
-      print('에러 코드: ${response.statusCode}');
+    final response = await http.get(Uri.parse('http://localhost:8080/api/v1/movies/searchById?id=${movie_id}'));
+    try {
+      if (response.statusCode == 200) {
+        final utf8Body = utf8.decode(response.bodyBytes);
+        Movie data = Movie.fromJson(json.decode(utf8Body));
+        movie_detail = data;
+      } else {
+        print("에러 코드: ${response.statusCode} / 좋아요 로드");
+        throw Exception("좋아요 로드 실패");
+      }
+    } catch (e) {
+      if(response.statusCode == 403){
+        Navigator.pushReplacementNamed(context, '/MyPage_Logout');
+      }
       setState(() {status = response.statusCode;});
+      //return "서버 오류 (좋아요 로드)";
     }
   }
   @override
