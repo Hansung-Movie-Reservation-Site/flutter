@@ -13,13 +13,14 @@ import '../Response/Movie.dart';
 
 final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://hs-cinemagix.duckdns.org/api/',
+      baseUrl: 'http://localhost:8080/api/',
       headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*', // 또는 application/json
       },
     )
 );
+//'https://hs-cinemagix.duckdns.org/api/'
 
 class Apiservicev2 {
   Future<void> login({
@@ -28,7 +29,7 @@ class Apiservicev2 {
     required String password,}) async {
     final cookieJar = CookieJar();
     Future<void> printCookies() async {
-      final uri = Uri.parse('https://hs-cinemagix.duckdns.org');
+      final uri = Uri.parse('http://localhost:8080/api/');
       final cookies = await cookieJar.loadForRequest(uri);
       print('저장된 쿠키 리스트:');
       for (var cookie in cookies) {
@@ -84,7 +85,11 @@ class Apiservicev2 {
         print('오류 발생: ${response.statusCode}');
         return null;
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      // 서비스 메서드에서
+      if (e.response?.statusCode == 403) {
+        throw DioException(requestOptions: e.requestOptions, response: e.response); // 또는 특정 커스텀 예외로 throw
+      }
       print('예외 발생: $e');
       return null;
     }
@@ -109,6 +114,8 @@ class Apiservicev2 {
         return null;
       }
     } on DioException catch (e) {
+      if(e.response?.statusCode == 403){
+      }
       print("Dio 예외: ${e.message}");
       print("응답 본문: ${e.response?.data}");
       return null;

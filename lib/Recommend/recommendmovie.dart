@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 
 import '../Reservation/MovieDetail.dart';
 import '../Response/Movie.dart';
+import '../auth/LoginPage.dart';
 import '../providers/auth_provider.dart';
 import '../reserve/TheaterPage.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -56,7 +57,10 @@ class _ProductListPageState extends State<RecommendMovie> {
       InterceptorsWrapper(
         onError: (DioError e, handler) {
           if (e.response?.statusCode == 403) {
-            Navigator.of(context).pushReplacementNamed('/MyPage_Logout');
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
           }
           handler.next(e);
         },
@@ -67,43 +71,48 @@ class _ProductListPageState extends State<RecommendMovie> {
 
     setState(() {isLoading = true;});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
-      if(movie_id != 0) return;
+      try{
+        await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
+        if(movie_id != 0) return;
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      user_id = prefs.getInt("user_id");
-      print("user_id: "+ user_id.toString());
-      username = prefs.getString("username") ?? username;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        user_id = prefs.getInt("user_id");
+        print("user_id: "+ user_id.toString());
+        username = prefs.getString("username") ?? username;
 
-      if (user_id == -1) {
-        print("user_id가 null입니다. 요청 중단");
-        return;
-      }
-      var result = await  apiservicev2.aiRecommand(user_id!);
-      print("result 요청 완.");
-      if (result != null) {
-        setState(() {
-          //result = responseJson;
-          movie_id = result['movie_id'] ?? 0;
-          reason = result['reason'] ?? reason;
-        });
-        //
-        print(movie_id.toString());
-        // 성공
-        // movie_id가 설정된 후 findMovie 실행
-        movie_detail = await apiservicev2.findMovie(movie_id);
+        if (user_id == -1) {
+          print("user_id가 null입니다. 요청 중단");
+          return;
+        }
+        var result = await  apiservicev2.aiRecommand(user_id!);
+        print("result 요청 완.");
+        if (result != null) {
+          setState(() {
+            //result = responseJson;
+            movie_id = result['movie_id'] ?? 0;
+            reason = result['reason'] ?? reason;
+          });
+          //
+          print(movie_id.toString());
+          // 성공
+          // movie_id가 설정된 후 findMovie 실행
+          movie_detail = await apiservicev2.findMovie(movie_id);
 
-        if (movie_detail != null) {
-          print("movie_detail: ${movie_detail!.id}");
+          if (movie_detail != null) {
+            print("movie_detail: ${movie_detail!.id}");
+          } else {
+            print("해당 ID의 영화를 찾을 수 없습니다.");
+          }
+
+          setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
         } else {
+          // 실패 또는 예외
           print("해당 ID의 영화를 찾을 수 없습니다.");
         }
-
-        setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
-      } else {
-        // 실패 또는 예외
-        print("해당 ID의 영화를 찾을 수 없습니다.2");
-      }// 상태 업데이트
+      }
+      catch(e){
+        Navigator.pushNamed(context, '/MyPage_Login');
+      }
     });
   }
 
