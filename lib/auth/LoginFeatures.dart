@@ -12,7 +12,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 final dio = Dio(BaseOptions(baseUrl: 'https://hs-cinemagix.duckdns.org/api/'));
 
 class LoginFeatures {
-static Future<void> login({
+  Future<void> login({
 required BuildContext context,
 required String email,
 required String password,
@@ -29,45 +29,36 @@ required String password,
   }
 
 try {
+    dio.interceptors.add(CookieManager(cookieJar));
 
-  dio.interceptors.add(InterceptorsWrapper(
-    onResponse: (response, handler) {
-      print('Response headers: ${response.headers}');
-      handler.next(response);
+    final response = await dio.post('v1/user/login',
+      data: {
+      'email': email,
+      'password': password,
     },
-  ));
-  dio.interceptors.add(CookieManager(cookieJar));
+    );
+    printCookies();
 
-final response = await dio.post(
-'v1/user/login',
-data: {
-'email': email,
-'password': password,
-},
-);
+    if (response.statusCode == 200) {
+      final responseData = response.data;
+      int userId = responseData['userDetailDTO']['user_id'];
+      String userName = responseData['userDetailDTO']['username'];
+      String userEmail = responseData['userDetailDTO']['email'];
 
-  printCookies();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('user_id', userId);
+      await prefs.setString('username', userName);
+      await prefs.setString('email', userEmail);
+      await prefs.setBool('isLoggedIn', true);
 
-if (response.statusCode == 200) {
-final responseData = response.data;
-int userId = responseData['userDetailDTO']['user_id'];
-String userName = responseData['userDetailDTO']['username'];
-String userEmail = responseData['userDetailDTO']['email'];
-
-SharedPreferences prefs = await SharedPreferences.getInstance();
-await prefs.setInt('user_id', userId);
-await prefs.setString('username', userName);
-await prefs.setString('email', userEmail);
-await prefs.setBool('isLoggedIn', true);
-
-await DialogMaker.dialog(context, '로그인 성공!', '환영합니다! $userName님');
-Navigator.pushNamed(context, '/recommendpage');
-} else {
-await DialogMaker.dialog(context, '로그인 실패', '에러 코드: ${response.statusCode}');
-}
-} catch (e) {
-await DialogMaker.dialog(context, '로그인 실패', '오류가 발생했습니다.');
-}
+      await DialogMaker.dialog(context, '로그인 성공!', '환영합니다! $userName님');
+      Navigator.pushNamed(context, '/recommendpage');
+    } else {
+      await DialogMaker.dialog(context, '로그인 실패', '에러 코드: ${response.statusCode}');
+    }
+  } catch (e) {
+    await DialogMaker.dialog(context, '로그인 실패', '오류가 발생했습니다.');
+  }
 }
 }
 

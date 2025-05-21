@@ -23,6 +23,7 @@ class AuthService {
     }
     return null;
   }
+
   
   static Future<bool> isLoggedIn() async { //로그인 상태 확인
     SharedPreferences prefs = await SharedPreferences.getInstance();
