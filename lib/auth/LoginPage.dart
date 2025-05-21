@@ -1,4 +1,8 @@
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:movie/Common/ApiService.dart';
 import 'package:movie/auth/LoginUI.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
@@ -17,6 +21,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                 emailController: _emailController,
                 passwordController: _passwordController,
                 errorMessage: _errorMessage,
-                onLogin: () {
+                onLogin: () async {
                   LoginFeatures.login(
                     context: context,
                     email: _emailController.text,

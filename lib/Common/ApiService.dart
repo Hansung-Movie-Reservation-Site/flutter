@@ -11,9 +11,9 @@ import '../Response/Region.dart';
 import '../Response/Spot.dart';
 
 class ApiService {
-  final Dio _dio = Dio(
+  final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://hs-cinemagix.duckdns.org/api/",
+      baseUrl: "http://10.0.2.2:8080/",
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",
@@ -21,10 +21,11 @@ class ApiService {
     ),
   );
 
+
   /// 이메일 인증 코드 요청 (POST 요청)
   Future<String?> sendVerificationEmail(String url, Map<String, String> request) async {
     try {
-      final response = await _dio.post(
+      final response = await dio.post(
         url, // baseUrl + /email/send
         data: request,
       );
@@ -41,7 +42,7 @@ class ApiService {
   ///영화 정보 받아오기 API
   Future<List<Movie>> searchMovieDetail(String url, Map<String, String> request) async {
     try {
-      final response = await _dio.get(url, queryParameters: request,);
+      final response = await dio.get(url, queryParameters: request,);
       final decoded = response.data;
 
       List<Movie> movies = (decoded as List)
@@ -57,7 +58,7 @@ class ApiService {
   // 메인페이지 영화 목록 불러오는 함수
   Future<List<Movie>> dailyMovie(String url) async {
     try {
-      final response = await _dio.get(url);
+      final response = await dio.get(url);
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         final fetched = data.map((json) => Movie.fromJson(json)).toList();
@@ -77,7 +78,7 @@ class ApiService {
   // 리뷰불러오기
   Future<List<Review>> getReview(String url, Map<String, int> request) async {
     try {
-      final response = await _dio.get(url, queryParameters: request,);
+      final response = await dio.get(url, queryParameters: request,);
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         final review = data.map((json) => Review.fromJson(json)).toList();
@@ -98,7 +99,7 @@ class ApiService {
   // 별점
   Future<MovieRating> getRating(String url, Map<String, int> request) async {
     try {
-      final response = await _dio.get(url, queryParameters: request);
+      final response = await dio.get(url, queryParameters: request);
       if (response.statusCode == 200) {
         return MovieRating.fromJson(response.data);
       } else {
@@ -116,7 +117,7 @@ class ApiService {
   //리뷰 저장
   Future<String> postReview(String url, Map<String, dynamic> request) async {
     try {
-      final response = await _dio.post(url, data: request);
+      final response = await dio.post(url, data: request);
       if (response.statusCode == 200) {
         return "리뷰가 저장되었습니다.";
       } else {
@@ -134,7 +135,7 @@ class ApiService {
   //리뷰 좋아요 개수 불러오기
   Future<ReviewLike> getLikeCount(String url, Map<String, int> request) async {
     try {
-      final response = await _dio.get(url, queryParameters: request);
+      final response = await dio.get(url, queryParameters: request);
       if (response.statusCode == 200) {
         //print("좋아요 로드 성공 / ApiService");
         return ReviewLike.fromJson(response.data);
@@ -153,7 +154,7 @@ class ApiService {
   //좋아요 누르기
   Future<void> setLike(String url, Map<String, dynamic> request) async {
     try {
-      final response = await _dio.post(url, queryParameters: request);
+      final response = await dio.post(url, queryParameters: request);
       if (response.statusCode == 200) {
         print("좋아요 성공 / ApiService");
       } else {
@@ -169,12 +170,35 @@ class ApiService {
   }
 
   Future<List<Region>> fetchRegions() async {
-    final response = await _dio.get("v1/regions/getAll");
+    final response = await dio.get("v1/regions/getAll");
     return (response.data as List).map((r) => Region.fromJson(r)).toList();
   }
 
   Future<List<Spot>> fetchSpots() async {
-    final response = await _dio.get("v1/spots/getAll");
+    final response = await dio.get("v1/spots/getAll");
     return (response.data as List).map((s) => Spot.fromJson(s)).toList();
   }
+
+  Future<Map<String, dynamic>?> sendPost(int user_id) async {
+    try {
+      print("1");
+      var response = await dio.post(
+        "v1/AIRecommand/synopsis",
+        data: {"user_id": user_id},
+      );
+      print("2");
+      if (response.statusCode == 200) {
+        print('성공 에러코드: ${response.statusCode}');
+        return response.data;
+      } else {
+        print('오류 발생: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('예외 발생: $e');
+      return null;
+    }
+  }
+
+
 }
