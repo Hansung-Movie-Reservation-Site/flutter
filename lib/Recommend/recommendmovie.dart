@@ -46,28 +46,10 @@ class _ProductListPageState extends State<RecommendMovie> {
   // http://localhost:8080/
   // https://hs-cinemagix.duckdns.org/
 
-  final apiService = ApiService();
   final Apiservicev2 apiservicev2 = new Apiservicev2();
   @override
   void initState() {
     super.initState();
-    final apiService = ApiService();
-
-    apiService.dio.interceptors.add(
-      InterceptorsWrapper(
-        onError: (DioError e, handler) {
-          if (e.response?.statusCode == 403) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
-            );
-          }
-          handler.next(e);
-        },
-      ),
-    );
-    final cookieJar = CookieJar(); // 기본 메모리 저장소 (파일저장도 가능)
-    apiService.dio.interceptors.add(CookieManager(cookieJar));
 
     setState(() {isLoading = true;});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -153,8 +135,7 @@ class _ProductListPageState extends State<RecommendMovie> {
         ],
       ),
       body: isLoading == false
-          ? Container(
-        child: SingleChildScrollView(
+          ? Container(child: SingleChildScrollView(
             child: Stack(
           clipBehavior: Clip.none, // ← overflow 허용
           children: [
@@ -278,7 +259,7 @@ class _ProductListPageState extends State<RecommendMovie> {
             )
             else Center(child: IconButton(onPressed: () async {
               setState(() {isLoading = true;});
-              result = (await  apiService.sendPost(user_id!))!;
+              result = (await  apiservicev2.aiRecommand(user_id!))!;
               setState(() {
                 movie_id = result['movie_id'] ?? 0;
                 reason = result['reason'] ?? reason;
@@ -300,13 +281,8 @@ class _ProductListPageState extends State<RecommendMovie> {
               ),
               )))
           ],
-        )),
-      )
-          : const Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 4,
-          color: Colors.redAccent,
-        ),
+        )),)
+          : const Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,),
       ),
       bottomNavigationBar: const NavBar(),
     );

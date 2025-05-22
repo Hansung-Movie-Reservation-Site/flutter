@@ -5,6 +5,8 @@ import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/mypage/ProfilePage.dart';
 import 'package:movie/reserve/TheaterPage.dart';
 import 'package:provider/provider.dart';
+import 'Recommend/Abc.dart';
+import 'Recommend/MainPage.dart';
 import 'mypage/Mypage_login.dart';
 
 void main() async {
@@ -28,7 +30,8 @@ class MyApp extends StatelessWidget {
           '/MyPage_Logout': (context) => MyPage_Logout(),
           '/MyPage_Login': (context) => MyPage_Login(),
           '/ProfilePage': (context) => ProfilePage(),
-          '/Reserve': (context) => const TheaterPage(),
+          //'/Reserve': (context) => const TheaterPage(),
+          '/Reserve': (context) => Mainpage(),
         },
       )
     );

@@ -13,7 +13,7 @@ import '../Response/Movie.dart';
 
 final dio = Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:8080/api/',
+      baseUrl: 'http://10.0.2.2:8080/api/',
       headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*', // 또는 application/json
@@ -65,7 +65,9 @@ class Apiservicev2 {
       } else {
         await DialogMaker.dialog(context, '로그인 실패', '에러 코드: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, s) {
+      if(e is DioException)print(e.response?.statusCode);
+      print('예외 이유: $s');
       await DialogMaker.dialog(context, '로그인 실패', '오류가 발생했습니다.');
     }
   }
