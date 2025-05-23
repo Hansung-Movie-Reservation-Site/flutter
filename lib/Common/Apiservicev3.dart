@@ -40,4 +40,36 @@ class Apiservicev3{
       return [];
     }
   }
+
+  Future<Movie?> findmoviebyid(int movie_id) async {
+    try {
+      //final response = await dio.get('v1/movies/searchById?id=$id');
+
+      final response = await dio.get(
+        'v1/movies/search',
+        queryParameters: {'keyword': movie_id},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        print("findmovie 성공");
+        //if (data['errorCode'] == 'SUCCESS') {
+        return Movie.fromJson(data);
+        // }
+        // return [];
+      }
+    }
+    on DioException catch (e) {
+      if(e.response?.statusCode == 403){
+      }
+      print("Dio 예외: ${e.message}");
+      print("응답 본문: ${e.response?.data}");
+      return null;
+    } catch (e) {
+      print("기타 예외: $e");
+      return null;
+    }
+    return null;
+  }
 }

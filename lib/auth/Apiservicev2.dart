@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../Response/Airecommand.dart';
 import '../Response/Movie.dart';
+import '../Response/RecommandMovie.dart';
 
 final dio = Dio(
     BaseOptions(
@@ -104,7 +105,7 @@ class Apiservicev2 {
       //final response = await dio.get('v1/movies/searchById?id=$id');
 
       final response = await dio.get(
-        'v1/movies/searchById',
+        '/api/v1/AIRecommand/recommended',
         queryParameters: {'id': movie_id},
       );
 
@@ -128,21 +129,21 @@ class Apiservicev2 {
     }
   }
 
-  Future<List<Airecommendation>> getRecommandMovies(int user_id) async {
+  Future<List<Recommendmovie>> getRecommandMovies(int user_id) async {
     try {
       //final response = await dio.get('v1/movies/searchById?id=$id');
 
-      final response = await dio.post(
-        'v1/detail/retrieve/AI',
-        queryParameters: {'user_id': user_id},
+      final response = await dio.get(
+        'v1/AIRecommand/recommended',
+        queryParameters: {'userId': user_id},
       );
 
       if (response.statusCode == 200) {
         final data = response.data;
 
         //if (data['errorCode'] == 'SUCCESS') {
-          final List<dynamic> list = data['aiList'];
-          return list.map((item) => Airecommendation.fromJson(item)).toList();
+          final List<dynamic> list = data;
+          return list.map((item) => Recommendmovie.fromJson(item)).toList();
        // }
        // return [];
     }

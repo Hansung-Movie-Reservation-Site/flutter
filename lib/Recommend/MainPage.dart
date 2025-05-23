@@ -5,12 +5,15 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:movie/Common/Apiservicev3.dart';
 import 'package:movie/Recommend/Maintab.dart';
 import 'package:movie/Response/Airecommand.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Common/SearchModal.dart';
 import '../Common/navbar.dart';
+import '../Response/Movie.dart';
+import '../Response/RecommandMovie.dart';
 import '../auth/Apiservicev2.dart';
 import '../providers/auth_provider.dart';
 import 'Abc.dart';
@@ -33,8 +36,9 @@ class _MainpageState extends State<Mainpage> {
 
   Timer? _timer;
   final Apiservicev2 apiservicev2 = new Apiservicev2();
+  final Apiservicev3 apiservicev3 = new Apiservicev3();
   int user_id = -1;
-  List<Airecommendation> result = [];
+  List<Recommendmovie> result = [];
 
   @override
   void initState() {
@@ -64,11 +68,6 @@ class _MainpageState extends State<Mainpage> {
         setState(() {
           //result = responseJson;
         });
-        //
-        print(result[0].movieId);
-        for(var i =0; i <= result.length; i++){
-
-        }
       }
       catch(e){
         Navigator.pushNamed(context, '/MyPage_Login');
@@ -166,19 +165,21 @@ class _MainpageState extends State<Mainpage> {
             top: 100,
             left: 0,
             right: 0,
-            height: 240, // ← 필수
+            height: 285, // ← 필수
             child: _movieRecommendationSlider(result),
           ),
           //Align(child: Text("추천 목록이 존재하지 않습니다.", style: TextStyle(fontSize: 18))),
-          Align(child: TextButton(
+                  Positioned(
+                      top: 385,
+                      left: 0,
+                      right: 0,
+                      height: 60, // ← 필수
+                      child: Align(child: TextButton(
               style: ButtonStyle(
-                //padding: MaterialStateProperty.all(EdgeInsets.zero),
-                //minimumSize: MaterialStateProperty.all(Size(0, 0)), // ← 터치 영역 최소화
-                //tapTargetSize: MaterialTapTargetSize.shrinkWrap,   // ← 터치 타겟 크기 줄이기
               ),
-              onPressed: (){}, child: Container( width: double.infinity, decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(3)), child: Text("AI 추천", style: TextStyle(fontSize: 27, color: Colors.white), textAlign: TextAlign.center)))),
+              onPressed: (){}, child: Container( width: double.infinity, decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(3)), child: Text("AI 추천받기", style: TextStyle(fontSize: 27, color: Colors.white), textAlign: TextAlign.center))))),
                     Positioned(
-                      top: 520, left: 0, right: 0,
+                      top: 445, left: 0, right: 0,
                       height: 150,
                       child:
                       Column(
@@ -219,7 +220,7 @@ class _MainpageState extends State<Mainpage> {
                       children: List.generate(
                         3,
                             (index) => Padding(
-                          padding: EdgeInsets.only(top: 650),
+                          padding: EdgeInsets.only(top: 595),
                           child: ElevatedButton(
                             onPressed: () => _changeIndex(index + 1),
                             child: Text("${index + 1}"),
@@ -238,7 +239,10 @@ class _MainpageState extends State<Mainpage> {
 
 // 먼저 이 예제를 넣을 위치를 정확히 알기 위해 _yourWidget() 형태로 만들어드립니다.
 
-Widget _movieRecommendationSlider(List<Airecommendation> result) {
+Widget _movieRecommendationSlider(List<Recommendmovie> result) {
+  for(var i =0; i<result.length;i++){
+    print(result[i].title);
+  }
   return SizedBox(
     height: 200, // 꼭 있어야 함
     child: PageView.builder(
@@ -247,16 +251,16 @@ Widget _movieRecommendationSlider(List<Airecommendation> result) {
       itemBuilder: (context, index) {
         final item = result[index];
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
             child: Stack(
               fit: StackFit.expand,
               children: [
                 Container(color: Colors.black12), // 배경 대체
                 Container(
                   alignment: Alignment.bottomLeft,
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
@@ -268,8 +272,9 @@ Widget _movieRecommendationSlider(List<Airecommendation> result) {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Image.network(result[index].posterImage,height: 100, fit: BoxFit.fill,),
                       Text(
-                        "Movie ID: ${item.movieId}",
+                        "제목: ${result[index].title}",
                         style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 4),
