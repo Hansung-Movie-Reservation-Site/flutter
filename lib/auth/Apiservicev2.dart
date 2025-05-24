@@ -102,12 +102,12 @@ class Apiservicev2 {
   Future<Movie?> findMovie(int movie_id) async {
     String id = movie_id.toString();
     try {
-      //final response = await dio.get('v1/movies/searchById?id=$id');
+      final response = await dio.get('v1/movies/searchById?id=$id');
 
-      final response = await dio.get(
-        '/api/v1/AIRecommand/recommended',
-        queryParameters: {'id': movie_id},
-      );
+      // final response = await dio.get(
+      //   'v1/AIRecommand/recommended',
+      //   queryParameters: {'id': movie_id},
+      // );
 
       if (response.statusCode == 200) {
         Movie data = Movie.fromJson(response.data);

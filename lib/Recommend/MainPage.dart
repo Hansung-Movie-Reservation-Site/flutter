@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:movie/Common/Apiservicev3.dart';
 import 'package:movie/Recommend/Maintab.dart';
+import 'package:movie/Recommend/recommendmovie.dart';
 import 'package:movie/Response/Airecommand.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -145,7 +146,7 @@ class _MainpageState extends State<Mainpage> {
                         )
                       ),
                     ),
-                 Positioned(
+                    Positioned(
                       top: 45,
                       left: 0,
                       right: 0,
@@ -160,29 +161,18 @@ class _MainpageState extends State<Mainpage> {
                       child:Container(padding: const EdgeInsets.only(left: 15), child: Text("나의 추천 목록", style: TextStyle(fontSize: 18))),
 
                     ),
-
-                    Positioned(
-            top: 100,
-            left: 0,
-            right: 0,
-            height: 285, // ← 필수
-            child: _movieRecommendationSlider(result),
-          ),
-          //Align(child: Text("추천 목록이 존재하지 않습니다.", style: TextStyle(fontSize: 18))),
-                  Positioned(
-                      top: 385,
-                      left: 0,
-                      right: 0,
-                      height: 60, // ← 필수
-                      child: Align(child: TextButton(
-              style: ButtonStyle(
-              ),
-              onPressed: (){}, child: Container( width: double.infinity, decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(3)), child: Text("AI 추천받기", style: TextStyle(fontSize: 27, color: Colors.white), textAlign: TextAlign.center))))),
-                    Positioned(
-                      top: 445, left: 0, right: 0,
-                      height: 150,
-                      child:
-                      Column(
+                    Positioned(top: 100, left: 0, right: 0, height: 285,
+                      child: _movieRecommendationSlider(result),
+                    ),
+                    Positioned(top: 385, left: 0, right: 0, height: 60, // ← 필수
+                      child: Align(
+                          child: TextButton(
+                              onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const RecommendMovie(), // 다른 페이지로 이동),
+                              ));},
+                              child: Container( width: double.infinity, decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(3)), child: Text("AI 추천받기", style: TextStyle(fontSize: 27, color: Colors.white), textAlign: TextAlign.center))))),
+                    Positioned(top: 445, left: 0, right: 0, height: 150,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
@@ -217,15 +207,14 @@ class _MainpageState extends State<Mainpage> {
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        3,
+                      children: List.generate(3,
                             (index) => Padding(
-                          padding: EdgeInsets.only(top: 595),
-                          child: ElevatedButton(
-                            onPressed: () => _changeIndex(index + 1),
-                            child: Text("${index + 1}"),
-                          ),
-                        ),
+                              padding: EdgeInsets.only(top: 595),
+                              child: ElevatedButton(
+                                onPressed: () => _changeIndex(index + 1),
+                                child: Text("${index + 1}"),
+                              ),
+                            ),
                       ),
                     )
                   ]
