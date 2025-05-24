@@ -3,6 +3,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:movie/Response/Reviews.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/DialogMaker.dart';
 import 'package:http/http.dart' as http;
@@ -71,5 +72,37 @@ class Apiservicev3{
       return null;
     }
     return null;
+  }
+
+  Future<List<Reviews>> getReviewAll() async {
+    try {
+      //final response = await dio.get('v1/movies/searchById?id=$id');
+
+      final response = await dio.get(
+        'v1/review/getReviews',
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        //if (data['errorCode'] == 'SUCCESS') {
+        final List<dynamic> list = data;
+        return list.map((item) => Reviews.fromJson(item)).toList();
+        // }
+        // return [];
+      }
+      return [];
+    }
+    on DioException catch (e) {
+      if(e.response?.statusCode == 403){
+      }
+      print("Dio 예외: ${e.message}");
+      print("응답 본문: ${e.response?.data}");
+      return [];
+    } catch (e) {
+      print("기타 예외: $e");
+      return [];
+    }
+    return [];
   }
 }

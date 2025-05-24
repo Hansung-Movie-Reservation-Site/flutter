@@ -9,6 +9,7 @@ import 'package:movie/Common/Apiservicev3.dart';
 import 'package:movie/Recommend/Maintab.dart';
 import 'package:movie/Recommend/recommendmovie.dart';
 import 'package:movie/Response/Airecommand.dart';
+import 'package:movie/Response/Reviews.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Common/SearchModal.dart';
@@ -40,6 +41,7 @@ class _MainpageState extends State<Mainpage> {
   final Apiservicev3 apiservicev3 = new Apiservicev3();
   int user_id = -1;
   List<Recommendmovie> result = [];
+  List<Reviews> reviewresult = [];
 
   @override
   void initState() {
@@ -52,13 +54,12 @@ class _MainpageState extends State<Mainpage> {
       _changeIndex(nextIndex);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try{
-        //await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
-        //if(movie_id != 0) return;
-
         SharedPreferences prefs = await SharedPreferences.getInstance();
         user_id = prefs.getInt("user_id")!;
         print("mainPage의 user_id: "+ user_id.toString());
+
+        reviewresult = await apiservicev2.getReviewAll();
+        print("review 첫번째 title: "+ reviewresult[1].title);
 
         if (user_id == -1) {
           print("user_id가 null입니다. 요청 중단");
@@ -66,13 +67,7 @@ class _MainpageState extends State<Mainpage> {
         }
         result = await  apiservicev2.getRecommandMovies(user_id!);
         print("result 요청 완.");
-        setState(() {
-          //result = responseJson;
-        });
-      }
-      catch(e){
-        Navigator.pushNamed(context, '/MyPage_Login');
-      }
+        setState(() {});
     });
   }
 
@@ -120,7 +115,8 @@ class _MainpageState extends State<Mainpage> {
       body: Container(
           child: SingleChildScrollView(child:
               SizedBox(
-                height: 1700,
+                width: double.infinity,
+                height: 2000,
                   child:
               Stack(
                   clipBehavior: Clip.none, // ← overflow 허용
@@ -161,6 +157,7 @@ class _MainpageState extends State<Mainpage> {
                       child:Container(padding: const EdgeInsets.only(left: 15), child: Text("나의 추천 목록", style: TextStyle(fontSize: 18))),
 
                     ),
+                    result.length == 0 ? Text("로그인을 진행해 주세요."):
                     Positioned(top: 100, left: 0, right: 0, height: 285,
                       child: _movieRecommendationSlider(result),
                     ),
@@ -183,40 +180,43 @@ class _MainpageState extends State<Mainpage> {
                             ],
                           ),
                           Container(padding: const EdgeInsets.only(left: 10), child: Text("당신의 리뷰를 분석하여 영화를 추천해드립니다.", style: TextStyle(fontSize: 20))),
-                          PageTransitionSwitcher(
-                            transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
-                                SharedAxisTransition(
-                                  animation: primaryAnimation,
-                                  secondaryAnimation: secondaryAnimation,
-                                  transitionType: SharedAxisTransitionType.horizontal,
-                                  child: child,
-                                ),
-                            child: Container(
-                              key: ValueKey<int>(_currentIndex),
-                              color: Colors.blueAccent,
-                              alignment: Alignment.center,
-                              child: Text(
-                                _currentIndex.toString(),
-                                style: const TextStyle(fontSize: 48, color: Colors.white),
-                              ),
-                            ),
-                          )
+
+                          // PageTransitionSwitcher(
+                          //   transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
+                          //       SharedAxisTransition(
+                          //         animation: primaryAnimation,
+                          //         secondaryAnimation: secondaryAnimation,
+                          //         transitionType: SharedAxisTransitionType.horizontal,
+                          //         child: child,
+                          //       ),
+                          //   child: Container(
+                          //     key: ValueKey<int>(_currentIndex),
+                          //     color: Colors.blueAccent,
+                          //     alignment: Alignment.center,
+                          //     child: Text(
+                          //       _currentIndex.toString(),
+                          //       style: const TextStyle(fontSize: 48, color: Colors.white),
+                          //     ),
+                          //   ),
+                          // )
                         ],
                       )
                     ), // 최신 사용자 리뷰 위젯
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(3,
-                            (index) => Padding(
-                              padding: EdgeInsets.only(top: 595),
-                              child: ElevatedButton(
-                                onPressed: () => _changeIndex(index + 1),
-                                child: Text("${index + 1}"),
-                              ),
-                            ),
-                      ),
-                    )
+                    Positioned(top: 595, left: 0, right: 0, height: 100, // ← 필수
+                        child: _movieReviewsSlider(reviewresult)),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: List.generate(3,
+                    //         (index) => Padding(
+                    //           padding: EdgeInsets.only(top: 595),
+                    //           child: ElevatedButton(
+                    //             onPressed: () => _changeIndex(index + 1),
+                    //             child: Text("${index + 1}"),
+                    //           ),
+                    //         ),
+                    //   ),
+                    // )
                   ]
               ))
           )
@@ -283,3 +283,19 @@ Widget _movieRecommendationSlider(List<Recommendmovie> result) {
   );
 }
 
+Widget _movieReviewsSlider(List<Reviews> reviewresult) {
+  for(var i =0; i<reviewresult.length;i++){
+    print(reviewresult[i].title);
+  }
+  return SizedBox(
+    height: 200, // 꼭 있어야 함
+    child: PageView.builder(
+      itemCount: reviewresult.length,
+      controller: PageController(viewportFraction: 0.85),
+      itemBuilder: (context, index) {
+        final item = reviewresult[index];
+        return Container(child: Text("리뷰보여주는 곳"));
+      },
+    ),
+  );
+}
