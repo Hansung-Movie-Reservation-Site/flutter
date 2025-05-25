@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../Common/ApiService.dart';
+import '../Common/Apiservicev3.dart';
 import '../Common/MovieCategoryChips.dart';
 import '../Response/Movie.dart';
 import '../Common/navbar.dart';
@@ -9,6 +10,8 @@ import '../Common/SearchModal.dart';
 import '../Reservation/MovieDetail.dart';
 import '../reserve/TheaterPage.dart';
 import 'package:movie/Recommend/recommendmovie.dart';
+
+import 'Maintab.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -25,6 +28,8 @@ class _ProductListPageState extends State<ProductListPage> {
   List<Movie> products = [];
   bool isLoading = true;
 
+  Apiservicev3 apiServicev3 = new Apiservicev3();
+
   @override
   void initState() {
     super.initState();
@@ -32,8 +37,7 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> fetchProducts() async {
-    final api = ApiService();
-    final fetched = await api.dailyMovie("v1/movies/daily");
+    final fetched = await apiServicev3.dailyMovie();
 
     if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');
@@ -91,70 +95,6 @@ class _ProductListPageState extends State<ProductListPage> {
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Colors.grey[100],
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [ //AI 추천 포스터 출력
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      'https://img.cgv.co.kr/Movie/Thumbnail/Poster/000089/89058/89058_320.jpg',
-                      width: 160,
-                      height: 240,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // 영화 정보 텍스트
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '미키 17 (15세)',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text('2시간 17분', style: TextStyle(fontSize: 16)),
-                        const SizedBox(height: 4),
-                        const Text('감독: 봉준호', style: TextStyle(fontSize: 16)),
-                        const Text('장르: 어드벤처, SF, 드라마', style: TextStyle(fontSize: 16)),
-                        const Text('개봉: 2025.02.28', style: TextStyle(fontSize: 16)),
-                        const SizedBox(height: 10),
-
-                        // 예매하기 버튼
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const TheaterPage()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.redAccent),
-                            backgroundColor: Colors.redAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('예매 하기'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           const SizedBox(height: 12),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween, //좌우 정렬
@@ -168,12 +108,13 @@ class _ProductListPageState extends State<ProductListPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+             // Maintab(),
               const MovieCategoryChips(), // 여기에 삽입
               const SizedBox(height: 8),
               // 영화 목록 (GridView 등)
             ],
           ),
-          isLoading ? const Center(child: CircularProgressIndicator()) :
+          isLoading ? const Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,)) :
           GridView.count(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
