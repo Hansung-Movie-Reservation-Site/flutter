@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../Common/ApiService.dart';
+import '../Response/Seat.dart';
+
 class SeatSelectionUI extends StatefulWidget {
   final String movieTitle;
   final String theater;
@@ -7,6 +10,7 @@ class SeatSelectionUI extends StatefulWidget {
   final DateTime date;
   final int generalCount;
   final int youthCount;
+  final int screeningId;
 
   const SeatSelectionUI({
     super.key,
@@ -16,6 +20,7 @@ class SeatSelectionUI extends StatefulWidget {
     required this.date,
     required this.generalCount,
     required this.youthCount,
+    required this.screeningId,
   });
 
   @override
@@ -23,18 +28,33 @@ class SeatSelectionUI extends StatefulWidget {
 }
 
 class _SeatSelectionUIState extends State<SeatSelectionUI> {
-  final List<String> reservedSeats = ['B3', 'C4', 'D5', 'C7', 'D11'];
   final List<String> selectedSeats = [];
+  List<Seat> seats = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadSeats();
+  }
+
 
   final List<String> rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
-  final int leftSeats = 4;
-  final int centerSeats = 7;
-  final int rightSeats = 4;
-  final int totalColumns = 4 + 1 + 7 + 1 + 4; // 좌석 + 통로
+  final int leftSeats = 2;
+  final int centerSeats = 5;
+  final int rightSeats = 2;
+  final int totalColumns = 2 + 1 + 5 + 1 + 2; // 좌석 + 통로
 
   int get totalAllowed => widget.generalCount + widget.youthCount;
   int get totalPrice => (widget.generalCount * 13000) + (widget.youthCount * 10000);
+
+  Future<void> loadSeats() async {
+    final api = ApiService();
+    final result = await api.fetchSeats(widget.screeningId);
+    setState(() {
+      seats = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +135,10 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
 
                   final seatNumber = adjustedCol + 1;
                   final seatId = '$row$seatNumber';
-                  final isReserved = reservedSeats.contains(seatId);
+                  final isReserved = seats.any((seat) =>
+                  seat.row.toUpperCase() == row.toUpperCase() &&
+                      seat.column == seatNumber &&
+                      seat.reserved == true);
                   final isSelected = selectedSeats.contains(seatId);
 
                   Color seatColor;

@@ -4,6 +4,8 @@ import 'package:movie/Response/ReviewLike.dart';
 import '../Response/Movie.dart';
 import '../Response/MovieRating.dart';
 import '../Response/Region.dart';
+import '../Response/Screening.dart';
+import '../Response/Seat.dart';
 import '../Response/Spot.dart';
 
 class ApiService {
@@ -171,6 +173,43 @@ class ApiService {
 
   Future<List<Spot>> fetchSpots() async {
     final response = await _dio.get("v1/spots/getAll");
-    return (response.data as List).map((s) => Spot.fromJson(s)).toList();
+    return (response.data as List).map((r) => Spot.fromJson(r)).toList();
   }
+
+  Future<List<Screening>> fetchScreenings(String spotName, String date) async {
+    try {
+      final response = await _dio.get("/v1/screening", queryParameters: {
+        "spotName": spotName,
+        "date": date,
+      });
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Screening.fromJson(json)).toList();
+      } else {
+        throw Exception("상영 정보를 불러오지 못했습니다. 코드: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("fetchScreenings 예외: $e");
+      rethrow;
+    }
+  }
+
+  Future<List<Seat>> fetchSeats(int screeningId) async {
+    try {
+      final response = await _dio.get("/v1/screening/$screeningId/seats");
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Seat.fromJson(json)).toList();
+      } else {
+        print("좌석 불러오기 실패 / 코드: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("좌석 API 예외: $e");
+      return [];
+    }
+  }
+
 }

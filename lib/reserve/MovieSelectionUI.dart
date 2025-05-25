@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Common/ApiService.dart';
 import 'SeatPage.dart';
 
 class MovieSelectionUI extends StatefulWidget {
-  const MovieSelectionUI({super.key});
+  final String selectedCinema;
+  final DateTime selectedDate;
+
+  const MovieSelectionUI({
+    super.key,
+    required this.selectedCinema,
+    required this.selectedDate,
+  });
 
   @override
   State<MovieSelectionUI> createState() => _MovieSelectionUIState();
@@ -14,20 +22,32 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
   final int daysPerPage = 4;
   int currentPage = 0;
 
-  final List<Map<String, dynamic>> movies = [
-    {
-      'title': '파묘',
-      'times': ['10:30', '13:00', '15:40', '18:10', '21:00'],
-    },
-    {
-      'title': '듄: 파트2',
-      'times': ['11:00', '14:20', '17:50', '21:10'],
-    },
-    {
-      'title': '밥 말리: 원 러브',
-      'times': ['10:00', '12:30', '15:10', '17:40', '20:20'],
-    },
-  ];
+  List<Map<String, dynamic>>? movies;
+
+  Future<void> loadGroupedMovies(String spotName, String date) async {
+    final api = ApiService();
+    final screenings = await api.fetchScreenings(spotName, date);
+
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+
+    for (final s in screenings) {
+      grouped.putIfAbsent(s.title, () => []);
+      grouped[s.title]!.add({
+        "id": s.id,
+        "time": s.start.substring(0, 5),
+      });
+    }
+
+    setState(() {
+      movies = grouped.entries.map((e) => {
+        "title": e.key,
+        "times": e.value,
+      }).toList();
+    });
+  }
+
+
+
 
   List<DateTime> generateDates() {
     final today = DateTime.now();
@@ -58,10 +78,14 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
   void initState() {
     super.initState();
     selectedDate = generateDates().first;
+    loadGroupedMovies(widget.selectedCinema, widget.selectedDate.toString().split(" ")[0]);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (movies == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final allDates = generateDates();
     final paginatedDates = List.generate(
       _totalPages,
@@ -156,13 +180,13 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
         // 영화 목록
         Expanded(
           child: ListView.separated(
-            itemCount: movies.length,
+            itemCount: movies!.length,
             separatorBuilder: (_, __) => const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(color: Colors.black, thickness: 1),
             ),
             itemBuilder: (context, index) {
-              final movie = movies[index];
+              final movie = movies![index];
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -211,10 +235,13 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                     children: List.generate(
                       movie['times'].length,
                           (timeIndex) {
-                        final time = movie['times'][timeIndex];
+                        final timeInfo = movie['times'][timeIndex];
+                        final time = timeInfo['time'];
+                        final screeningId = timeInfo['id'];
+
                         return GestureDetector(
                           onTap: () {
-                            _showTimeDetailBottomSheet(movie['title'], time);
+                            _showTimeDetailBottomSheet(movie['title'], time, screeningId);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -228,7 +255,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                         );
                       },
                     ),
-                  ),
+                  )
                 ],
               );
             },
@@ -239,7 +266,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
   }
 
   // 인원수 선택 창
-  void _showTimeDetailBottomSheet(String movieTitle, String time) {
+  void _showTimeDetailBottomSheet(String movieTitle, String time, int screeningId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -331,6 +358,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                                 date: selectedDate!,
                                 generalCount: generalCount,
                                 youthCount: youthCount,
+                                screeningId: screeningId,
                               ),
                             ),
                           );

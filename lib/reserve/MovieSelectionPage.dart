@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'MovieSelectionUI.dart';
 
 class MovieselectionPage extends StatelessWidget {
-  const MovieselectionPage({super.key, required String selectedCinema, required DateTime selectedDate});
+  final String selectedCinema;
+  final DateTime selectedDate;
+
+  const MovieselectionPage({
+    super.key,
+    required this.selectedCinema,
+    required this.selectedDate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +24,12 @@ class MovieselectionPage extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: const Padding(
+      body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: MovieSelectionUI(),
+        child: MovieSelectionUI(
+          selectedCinema: selectedCinema,
+          selectedDate: selectedDate,
+        ),
       ),
     );
   }

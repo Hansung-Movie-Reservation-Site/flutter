@@ -8,6 +8,7 @@ class SeatSelectionPage extends StatelessWidget {
   final DateTime date;
   final int generalCount;
   final int youthCount;
+  final int screeningId;
 
   const SeatSelectionPage({
     super.key,
@@ -17,6 +18,7 @@ class SeatSelectionPage extends StatelessWidget {
     required this.date,
     required this.generalCount,
     required this.youthCount,
+    required this.screeningId,
   });
 
   @override
@@ -29,6 +31,7 @@ class SeatSelectionPage extends StatelessWidget {
         time: time,
         generalCount: generalCount,
         youthCount: youthCount,
+        screeningId: screeningId,
       ),
     );
   }
