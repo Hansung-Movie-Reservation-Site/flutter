@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         home: ProductListPage(),
 
         routes: {
-          '/recommendpage': (context) => ProductListPage(),
+          '/recommendpage': (context) => Mainpage(),
           '/MyPage_Logout': (context) => MyPage_Logout(),
           '/MyPage_Login': (context) => MyPage_Login(),
           '/ProfilePage': (context) => ProfilePage(),
