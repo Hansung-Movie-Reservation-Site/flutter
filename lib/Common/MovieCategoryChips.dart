@@ -15,8 +15,8 @@ class _MovieCategoryChipsState extends State<MovieCategoryChips> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    return Container(
+      //padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
       child: Wrap(
         spacing: 10, // Chip 간 간격
         children: categories.map((category) {

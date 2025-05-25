@@ -1,10 +1,16 @@
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:movie/Common/ApiService.dart';
 import 'package:movie/auth/LoginUI.dart';
 import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
 import 'package:movie/auth/LoginFeatures.dart';
 import 'package:movie/Common/navbar.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'Apiservicev2.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +23,14 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+
+  Apiservicev2 apiServicev2 = Apiservicev2();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +74,16 @@ class _LoginPageState extends State<LoginPage> {
                 emailController: _emailController,
                 passwordController: _passwordController,
                 errorMessage: _errorMessage,
-                onLogin: () {
-                  LoginFeatures.login(
+                onLogin: () async {
+                  //LoginFeatures.login(
+                  await apiServicev2.login(
                     context: context,
                     email: _emailController.text,
                     password: _passwordController.text,
                   );
                 },
                 onSocialLogin: () async {
-                  final url = Uri.parse('http://hs-cinemagix.duckdns.org:8080/oauth2/authorization/google');
+                  final url = Uri.parse('https://hs-cinemagix.duckdns.org/oauth2/authorization/google');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url, mode: LaunchMode.externalApplication);
                   } else {

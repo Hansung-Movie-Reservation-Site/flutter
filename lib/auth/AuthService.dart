@@ -7,7 +7,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
-/// 나중에 싹다 리팩터링해야함;;
+/// 나중에 싹다 리팩터링해야함;; << 그럼 빨랑 하세요!
   static Future<Map<String, dynamic>?> getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? userId = prefs.getInt('user_id');
@@ -23,6 +23,7 @@ class AuthService {
     }
     return null;
   }
+
   
   static Future<bool> isLoggedIn() async { //로그인 상태 확인
     SharedPreferences prefs = await SharedPreferences.getInstance();
