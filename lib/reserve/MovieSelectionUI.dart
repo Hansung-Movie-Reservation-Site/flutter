@@ -20,6 +20,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
   DateTime? selectedDate;
   final PageController _pageController = PageController(viewportFraction: 0.95);
   final int daysPerPage = 4;
+  String? cinema;
   int currentPage = 0;
 
   List<Map<String, dynamic>>? movies;
@@ -79,6 +80,8 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
     super.initState();
     selectedDate = generateDates().first;
     loadGroupedMovies(widget.selectedCinema, widget.selectedDate.toString().split(" ")[0]);
+    cinema = widget.selectedCinema;
+
   }
 
   @override
@@ -325,7 +328,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                       '상영 시간 : $time ~ ${_twoDigits(endTime.hour)}:${_twoDigits(endTime.minute)}',
                       style: const TextStyle(fontSize: 18),
                     ),
-                    const Text('극장 : CGV 강남', style: TextStyle(fontSize: 18)),
+                    Text('극장 : $cinema', style: TextStyle(fontSize: 18)),
 
                     const SizedBox(height: 24),
                     const Text(
