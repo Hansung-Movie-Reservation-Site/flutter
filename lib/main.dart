@@ -30,8 +30,8 @@ class MyApp extends StatelessWidget {
           '/MyPage_Logout': (context) => MyPage_Logout(),
           '/MyPage_Login': (context) => MyPage_Login(),
           '/ProfilePage': (context) => ProfilePage(),
-          //'/Reserve': (context) => const TheaterPage(),
-          '/Reserve': (context) => Mainpage(),
+          '/Reserve': (context) => const TheaterPage(),
+          //'/Reserve': (context) => Mainpage(),
         },
       )
     );
