@@ -15,28 +15,32 @@ class _MovieCategoryChipsState extends State<MovieCategoryChips> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
-      child: Wrap(
-        spacing: 10, // Chip 간 간격
-        children: categories.map((category) {
-          return ChoiceChip(
-            label: Text(category),
-            selected: selectedCategory == category,
-            selectedColor: Colors.redAccent, // 선택된 배경색
-            backgroundColor: Colors.grey[200], // 선택 안 됐을 때 배경색
-            labelStyle: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-            onSelected: (_) {
-              setState(() {
-                selectedCategory = category;
-              });
-            },
-          );
-        }).toList(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Wrap(
+          spacing: 10, // Chip 간 간격
+          alignment: WrapAlignment.center, // 가로 중앙 정렬
+          children: categories.map((category) {
+            return ChoiceChip(
+              label: Text(category),
+              selected: selectedCategory == category,
+              selectedColor: Colors.redAccent,
+              backgroundColor: Colors.grey[200],
+              labelStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+              onSelected: (_) {
+                setState(() {
+                  selectedCategory = category;
+                });
+              },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 }
+
