@@ -1,10 +1,5 @@
-
 import 'dart:async';
-
-import 'package:animations/animations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:movie/Common/Apiservicev3.dart';
 import 'package:movie/Recommend/Maintab.dart';
 import 'package:movie/Recommend/recommendmovie.dart';
@@ -19,8 +14,6 @@ import '../Reservation/MovieDetail.dart';
 import '../Response/Movie.dart';
 import '../Response/RecommandMovie.dart';
 import '../auth/Apiservicev2.dart';
-import '../providers/auth_provider.dart';
-import 'Abc.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -39,26 +32,20 @@ class _MainpageState extends State<Mainpage> {
   }
 
   Timer? _timer;
-  final Apiservicev2 apiservicev2 = new Apiservicev2();
-  final Apiservicev3 apiservicev3 = new Apiservicev3();
+  final Apiservicev2 apiservicev2 = Apiservicev2();
+  final Apiservicev3 apiservicev3 = Apiservicev3();
   int user_id = -1;
   List<Recommendmovie> result = [];
   List<Reviews> reviewresult = [];
-
   List<Movie> products = [];
 
-  Apiservicev3 apiServicev3 = new Apiservicev3();
-
   Future<void> fetchProducts() async {
-    final fetched = await apiServicev3.dailyMovie();
-
-    if (fetched != []) {
-      print('받아온 영화 수: ${fetched.length}');
+    final fetched = await apiservicev3.dailyMovie();
+    if (fetched.isNotEmpty) {
       setState(() {
         products = fetched;
       });
     } else {
-      print("fetchProducts 함수 동작 실패 / 빈 배열");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('영화 데이터를 불러올 수 없습니다.')),
       );
@@ -68,27 +55,24 @@ class _MainpageState extends State<Mainpage> {
   @override
   void initState() {
     super.initState();
-
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       int nextIndex = _currentIndex + 1;
       if (nextIndex > 5) nextIndex = 5;
       _changeIndex(nextIndex);
     });
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        try{
-          user_id = prefs.getInt("user_id")!;
-          print("mainPage의 user_id: "+ user_id.toString());
-        }
-        catch(e){
-          print("error userid");
-        }
 
-        reviewresult = await apiservicev2.getReviewAll();
-        result = await  apiservicev2.getRecommandMovies(user_id!);
-        print("result 요청 완.");
-        fetchProducts();
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      try {
+        user_id = prefs.getInt("user_id")!;
+      } catch (e) {
+        print("error userid");
+      }
+
+      reviewresult = await apiservicev2.getReviewAll();
+      result = await apiservicev2.getRecommandMovies(user_id);
+      fetchProducts();
+    });
   }
 
   @override
@@ -100,10 +84,13 @@ class _MainpageState extends State<Mainpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('영화부기'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        title: const Center(child: Text('영화부기')),
         actions: [
-          IconButton( // 검색 아이콘 관련
+          IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               showModalBottomSheet(
@@ -117,13 +104,7 @@ class _MainpageState extends State<Mainpage> {
                       padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
-                      child: SearchModalWidget(
-                          onSearch: (searchKeyword) {
-                            setState(() {
-                              searchKeyword = searchKeyword;
-                            });
-                          }
-                      ),
+                      child: SearchModalWidget(onSearch: (searchKeyword) {}),
                     ),
                   );
                 },
@@ -132,157 +113,177 @@ class _MainpageState extends State<Mainpage> {
           )
         ],
       ),
-      body:
-      Container(
+      body: Container(
         color: Colors.white,
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. 추천 목록
               Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    Text("# 당신의 ", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                    Text("인생영화", style: TextStyle(fontSize: 28, color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                    Text("를 찾아보세요", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text("당신의 리뷰를 분석하여 영화를 추천해드립니다.", style: TextStyle(fontSize: 20)),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15, top: 5),
-                child: Text("나의 추천 목록", style: TextStyle(fontSize: 18)),
-              ),
-              result.isEmpty
-                  ?
-              _currentIndex == 5 ? Text("로그인하고 AI에게 추천을 받으세요.") : Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,))
-                  : Container(
-                margin: EdgeInsets.all(5),
-                  child: _movieRecommendationSlider(result)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendMovie()));
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    alignment: Alignment.center,
-                    child: Text("AI 추천받기", style: TextStyle(fontSize: 27)),
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+                          children: [
+                            const TextSpan(text: '당신의 '),
+                            TextSpan(text: '인생영화', style: const TextStyle(color: Colors.redAccent)),
+                            const TextSpan(text: '를 찾아보세요'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text("당신의 리뷰를 분석하여 영화를 추천해드립니다.", style: TextStyle(fontSize: 16, color: Colors.black87), textAlign: TextAlign.center),
+                      const SizedBox(height: 20),
+                      const Text("나의 추천 목록", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                      const SizedBox(height: 10),
+                      result.isEmpty
+                          ? (_currentIndex == 5
+                          ? const Center(child: Text("로그인하고 AI에게 추천을 받으세요."))
+                          : const Center(child: CircularProgressIndicator()))
+                          : _movieRecommendationSlider(result),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendMovie()));
+                          },
+                          child: const Text("AI 추천받기", style: TextStyle(fontSize: 16, color: Colors.white)),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              // 2. 리뷰 목록
               Padding(
-                padding: const EdgeInsets.only(left: 10, bottom: 5),
-                child: Row(
-                  children: [
-                    Text("# 다른 사람과 ", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                    Text("영화경험을 ", style: TextStyle(fontSize: 28, color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                    Text("공유해보세요", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  ],
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                          children: [
+                            const TextSpan(text: '다른 사람과 '),
+                            TextSpan(text: '영화경험', style: const TextStyle(color: Colors.redAccent)),
+                            const TextSpan(text: '을 공유해보세요'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      reviewresult.isEmpty
+                          ? (_currentIndex == 5
+                          ? const Center(child: Text("리뷰 목록을 불러오는데 실패했습니다."))
+                          : const Center(child: CircularProgressIndicator()))
+                          : _movieReviewsSlider(reviewresult),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, bottom: 20),
-                child: Text("당신의 리뷰를 분석하여 영화를 추천해드립니다.", style: TextStyle(fontSize: 20)),
-              ),
-              reviewresult.isEmpty
-                  ?
-              _currentIndex == 5 ? Text("리뷰목록을 불러오는데 실패했습니다.") : Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,))
-                  : _movieReviewsSlider(reviewresult),
-              // 3. 상영데이터 목록
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("# 상영 중인 영화를 확인 해보세요", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                    const MovieCategoryChips(), // 여기에 삽입
-                    const SizedBox(height: 8),
-                  ],
+              const Padding(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Text("상영 중인 영화를 확인해보세요", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black), textAlign: TextAlign.center),
                 ),
               ),
+              const MovieCategoryChips(),
               products.isEmpty
-                  ?
-              _currentIndex == 5 ? Text("상영데이터를 불러오는데 실패했습니다.") : Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,))
-                  :
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 20,
-                childAspectRatio: 0.65,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: products.map((product) {
-                  return Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 3),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 10),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              product.posterImage,
-                              width: double.infinity,
-                              height: 195, //이미지 크기
-                              fit: BoxFit.cover,
-                            ),
+                  ? (_currentIndex == 5
+                  ? const Center(child: Text("상영 데이터를 불러오는데 실패했습니다."))
+                  : const Center(child: CircularProgressIndicator()))
+                  : Padding(
+                padding: const EdgeInsets.all(12),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 2 / 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: products.map((product) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MovieDetailPage(title: product.title),
                           ),
-                          const SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => MovieDetailPage(title: product.title),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    product.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        );
+                      },
+                      child: Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,  // 가로 꽉 채우기
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                child: AspectRatio(
+                                  aspectRatio: 2 / 2.6,
+                                  child: Image.network(
+                                    product.posterImage,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                child: Text(
+                                  product.title,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                ),
               ),
             ],
           ),
-        )
+        ),
       ),
       bottomNavigationBar: const NavBar(),
     );
   }
 }
 
-// 먼저 이 예제를 넣을 위치를 정확히 알기 위해 _yourWidget() 형태로 만들어드립니다.
-
 Widget _movieRecommendationSlider(List<Recommendmovie> result) {
   return SizedBox(
-    height: 210, // 고정 높이
+    height: 220,
     child: PageView.builder(
       itemCount: result.length,
       controller: PageController(viewportFraction: 0.85),
@@ -295,38 +296,18 @@ Widget _movieRecommendationSlider(List<Recommendmovie> result) {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Container(color: Colors.black12), // 배경 대체
-                Container(
+                Image.network(item.posterImage, fit: BoxFit.cover),
+                Align(
                   alignment: Alignment.bottomLeft,
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    color: Colors.black.withOpacity(0.6),
+                    child: Text(
+                      item.title,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.network(
-                        result[index].posterImage,
-                        height: 100,
-                        fit: BoxFit.fill,
-                      ),
-                      Text(
-                        "제목: ${result[index].title}",
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        item.reason,
-                        style: TextStyle(fontSize: 14, color: Colors.white),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2, // 여기서 몇 줄까지 보일지 조절 가능
-                      ),
-                    ],
                   ),
                 ),
               ],
@@ -338,10 +319,9 @@ Widget _movieRecommendationSlider(List<Recommendmovie> result) {
   );
 }
 
-
 Widget _movieReviewsSlider(List<Reviews> reviewresult) {
   return SizedBox(
-    height: 130, // 이미지 포함 높이
+    height: 130,
     child: PageView.builder(
       itemCount: reviewresult.length,
       controller: PageController(viewportFraction: 0.85),
@@ -350,27 +330,21 @@ Widget _movieReviewsSlider(List<Reviews> reviewresult) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            color: Colors.grey[200],
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
-                // 포스터 이미지
                 ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16)),
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
                   child: Image.network(
                     item.poster,
                     width: 100,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image),
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
                   ),
                 ),
-                // 리뷰 정보
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -378,34 +352,23 @@ Widget _movieReviewsSlider(List<Reviews> reviewresult) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        Text(item.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 6),
-                        Text(
-                          '작성자: ${item.user}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
+                        Text('작성자: ${item.user}', style: const TextStyle(fontSize: 12)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.star, color: Colors.amber, size: 16),
                             const SizedBox(width: 4),
-                            Text(
-                              item.rate.toString(),
-                              style: const TextStyle(fontSize: 12),
-                            ),
+                            Text(item.rate.toString(), style: const TextStyle(fontSize: 12)),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Expanded(
                           child: Text(
                             item.review,
                             maxLines: 3,
-                            overflow: TextOverflow.visible,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 13),
                           ),
                         ),
@@ -421,4 +384,3 @@ Widget _movieReviewsSlider(List<Reviews> reviewresult) {
     ),
   );
 }
-
