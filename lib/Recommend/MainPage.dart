@@ -52,6 +52,9 @@ class _MainpageState extends State<Mainpage> {
   Future<void> fetchProducts() async {
     final fetched = await apiServicev3.dailyMovie();
 
+    reviewresult = await apiservicev2.getReviewAll();
+    result = await  apiservicev2.getRecommandMovies(user_id!);
+
     if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');
       setState(() {
@@ -68,6 +71,8 @@ class _MainpageState extends State<Mainpage> {
   @override
   void initState() {
     super.initState();
+    fetchProducts();
+
 
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       int nextIndex = _currentIndex + 1;
@@ -183,8 +188,7 @@ class _MainpageState extends State<Mainpage> {
                 padding: const EdgeInsets.only(left: 10, bottom: 5),
                 child: Row(
                   children: [
-                    Text("# 다른 사람과 ", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                    Text("영화경험을 ", style: TextStyle(fontSize: 28, color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                    Text("# 영화경험을 ", style: TextStyle(fontSize: 28, color: Colors.redAccent, fontWeight: FontWeight.bold)),
                     Text("공유해보세요", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -204,7 +208,6 @@ class _MainpageState extends State<Mainpage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("# 상영 중인 영화를 확인 해보세요", style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                    const MovieCategoryChips(), // 여기에 삽입
                     const SizedBox(height: 8),
                   ],
                 ),

@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       create: (c) => MovieStore(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: ProductListPage(),
+        home: Mainpage(),
 
         routes: {
           '/recommendpage': (context) => Mainpage(),
@@ -31,7 +31,6 @@ class MyApp extends StatelessWidget {
           '/MyPage_Login': (context) => MyPage_Login(),
           '/ProfilePage': (context) => ProfilePage(),
           '/Reserve': (context) => const TheaterPage(),
-          //'/Reserve': (context) => Mainpage(),
         },
       )
     );
