@@ -16,7 +16,7 @@ import '../Response/Reviews.dart';
 
 final dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080/api/',
+      baseUrl: 'https://hs-cinemagix.duckdns.org/api/',
       headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*', // 또는 application/json
@@ -32,8 +32,7 @@ class Apiservicev2 {
     required String password,}) async {
     final cookieJar = CookieJar();
     Future<void> printCookies() async {
-      final uri = Uri.parse('http://localhost:8080/api/');
-      final cookies = await cookieJar.loadForRequest(uri);
+      final cookies = await cookieJar.loadForRequest((Uri.parse(dio.options.baseUrl)));
       print('저장된 쿠키 리스트:');
       for (var cookie in cookies) {
         print('${cookie.name} = ${cookie.value}');
@@ -42,7 +41,6 @@ class Apiservicev2 {
 
     try {
       dio.interceptors.add(CookieManager(cookieJar));
-
       final response = await dio.post('v1/user/login',
         data: {
           'email': email,
