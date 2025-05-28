@@ -11,12 +11,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../Response/Airecommand.dart';
 import '../Response/Movie.dart';
+import '../Response/MyTheather.dart';
 import '../Response/RecommandMovie.dart';
 import '../Response/Region.dart';
 import '../Response/Reviews.dart';
 import '../Response/Screening.dart';
 import '../Response/Seat.dart';
 import '../Response/Spot.dart';
+import '../providers/auth_provider.dart';
 
 final dio = Dio(
     BaseOptions(
@@ -58,7 +60,14 @@ class Apiservicev2 {
         int userId = responseData['userDetailDTO']['user_id'];
         String userName = responseData['userDetailDTO']['username'];
         String userEmail = responseData['userDetailDTO']['email'];
-        List<MyTheather> myTheather = responseData['userDetailDTO']['myTheatherList'];
+
+        // List 파싱 처리
+        List<MyTheather> myTheatherList = (responseData['userDetailDTO']['myTheatherList'] as List)
+            .map((json) => MyTheather.fromJson(json))
+            .toList();
+
+        // context 없이 직접 Provider에 저장
+        //authProvider.setList(myTheatherList);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('user_id', userId);
