@@ -30,11 +30,11 @@ class RecommendMovie extends StatefulWidget {
 class _ProductListPageState extends State<RecommendMovie> {
   var scroll = ScrollController();
   Map<String, dynamic> result = {}; // 초기값을 빈 Map으로 설정
-  int movie_id = 0; // 기본값 0으로 설정
+  //int movie_id = 0; // 기본값 0으로 설정
   var reason ='알 수 없음';
   int? user_id = -1;
   String username = "알 수 없음";
-  Movie? movie_detail = null;
+  Movie? movie = null;
   bool _isHovering = false;
   String movie_poster = "";
 
@@ -54,8 +54,7 @@ class _ProductListPageState extends State<RecommendMovie> {
     setState(() {isLoading = true;});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try{
-        await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
-        if(movie_id != 0) return;
+        //await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         user_id = prefs.getInt("user_id");
@@ -66,27 +65,17 @@ class _ProductListPageState extends State<RecommendMovie> {
           print("user_id가 null입니다. 요청 중단");
           return;
         }
-        var result = await  apiservicev2.aiRecommand(user_id!);
+        var result = await apiservicev2.aiRecommand(user_id!);
         print("result 요청 완.");
         if (result != null) {
           setState(() {
             //result = responseJson;
-            movie_id = result['movie_id'] ?? 0;
+            //movie_id = result['movie_id'] ?? 0;
+            movie = Movie.fromJson(result['movie']) ?? null;
             reason = result['reason'] ?? reason;
           });
-          //
-          print(movie_id.toString());
-          // 성공
-          // movie_id가 설정된 후 findMovie 실행
-          movie_detail = await apiservicev2.findMovie(movie_id);
 
-          if (movie_detail != null) {
-            print("movie_detail: ${movie_detail!.id}");
-          } else {
-            print("해당 ID의 영화를 찾을 수 없습니다.");
-          }
-
-          setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
+          setState(() {movie_poster = movie!.posterImage; isLoading = false;});
         } else {
           // 실패 또는 예외
           print("해당 ID의 영화를 찾을 수 없습니다.");
@@ -163,11 +152,10 @@ class _ProductListPageState extends State<RecommendMovie> {
                           setState(() {isLoading = true;});
                           result = (await  apiservicev2.aiRecommand(user_id!))!;
                           setState(() {
-                            movie_id = result['movie_id'] ?? 0;
+                            movie = Movie.fromJson(result['movie']) ?? null;
                             reason = result['reason'] ?? reason;
                           });
-                          movie_detail = await apiservicev2.findMovie(movie_id);
-                          setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
+                          setState(() {movie_poster = movie!.posterImage; isLoading = false;});
                           }, icon: Image.asset("assets/reload.png", height: 20, width: 20, color: Colors.white)),],)),
                   SizedBox(height: 20,),
                   Container(
@@ -190,7 +178,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       decoration: commonBoxDecoration(),
                       width: MediaQuery.of(context).size.width * 0.82,
                       child: Text(
-                        movie_detail!.title,
+                        movie!.title,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
                       )
                   ),
@@ -214,7 +202,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => MovieDetailPage(movieId: movie_detail!.id),
+                                  builder: (_) => MovieDetailPage(movieId: movie!.id),
                                 ),
                               );
                             },
@@ -261,12 +249,11 @@ class _ProductListPageState extends State<RecommendMovie> {
               setState(() {isLoading = true;});
               result = (await  apiservicev2.aiRecommand(user_id!))!;
               setState(() {
-                movie_id = result['movie_id'] ?? 0;
+                movie = Movie.fromJson(result['movie']) ?? null;
                 reason = result['reason'] ?? reason;
               });
              // ApiService().printCookies();
-              movie_detail = await apiservicev2.findMovie(movie_id);
-              setState(() {movie_poster = movie_detail!.posterImage; isLoading = false; status = 200;});
+              setState(() {movie_poster = movie!.posterImage; isLoading = false; status = 200;});
               },
               icon: Center(
                 child: Column(
