@@ -12,11 +12,15 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import '../Response/Airecommand.dart';
 import '../Response/Movie.dart';
 import '../Response/RecommandMovie.dart';
+import '../Response/Region.dart';
 import '../Response/Reviews.dart';
+import '../Response/Screening.dart';
+import '../Response/Seat.dart';
+import '../Response/Spot.dart';
 
 final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://hs-cinemagix.duckdns.org/api/',
+      baseUrl: 'http://10.0.2.2:8080/api/',
       headers: {
         'Content-Type': 'application/json',
         'Accept': '*/*', // 또는 application/json
@@ -119,7 +123,7 @@ class Apiservicev2 {
     } on DioException catch (e) {
       if(e.response?.statusCode == 403){
       }
-      print("Dio 예외: ${e.message}");
+      print("Dio 예외 / 디테일 페이지: ${e.message}");
       print("응답 본문: ${e.response?.data}");
       return null;
     } catch (e) {
@@ -151,7 +155,7 @@ class Apiservicev2 {
     on DioException catch (e) {
       if(e.response?.statusCode == 403){
       }
-      print("Dio 예외: ${e.message}");
+      print("Dio 예외 / 영화 추천: ${e.message}");
       print("응답 본문: ${e.response?.data}");
       return [];
     } catch (e) {
@@ -191,6 +195,87 @@ class Apiservicev2 {
       return [];
     }
     return [];
+  }
+
+  Future<List<Region>> fetchRegions() async {
+    final response = await dio.get("v1/regions/getAll");
+    return (response.data as List).map((r) => Region.fromJson(r)).toList();
+  }
+
+  Future<List<Spot>> fetchSpots() async {
+    final response = await dio.get("v1/spots/getAll");
+    return (response.data as List).map((r) => Spot.fromJson(r)).toList();
+  }
+
+  Future<List<Screening>> fetchScreenings(String spotName, String date) async {
+    try {
+      final response = await dio.get("/v1/screening", queryParameters: {
+        "spotName": spotName,
+        "date": date,
+      });
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Screening.fromJson(json)).toList();
+      } else {
+        throw Exception("상영 정보를 불러오지 못했습니다. 코드: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("fetchScreenings 예외: $e");
+      rethrow;
+    }
+  }
+
+  Future<List<Seat>> fetchSeats(int screeningId) async {
+    try {
+      final response = await dio.get("/v1/screening/$screeningId/seats");
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        return data.map((json) => Seat.fromJson(json)).toList();
+      } else {
+        print("좌석 불러오기 실패 / 코드: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("좌석 API 예외: $e");
+      return [];
+    }
+  }
+
+  Future<int?> makeOrderId(Map<String, dynamic> request) async {
+    try {
+      final response = await dio.post('v1/orders', data: request);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final int orderId = data['id'];
+        print("주문 id: $orderId");
+        return orderId;
+      } else {
+        print('API 호출 실패 / 주문 정보 생성 api: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('예외 발생 / 주문 정보 생성 api: $e');
+      return null;
+    }
+  }
+
+  Future<String?> getPaymentUrl(Map<String, dynamic> request) async {
+    try {
+      final response = await dio.post('v1/payment/requestMobileWeb', data: request);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final String? paymentUrl = data;
+        return paymentUrl;
+      } else {
+        print('API 호출 실패 / 결제 링크: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('예외 발생 / 결제 링크: $e');
+      return null;
+    }
   }
 }
 

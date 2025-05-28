@@ -214,7 +214,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => MovieDetailPage(title: movie_detail!.title),
+                                  builder: (_) => MovieDetailPage(movieId: movie_detail!.id),
                                 ),
                               );
                             },

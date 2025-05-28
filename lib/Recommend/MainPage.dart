@@ -240,7 +240,7 @@ class _MainpageState extends State<Mainpage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => MovieDetailPage(title: product.title),
+                            builder: (_) => MovieDetailPage(movieId: product.id),
                           ),
                         );
                       },

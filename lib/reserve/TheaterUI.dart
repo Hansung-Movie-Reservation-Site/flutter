@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/ApiService.dart';
 import '../Common/navbar.dart';
+import '../auth/Apiservicev2.dart';
 import 'MovieSelectionPage.dart';
 
 class TheaterUI extends StatefulWidget {
@@ -40,7 +41,7 @@ class _TheaterUIState extends State<TheaterUI> {
   Map<String, List<String>> cinemaMap = {};
 
   Future<void> loadCinemaMap() async {
-    final api = ApiService();
+    final api = Apiservicev2();
     final regions = await api.fetchRegions();
     final spots = await api.fetchSpots();
 

@@ -15,7 +15,7 @@ import '../Response/Spot.dart';
 class ApiService {
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://hs-cinemagix.duckdns.org/",
+      baseUrl: "http://10.0.2.2:8080/",
       headers: {
         "Content-Type": "application/json",
         "Accept": "*/*",
