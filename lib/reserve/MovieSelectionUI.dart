@@ -357,7 +357,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                             MaterialPageRoute(
                               builder: (context) => SeatSelectionPage(
                                 movieTitle: movieTitle,
-                                theater: 'CGV 강남',
+                                theater: cinema!,
                                 time: time,
                                 date: selectedDate!,
                                 generalCount: generalCount,
