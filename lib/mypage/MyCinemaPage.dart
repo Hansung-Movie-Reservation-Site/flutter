@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Common/Localapiservice.dart';
+import 'package:movie/Response/MyTheater.dart';
+import 'package:movie/auth/Apiservicev2.dart';
 import 'MyCinemaUI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,56 +13,64 @@ class MyCinemaScreen extends StatefulWidget {
 class _MyCinemaScreenState extends State<MyCinemaScreen> {
 
   SharedPreferences? prefs;
+  int user_id = -1;
+  Apiservicev2 apiservicev2 = new Apiservicev2();
+  List<MyTheater> myTheaterList = [];
+  List<MyTheater> selectedCinemas = []; // 여러 개 선택 가능하도록
 
   @override
   void initState() {
     super.initState();
+    getMyTheater();
     loadPrefs();
+  }
+  Future<void> getMyTheater() async {
+    prefs = await SharedPreferences.getInstance();
+    setState(() {
+      user_id = prefs!.getInt("user_id")!;
+    });
+    print("user_id: "+user_id.toString());
+    selectedCinemas = await apiservicev2.getMyTheater(user_id);
+    setState(() {});
   }
 
   Future<void> loadPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userCinema = prefs?.getString("user_cinema");
-    });
+    // setState(() {
+    //     selectedCinemas = myTheaterList;
+    // });
   }
 
   String? selectedRegion;
-  String? selectedCinema;
-  String? userCinema; //현재 유저 시네마
   String? selectedRecentCinema;
 
   // 샘플 데이터
-  final Map<String, List<String>> cinemaMap = {
-    '서울': ['강남', '건대입구', '대학로', '미아'],
-    '경기': ['남양주', '동탄', '분당', '수원'],
-    '인천': ['검단', '송도', '영종', '인천논현'],
-    '강원': ['남춘천', '속초', '원주혁신', '춘천석사'],
-    '대구': ['대구신세계', '대구이시아', '마산', '창원'],
-    '부산': ['경상대', '덕천', '부산대', '해운대'],
-    '제주': ['서귀포', '제주삼화', '제주아라'],
+  final Map<String, Map<int, String>> spotData = {
+    '서울': {1: '강남', 2: '건대입구', 3: '대학로', 4: '미아'},
+    '경기': {5: '남양주', 6: '수원', 7: '동탄', 8: '분당'},
+    '인천': {9: '인천논현', 10: '송도', 11: '영종', 12: '검단'},
+    '강원': {13: '남춘천', 14: '속초', 15: '원주혁신', 16: '춘천석사'},
+    '대구': {17: '대구이시아', 18: '대구신세계', 19: '마산', 20: '창원'},
+    '부산': {21: '덕천', 22: '해운대', 23: '부산대', 24: '경상대'},
+    '제주': {25: '제주삼화', 26: '서귀포', 27: '제주아라'},
   };
-
-  // 최근 방문한 영화관 샘플 데이터
-  final List<String> recentCinemas = ['건대입구', '대학로'];
 
   // 영화관 지정 버튼 눌렀을 때 실행할 작업
   Future<void> onCinemaSelected() async {
-    if (selectedCinema != null) {
+    if (selectedCinemas.isNotEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('user_cinema', selectedCinema!);
-      // 영화관 지정 완료 메시지
+      List<int> spotidList = selectedCinemas.map((c)=> c.spotId).toList();
+      await apiservicev2.setMyTheater(user_id, spotidList);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "$selectedCinema 영화관으로 지정되었습니다.",
+            "${selectedCinemas.map((e) => e.spotId).join(', ')} 영화관으로 지정되었습니다.",
             style: TextStyle(color: Colors.black),
           ),
           backgroundColor: Colors.white,
         ),
       );
     } else {
-      // 영화관이 선택되지 않았을 경우
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("극장을 선택해주세요."),
@@ -68,6 +79,8 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,38 +104,51 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          MyCinemaUI.buildCinemaInfo(userCinema), // 선택된 영화관 정보 표시
+          selectedCinemas.length != 0 ? MyCinemaUI.buildCinemaInfo(selectedCinemas, spotData): Text("내 영화관이 없습니다."),// 선택된 영화관 정보 표시
           const SizedBox(height: 50),
 
-          // 영화관 선택 UI
-          MyCinemaUI.buildCinemaSelection(
-            cinemaMap: cinemaMap,
-            selectedRegion: selectedRegion,
-            selectedCinema: selectedCinema,
-            recentCinemas: recentCinemas,
-            selectedRecentCinema: selectedRecentCinema,
-            onRegionSelected: (region) {
-              setState(() {
-                selectedRegion = region;
-                selectedCinema = null;
-              });
-            },
-            onCinemaSelected: (cinema) {
-              setState(() {
-                selectedCinema = cinema;
-                selectedRecentCinema = null;
-              });
-            },
-            onRecentCinemaSelected: (cinema) {
-              setState(() {
-                selectedRecentCinema = cinema;
-                selectedCinema = cinema;
-              });
-            },
+          // 영화관 목록 보여주기
+          Expanded(
+            child: ListView(
+              children: spotData.entries.map((entry) {
+                String region = entry.key;
+                Map<int, String> cinemas = entry.value;
 
+                return ExpansionTile(
+                  title: Text(
+                    region,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  children: cinemas.entries.map((cinemaEntry) {
+                  int spotId = cinemaEntry.key;
+                  String cinemaName = cinemaEntry.value;
+
+                  bool isSelected = selectedCinemas.any((e) => e.spotId == spotId);
+
+                  return ListTile(
+                    title: Text(cinemaName),
+                    trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          selectedCinemas.removeWhere((e) => e.spotId == spotId);
+                        } else {
+                          // id는 myTheaterList에서 찾아서 지정
+                          MyTheater? found = myTheaterList.firstWhere(
+                                (t) => t.spotId == spotId,
+                            orElse: () => MyTheater(id: -1, spotId: spotId),
+                          );
+                          selectedCinemas.add(found);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+                );
+              }).toList(),
+            ),
           ),
 
-          const Spacer(),
 
           // 영화관 지정 버튼
           MyCinemaUI.buildSelectButton(context, onCinemaSelected),

@@ -8,6 +8,7 @@ import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/auth/SignupPage.dart';
 import 'package:movie/auth/LoginFeatures.dart';
 import 'package:movie/Common/navbar.dart';
+import 'package:movie/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'Apiservicev2.dart';

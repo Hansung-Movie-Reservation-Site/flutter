@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Response/MyTheater.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCinemaUI {
   // 현재 선택된 영화관 정보 표시
-  static Widget buildCinemaInfo(String? selectedCinema) {
+  static Widget buildCinemaInfo(List<MyTheater> selectedCinema, Map<String, Map<int, String>> spotData) {
+    // spotId를 이름으로 매핑
+    List<String> cinemaNames = [];
+    for (var theater in selectedCinema) {
+      for (var entry in spotData.entries) {
+        if (entry.value.containsKey(theater.spotId)) {
+          cinemaNames.add(entry.value[theater.spotId]!);
+          break;
+        }
+      }
+    }
+
     return Container(
       width: 360,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -21,6 +33,7 @@ class MyCinemaUI {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
             Icons.local_movies,
@@ -36,11 +49,10 @@ class MyCinemaUI {
               color: Colors.black,
             ),
           ),
-          const SizedBox(width: 5),
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
+          const SizedBox(width: 10),
+          Expanded(
             child: Text(
-              selectedCinema ?? '선택 안 됨',
+              cinemaNames.isNotEmpty ? cinemaNames.join(", ") : "선택된 영화관 없음",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -52,6 +64,7 @@ class MyCinemaUI {
       ),
     );
   }
+
 
   // 영화관 선택 UI (지역 선택 + 하위 영화관 리스트)
   static Widget buildCinemaSelection({
@@ -177,62 +190,6 @@ class MyCinemaUI {
           ),
 
         const SizedBox(height: 30),
-
-        // // 최근 방문한 영화관 리스트
-        // const Padding(
-        //   padding: EdgeInsets.symmetric(horizontal: 20),
-        //   child: Text(
-        //     '최근 방문한 영화관',
-        //     style: TextStyle(
-        //       color: Colors.black,
-        //       fontFamily: 'Roboto',
-        //       fontSize: 17,
-        //       fontWeight: FontWeight.bold,
-        //     ),
-        //   ),
-        // ),
-        //
-        // const SizedBox(height: 15),
-        //
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 20),
-        //   child: Wrap(
-        //     spacing: 10,
-        //     children: recentCinemas.map((cinema) {
-        //       return GestureDetector(
-        //         onTap: () {
-        //           onRecentCinemaSelected(cinema);
-        //         },
-        //         child: Container(
-        //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        //           decoration: BoxDecoration(
-        //             color: selectedRecentCinema == cinema
-        //                 ? Colors.red.shade800
-        //                 : Colors.white,
-        //             borderRadius: BorderRadius.circular(10),
-        //             border: Border.all(
-        //               color: selectedRecentCinema == cinema
-        //                   ? Colors.black
-        //                   : Colors.black,
-        //             ),
-        //           ),
-        //           child: Text(
-        //             cinema,
-        //             style: TextStyle(
-        //               color: selectedRecentCinema == cinema
-        //                   ? Colors.black
-        //                   : Colors.black,
-        //               fontFamily: 'Roboto',
-        //               fontSize: 14,
-        //             ),
-        //           ),
-        //         ),
-        //       );
-        //     }).toList(),
-        //   ),
-        // ),
-
-        const SizedBox(height: 20),
       ],
     );
   }
