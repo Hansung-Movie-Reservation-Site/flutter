@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../Common/ApiService.dart';
 import '../Response/Seat.dart';
 import '../auth/Apiservicev2.dart';
+import '../Common/notification.dart';
 
 class SeatSelectionUI extends StatefulWidget {
   final String movieTitle;
@@ -89,6 +90,8 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
       if (paymentUrl != null && paymentUrl.isNotEmpty) {
         final uri = Uri.parse(paymentUrl);
         if (await canLaunchUrl(uri)) {
+          // ✅ 결제 성공 알림 표시
+          await showNotification('CINEMAGIX', '결제가 완료되었습니다.');
           await launchUrl(
             uri,
             mode: LaunchMode.externalApplication,
@@ -111,7 +114,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
     }
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -374,7 +377,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
             ),
             const SizedBox(height: 16),
             Container(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery.of(context).size.width * 0.7,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
@@ -427,6 +430,9 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
                         );
                         return;
                       }
+                      // ✅ 결제하기 누르기만 하면 알림 나타나게 하는 테스트 : 추후에 지울 것
+                      await showNotification('CINEMAGIX', '결제 알림 테스트');
+
                       final seatIds = getSelectedSeatIds();
                       setOrder(userId!, widget.screeningId, seatIds);
                       Navigator.of(context).pop();
