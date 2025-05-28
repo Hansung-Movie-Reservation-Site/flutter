@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 160),
+              const SizedBox(height: 50),
 
               // 로그인 안내 문구
               const Text(
