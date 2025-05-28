@@ -15,12 +15,13 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
   int user_id = -1;
   Localapiservice localapiservice = new Localapiservice();
   List<MyTheater> myTheaterList = [];
+  List<MyTheater> selectedCinemas = []; // 여러 개 선택 가능하도록
 
   @override
   void initState() {
     super.initState();
-    loadPrefs();
     getMyTheater();
+    loadPrefs();
   }
   Future<void> getMyTheater() async {
     prefs = await SharedPreferences.getInstance();
@@ -28,22 +29,18 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       user_id = prefs!.getInt("user_id")!;
     });
     print("user_id: "+user_id.toString());
-    myTheaterList = await localapiservice.getMyTheater(user_id);
+    selectedCinemas = await localapiservice.getMyTheater(user_id);
     setState(() {});
   }
 
   Future<void> loadPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // 불러온 영화관이 여러 개인 경우 Set으로 변환
-      if (myTheaterList != null && myTheaterList!.isNotEmpty) {
-        selectedCinemas = myTheaterList;
-      }
-    });
+    // setState(() {
+    //     selectedCinemas = myTheaterList;
+    // });
   }
 
   String? selectedRegion;
-  List<MyTheater> selectedCinemas = []; // 여러 개 선택 가능하도록
   String? selectedRecentCinema;
 
   // 샘플 데이터
@@ -107,7 +104,7 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          myTheaterList.length != 0 ? MyCinemaUI.buildCinemaInfo(selectedCinemas, spotData): Text("내 영화관이 없습니다."),// 선택된 영화관 정보 표시
+          selectedCinemas.length != 0 ? MyCinemaUI.buildCinemaInfo(selectedCinemas, spotData): Text("내 영화관이 없습니다."),// 선택된 영화관 정보 표시
           const SizedBox(height: 50),
 
           // 영화관 목록 보여주기

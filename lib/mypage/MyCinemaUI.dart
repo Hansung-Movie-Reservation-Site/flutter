@@ -18,7 +18,7 @@ class MyCinemaUI {
 
     return Container(
       width: 360,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -54,7 +54,7 @@ class MyCinemaUI {
             child: Text(
               cinemaNames.isNotEmpty ? cinemaNames.join(", ") : "선택된 영화관 없음",
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.red.shade800,
               ),
