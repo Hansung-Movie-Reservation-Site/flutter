@@ -46,6 +46,8 @@ dependencies:
   cookie_jar: ^4.0.0
   dio_cookie_manager: ^3.0.0
   animations: ^2.0.11
+  flutter_local_notifications: ^9.1.5
+  permission_handler: ^11.0.0
 
 dev_dependencies:
   flutter_test:
