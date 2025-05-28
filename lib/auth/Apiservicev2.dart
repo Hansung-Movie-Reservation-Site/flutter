@@ -58,6 +58,7 @@ class Apiservicev2 {
         int userId = responseData['userDetailDTO']['user_id'];
         String userName = responseData['userDetailDTO']['username'];
         String userEmail = responseData['userDetailDTO']['email'];
+        List<MyTheather> myTheather = responseData['userDetailDTO']['myTheatherList'];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setInt('user_id', userId);

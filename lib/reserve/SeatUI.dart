@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../Common/ApiService.dart';
 import '../Response/Seat.dart';
 import '../auth/Apiservicev2.dart';
-import '../Common/notification.dart';
 
 class SeatSelectionUI extends StatefulWidget {
   final String movieTitle;
