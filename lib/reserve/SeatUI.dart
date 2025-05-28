@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Common/ApiService.dart';
 import '../Response/Seat.dart';
+import '../auth/Apiservicev2.dart';
+import '../Common/notification.dart';
 
 class SeatSelectionUI extends StatefulWidget {
   final String movieTitle;
@@ -30,6 +34,8 @@ class SeatSelectionUI extends StatefulWidget {
 class _SeatSelectionUIState extends State<SeatSelectionUI> {
   final List<String> selectedSeats = [];
   List<Seat> seats = [];
+  int? userId;
+  String? paymentUrl;
 
   @override
   void initState() {
@@ -37,9 +43,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
     loadSeats();
   }
 
-
   final List<String> rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-
   final int leftSeats = 2;
   final int centerSeats = 5;
   final int rightSeats = 2;
@@ -49,14 +53,68 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
   int get totalPrice => (widget.generalCount * 13000) + (widget.youthCount * 10000);
 
   Future<void> loadSeats() async {
-    final api = ApiService();
+    final api = Apiservicev2();
     final result = await api.fetchSeats(widget.screeningId);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('user_id');
     setState(() {
       seats = result;
     });
   }
 
-  @override
+  /// 선택된 좌석명을 seatId로 변환해서 리스트로 반환
+  List<int> getSelectedSeatIds() {
+    return selectedSeats.map((seatName) {
+      String row = seatName.substring(0, 1);
+      int column = int.parse(seatName.substring(1));
+      return seats.firstWhere(
+            (s) => s.row.toUpperCase() == row.toUpperCase() && s.column == column,
+      ).seatId;
+    }).toList();
+  }
+
+  /// 주문 생성 API 호출 후 결제 URL을 받아 브라우저에서 오픈
+  void setOrder(int userId, int screeningId, List<int> seatIds) async {
+    final api = Apiservicev2();
+    int? orderId = await api.makeOrderId({
+      "userId": userId,
+      "screeningId": screeningId,
+      "seatIds": seatIds,
+    });
+
+    if (orderId != null) {
+      print("받아온 주문 id: $orderId");
+
+      // 결제 URL 받아오기
+      String? paymentUrl = await api.getPaymentUrl({"orderId": orderId});
+      if (paymentUrl != null && paymentUrl.isNotEmpty) {
+        final uri = Uri.parse(paymentUrl);
+        if (await canLaunchUrl(uri)) {
+          // ✅ 결제 성공 알림 표시
+          await showNotification('CINEMAGIX', '결제가 완료되었습니다.');
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('결제 페이지를 열 수 없습니다.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('결제 URL을 받아오지 못했습니다.')),
+        );
+      }
+    } else {
+      print("주문 id를 받아오지 못했습니다.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('예매에 실패했습니다.')),
+      );
+    }
+  }
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -223,16 +281,12 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
                     ),
                     Text('인원 : 일반 ${widget.generalCount}명 | 청소년 ${widget.youthCount}명',
                         style: const TextStyle(fontSize: 16)),
-
                     const SizedBox(height: 8),
-
                     Text(
                       '금액: ${totalPrice}원',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-
                     const SizedBox(height: 20),
-
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -289,6 +343,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
     );
   }
 
+  /// 예매 정보 요약 및 결제하기
   Widget _buildSummaryBottomSheet(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
@@ -321,10 +376,8 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 🎟️ 티켓 박스
             Container(
-              width: MediaQuery.of(context).size.width * 0.5,
+              width: MediaQuery.of(context).size.width * 0.7,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
@@ -350,9 +403,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
             Row(
               children: [
                 Expanded(
@@ -371,10 +422,19 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('결제 완료!')),
-                      );
+                    onPressed: () async {
+                      // 결제 버튼 누르면 주문!
+                      if (userId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('로그인 정보가 없습니다.')),
+                        );
+                        return;
+                      }
+                      // ✅ 결제하기 누르기만 하면 알림 나타나게 하는 테스트 : 추후에 지울 것
+                      await showNotification('CINEMAGIX', '결제 알림 테스트');
+
+                      final seatIds = getSelectedSeatIds();
+                      setOrder(userId!, widget.screeningId, seatIds);
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
@@ -392,6 +452,4 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
       ),
     );
   }
-
-
 }

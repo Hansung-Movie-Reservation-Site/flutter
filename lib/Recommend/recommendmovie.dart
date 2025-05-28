@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:movie/Common/ApiService.dart';
+import 'package:movie/auth/Apiservicev2.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/navbar.dart';
@@ -9,8 +12,11 @@ import 'package:http/http.dart' as http;
 
 import '../Reservation/MovieDetail.dart';
 import '../Response/Movie.dart';
+import '../auth/LoginPage.dart';
 import '../providers/auth_provider.dart';
 import '../reserve/TheaterPage.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class RecommendMovie extends StatefulWidget {
   const RecommendMovie({super.key});
@@ -24,11 +30,11 @@ class RecommendMovie extends StatefulWidget {
 class _ProductListPageState extends State<RecommendMovie> {
   var scroll = ScrollController();
   Map<String, dynamic> result = {}; // 초기값을 빈 Map으로 설정
-  int movie_id = 0; // 기본값 0으로 설정
+  //int movie_id = 0; // 기본값 0으로 설정
   var reason ='알 수 없음';
   int? user_id = -1;
   String username = "알 수 없음";
-  Movie? movie_detail = null;
+  Movie? movie = null;
   bool _isHovering = false;
   String movie_poster = "";
 
@@ -37,81 +43,47 @@ class _ProductListPageState extends State<RecommendMovie> {
 
   bool isLoading = false;
   int status = 200;
+  // http://localhost:8080/
+  // https://hs-cinemagix.duckdns.org/
 
-  sendPost() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.getKeys().forEach((key) {
-      print('$key: ${prefs.get(key)} (${prefs.get(key)?.runtimeType})');
-    });
-
-    user_id = prefs.getInt("user_id");
-    username = prefs.getString("username")?? username;
-
-    if (user_id == -1) {
-      print("user_id가 null입니다. 요청 중단");
-      return;
-    }
-
-    var url = Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/AIRecommand/synopsis');
-
-    var response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8', // JSON 전송 시
-      },
-      body: jsonEncode({
-        "user_id": user_id
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      var responseJson = jsonDecode(utf8.decode(response.bodyBytes));
-      setState(() {
-        result = responseJson;
-        // null 체크 후 값을 설정
-        movie_id = responseJson['movie_id'] ?? 0; // movie_id가 null일 경우 0으로 설정
-        reason = responseJson['reason'] ?? reason; // reason이 null일 경우 기본값 설정
-      });
-      print(result);
-    } else {
-      print('오류 발생: ${response.statusCode}');
-      setState(() {status = response.statusCode;});
-    }
-  }
-
-  findMovie() async {
-    final response = await http.get(Uri.parse('https://hs-cinemagix.duckdns.org/api/v1/movies/searchById?id=${movie_id}'));
-    ///search/id
-    if (response.statusCode == 200) {
-      final utf8Body = utf8.decode(response.bodyBytes);
-      Movie data = Movie.fromJson(json.decode(utf8Body));
-      //final fetched = data.map((json) => Movie.fromJson(json));
-      movie_detail = data;
-    } else {
-      print('에러 코드: ${response.statusCode}');
-      setState(() {status = response.statusCode;});
-    }
-  }
+  final Apiservicev2 apiservicev2 = new Apiservicev2();
   @override
   void initState() {
     super.initState();
+
     setState(() {isLoading = true;});
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
-      if(movie_id != 0) return;
-      await sendPost();// movie_id 값 받아오기
+      try{
+        //await context.read<MovieStore>().getMovieData(); // 영화 데이터 먼저 로딩
 
-      // movie_id가 설정된 후 findMovie 실행
-      print("movie_id: "+movie_id.toString());
-      await findMovie();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        user_id = prefs.getInt("user_id");
+        print("user_id: "+ user_id.toString());
+        username = prefs.getString("username") ?? username;
 
-      if (movie_detail != null) {
-        print("movie_detail: ${movie_detail!.id}");
-      } else {
-        print("해당 ID의 영화를 찾을 수 없습니다.");
+        if (user_id == -1) {
+          print("user_id가 null입니다. 요청 중단");
+          return;
+        }
+        var result = await apiservicev2.aiRecommand(user_id!);
+        print("result 요청 완.");
+        if (result != null) {
+          setState(() {
+            //result = responseJson;
+            //movie_id = result['movie_id'] ?? 0;
+            movie = Movie.fromJson(result['movie']) ?? null;
+            reason = result['reason'] ?? reason;
+          });
+
+          setState(() {movie_poster = movie!.posterImage; isLoading = false;});
+        } else {
+          // 실패 또는 예외
+          print("해당 ID의 영화를 찾을 수 없습니다.");
+        }
       }
-
-      setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;}); // 상태 업데이트
+      catch(e){
+        Navigator.pushNamed(context, '/MyPage_Login');
+      }
     });
   }
 
@@ -152,8 +124,7 @@ class _ProductListPageState extends State<RecommendMovie> {
         ],
       ),
       body: isLoading == false
-          ? Container(
-        child: SingleChildScrollView(
+          ? Container(child: SingleChildScrollView(
             child: Stack(
           clipBehavior: Clip.none, // ← overflow 허용
           children: [
@@ -179,9 +150,12 @@ class _ProductListPageState extends State<RecommendMovie> {
                         Text(username+"님을 위한 AI 추천", style: TextStyle(fontSize: 27,color: Colors.white)), Spacer(),
                         IconButton(onPressed: () async {
                           setState(() {isLoading = true;});
-                          await sendPost();
-                          await findMovie();
-                          setState(() {movie_poster = movie_detail!.posterImage; isLoading = false;});
+                          result = (await  apiservicev2.aiRecommand(user_id!))!;
+                          setState(() {
+                            movie = Movie.fromJson(result['movie']) ?? null;
+                            reason = result['reason'] ?? reason;
+                          });
+                          setState(() {movie_poster = movie!.posterImage; isLoading = false;});
                           }, icon: Image.asset("assets/reload.png", height: 20, width: 20, color: Colors.white)),],)),
                   SizedBox(height: 20,),
                   Container(
@@ -204,7 +178,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                       decoration: commonBoxDecoration(),
                       width: MediaQuery.of(context).size.width * 0.82,
                       child: Text(
-                        movie_detail!.title,
+                        movie!.title,
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
                       )
                   ),
@@ -228,7 +202,7 @@ class _ProductListPageState extends State<RecommendMovie> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => MovieDetailPage(title: movie_detail!.title),
+                                  builder: (_) => MovieDetailPage(movieId: movie!.id),
                                 ),
                               );
                             },
@@ -273,9 +247,13 @@ class _ProductListPageState extends State<RecommendMovie> {
             )
             else Center(child: IconButton(onPressed: () async {
               setState(() {isLoading = true;});
-              await sendPost();
-              await findMovie();
-              setState(() {movie_poster = movie_detail!.posterImage; isLoading = false; status = 200;});
+              result = (await  apiservicev2.aiRecommand(user_id!))!;
+              setState(() {
+                movie = Movie.fromJson(result['movie']) ?? null;
+                reason = result['reason'] ?? reason;
+              });
+             // ApiService().printCookies();
+              setState(() {movie_poster = movie!.posterImage; isLoading = false; status = 200;});
               },
               icon: Center(
                 child: Column(
@@ -290,13 +268,8 @@ class _ProductListPageState extends State<RecommendMovie> {
               ),
               )))
           ],
-        )),
-      )
-          : const Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 4,
-          color: Colors.redAccent,
-        ),
+        )),)
+          : const Center( child: CircularProgressIndicator(strokeWidth: 4, color: Colors.redAccent,),
       ),
       bottomNavigationBar: const NavBar(),
     );

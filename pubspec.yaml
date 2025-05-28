@@ -43,6 +43,11 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   youtube_player_flutter: ^9.1.1
   flutter_inappwebview: ^6.0.0-beta.21
+  cookie_jar: ^4.0.0
+  dio_cookie_manager: ^3.0.0
+  animations: ^2.0.11
+  flutter_local_notifications: ^18.0.1
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:

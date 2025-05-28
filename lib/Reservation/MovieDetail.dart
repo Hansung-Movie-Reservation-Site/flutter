@@ -8,13 +8,14 @@ import '../Common/ApiService.dart';
 import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
+import '../auth/Apiservicev2.dart';
 import 'DetailReservation.dart';
 
 YoutubePlayerController? _youtubeController;
 
 class MovieDetailPage extends StatefulWidget {
-  final String title;
-  const MovieDetailPage({super.key, required this.title});
+  final int movieId;
+  const MovieDetailPage({super.key, required this.movieId});
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -107,11 +108,10 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   Future<void> initMovies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
-    final api = ApiService();
-    List<Movie> result = await api.searchMovieDetail("v1/movies/search", {"keyword": widget.title});
+    final api2 = Apiservicev2();
+    Movie? movieData = await api2.findMovie(widget.movieId);
 
-    if (result.isNotEmpty) {
-      final movieData = result.first;
+    if (movieData != null) {
       final videoId = YoutubePlayer.convertUrlToId(movieData.fullVideoLink ?? "");
 
       if (videoId != null) {
@@ -141,6 +141,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       setState(() => isLoading = false);
     }
   }
+
+
 
   @override
   void dispose() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie/Common/ApiService.dart';
+import '../auth/Apiservicev2.dart';
 import 'SeatPage.dart';
 
 class MovieSelectionUI extends StatefulWidget {
@@ -26,7 +27,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
   List<Map<String, dynamic>>? movies;
 
   Future<void> loadGroupedMovies(String spotName, String date) async {
-    final api = ApiService();
+    final api = Apiservicev2();
     final screenings = await api.fetchScreenings(spotName, date);
 
     final Map<String, List<Map<String, dynamic>>> grouped = {};
