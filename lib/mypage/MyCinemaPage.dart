@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie/Common/Localapiservice.dart';
 import 'package:movie/Response/MyTheater.dart';
+import 'package:movie/auth/Apiservicev2.dart';
 import 'MyCinemaUI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,7 +14,7 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
 
   SharedPreferences? prefs;
   int user_id = -1;
-  Localapiservice localapiservice = new Localapiservice();
+  Apiservicev2 apiservicev2 = new Apiservicev2();
   List<MyTheater> myTheaterList = [];
   List<MyTheater> selectedCinemas = []; // 여러 개 선택 가능하도록
 
@@ -29,7 +30,7 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
       user_id = prefs!.getInt("user_id")!;
     });
     print("user_id: "+user_id.toString());
-    selectedCinemas = await localapiservice.getMyTheater(user_id);
+    selectedCinemas = await apiservicev2.getMyTheater(user_id);
     setState(() {});
   }
 
@@ -58,9 +59,8 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
   Future<void> onCinemaSelected() async {
     if (selectedCinemas.isNotEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = selectedCinemas.map((e) => e.toJson().toString()).toList();
-      await prefs.setStringList('user_cinema_list', jsonList);
-
+      List<int> spotidList = selectedCinemas.map((c)=> c.spotId).toList();
+      await apiservicev2.setMyTheater(user_id, spotidList);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
