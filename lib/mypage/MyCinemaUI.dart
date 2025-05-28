@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Response/MyTheater.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCinemaUI {
   // 현재 선택된 영화관 정보 표시
-  static Widget buildCinemaInfo(String? selectedCinema) {
+  static Widget buildCinemaInfo(List<MyTheater> selectedCinema, Map<String, Map<int, String>> spotData) {
+    // spotId를 이름으로 매핑
+    List<String> cinemaNames = [];
+    for (var theater in selectedCinema) {
+      for (var entry in spotData.entries) {
+        if (entry.value.containsKey(theater.spotId)) {
+          cinemaNames.add(entry.value[theater.spotId]!);
+          break;
+        }
+      }
+    }
+
     return Container(
       width: 360,
       padding: const EdgeInsets.all(16),
@@ -21,6 +33,7 @@ class MyCinemaUI {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
             Icons.local_movies,
@@ -36,13 +49,12 @@ class MyCinemaUI {
               color: Colors.black,
             ),
           ),
-          const SizedBox(width: 5),
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
+          const SizedBox(width: 10),
+          Expanded(
             child: Text(
-              selectedCinema ?? '선택 안 됨',
+              cinemaNames.isNotEmpty ? cinemaNames.join(", ") : "선택된 영화관 없음",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.red.shade800,
               ),
@@ -52,6 +64,7 @@ class MyCinemaUI {
       ),
     );
   }
+
 
   // 영화관 선택 UI (지역 선택 + 하위 영화관 리스트)
   static Widget buildCinemaSelection({

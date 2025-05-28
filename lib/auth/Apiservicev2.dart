@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../Response/Airecommand.dart';
 import '../Response/Movie.dart';
-import '../Response/MyTheather.dart';
+import '../Response/MyTheater.dart';
 import '../Response/RecommandMovie.dart';
 import '../Response/Region.dart';
 import '../Response/Reviews.dart';
@@ -62,8 +62,8 @@ class Apiservicev2 {
         String userEmail = responseData['userDetailDTO']['email'];
 
         // List 파싱 처리
-        List<MyTheather> myTheatherList = (responseData['userDetailDTO']['myTheatherList'] as List)
-            .map((json) => MyTheather.fromJson(json))
+        List<MyTheater> myTheaterList = (responseData['userDetailDTO']['myTheatherList'] as List)
+            .map((json) => MyTheater.fromJson(json))
             .toList();
 
         // context 없이 직접 Provider에 저장

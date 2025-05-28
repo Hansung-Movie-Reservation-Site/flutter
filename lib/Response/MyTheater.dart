@@ -1,14 +1,14 @@
-class MyTheather {
+class MyTheater {
   final int id;
   final int spotId;
 
-  MyTheather({
+  MyTheater({
     required this.id,
     required this.spotId,
   });
 
-  factory MyTheather.fromJson(Map<String, dynamic> json) {
-    return MyTheather(
+  factory MyTheater.fromJson(Map<String, dynamic> json) {
+    return MyTheater(
       id: json['id'],
       spotId: json['spot_id'],
     );

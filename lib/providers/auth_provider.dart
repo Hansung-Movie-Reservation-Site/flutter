@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Response/Movie.dart';
-import '../Response/MyTheather.dart';
+import '../Response/MyTheater.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
@@ -19,32 +19,32 @@ class AuthProvider with ChangeNotifier {
     notifyListeners(); // UI 업데이트
   }
 
-  final List<MyTheather> _myTheatherList = [];
+  final List<MyTheater> _myTheaterList = [];
 
-  List<MyTheather> get myTheatherList => List.unmodifiable(_myTheatherList);
+  List<MyTheater> get myTheaterList => List.unmodifiable(_myTheaterList);
 
-  void setList(List<MyTheather> list) {
-    _myTheatherList
+  void setList(List<MyTheater> list) {
+    _myTheaterList
       ..clear()
       ..addAll(list);
     notifyListeners();
-    for(var i =0;i< _myTheatherList.length; i++){
-      print("내 영화관 spotId: "+_myTheatherList[i].spotId.toString());
+    for(var i =0;i< _myTheaterList.length; i++){
+      print("내 영화관 spotId: "+_myTheaterList[i].spotId.toString());
     }
   }
 
-  void addTheather(MyTheather theather) {
-    _myTheatherList.add(theather);
+  void addTheather(MyTheater theater) {
+    _myTheaterList.add(theater);
     notifyListeners();
   }
 
   void removeTheatherById(int id) {
-    _myTheatherList.removeWhere((item) => item.id == id);
+    _myTheaterList.removeWhere((item) => item.id == id);
     notifyListeners();
   }
 
   void clearList() {
-    _myTheatherList.clear();
+    _myTheaterList.clear();
     notifyListeners();
   }
 }

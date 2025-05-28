@@ -1,6 +1,6 @@
 
 import 'package:dio/dio.dart';
-import 'package:movie/Response/MyTheather.dart';
+import 'package:movie/Response/MyTheater.dart';
 
 final dio = Dio(
     BaseOptions(
@@ -14,7 +14,7 @@ final dio = Dio(
 
 class Localapiservice {
 
-  Future<List<MyTheather>> getMyTheather(int user_id) async {
+  Future<List<MyTheater>> getMyTheater(int user_id) async {
     try {
       //final response = await dio.get('v1/movies/searchById?id=$id');
 
@@ -31,7 +31,7 @@ class Localapiservice {
         for(int i=0; i< rawList.length;i++){
           print(rawList[i]);
         }
-        return rawList.map((e) => MyTheather.fromJson(e)).toList();
+        return rawList.map((e) => MyTheater.fromJson(e)).toList();
         // }
         // return [];
       }
