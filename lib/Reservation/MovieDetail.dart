@@ -69,7 +69,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   //평균 별점
   Future<void> setAverageRating() async {
-    final api = ApiService();
+    final api = Apiservicev2();
     if (movieId != null) {
       final params = {'movieId': movieId!};
       MovieRating result = await api.getRating("v1/review/rating", params);
@@ -82,7 +82,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   //리뷰 작성 완료
   void _submitReview() async {
     if (userRating == 0 || reviewController.text.trim().isEmpty) return;
-    final api = ApiService();
+    final api = Apiservicev2();
     final requestData = {
       "rating": userRating,
       "review": reviewController.text.trim(),
@@ -95,7 +95,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   void clickLike(int reviewId) async {
-    final api = ApiService();
+    final api = Apiservicev2();
     final params = {
       "userId": userId,
       "reviewId": reviewId,
@@ -152,7 +152,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   //리뷰 불러오기 (실행은 initMovies에서)
   Future<void> _fetchReviews() async {
-    final api = ApiService();
+    final api = Apiservicev2();
     List<Review> result = await api.getReview("v1/review/reviewWithLikes", {"movieId" : movieId!, "userId" : userId!});
     print("불러온 리뷰 개수: ${result.length}");
     setState(() {

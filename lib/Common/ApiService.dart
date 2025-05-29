@@ -98,78 +98,78 @@ class ApiService {
     }
   }
 
-  // 별점
-  Future<MovieRating> getRating(String url, Map<String, int> request) async {
-    try {
-      final response = await dio.get(url, queryParameters: request);
-      if (response.statusCode == 200) {
-        return MovieRating.fromJson(response.data);
-      } else {
-        print("에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.");
-        throw Exception("리뷰 요청 실패");
-      }
-    } catch (e) {
-      if (e is DioException) {
-        throw Exception(e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰");
-      }
-      throw Exception("알 수 없는 오류 발생");
-    }
-  }
+  // // 별점
+  // Future<MovieRating> getRating(String url, Map<String, int> request) async {
+  //   try {
+  //     final response = await dio.get(url, queryParameters: request);
+  //     if (response.statusCode == 200) {
+  //       return MovieRating.fromJson(response.data);
+  //     } else {
+  //       print("에러 코드: ${response.statusCode} / 리뷰를 불러올 수 없습니다.");
+  //       throw Exception("리뷰 요청 실패");
+  //     }
+  //   } catch (e) {
+  //     if (e is DioException) {
+  //       throw Exception(e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰");
+  //     }
+  //     throw Exception("알 수 없는 오류 발생");
+  //   }
+  // }
 
-  //리뷰 저장
-  Future<String> postReview(String url, Map<String, dynamic> request) async {
-    try {
-      final response = await dio.post(url, data: request);
-      if (response.statusCode == 200) {
-        return "리뷰가 저장되었습니다.";
-      } else {
-        print("에러 코드: ${response.statusCode} / 리뷰 저장 실패");
-        throw Exception("리뷰 저장 실패");
-      }
-    } catch (e) {
-      if (e is DioException) {
-        return e.response?.data?['message'] ?? "서버 오류 (리뷰 저장)";
-      }
-      return "알 수 없는 오류 발생";
-    }
-  }
-
-  //리뷰 좋아요 개수 불러오기
-  Future<ReviewLike> getLikeCount(String url, Map<String, int> request) async {
-    try {
-      final response = await dio.get(url, queryParameters: request);
-      if (response.statusCode == 200) {
-        //print("좋아요 로드 성공 / ApiService");
-        return ReviewLike.fromJson(response.data);
-      } else {
-        print("에러 코드: ${response.statusCode} / 좋아요 로드");
-        throw Exception("좋아요 로드 실패");
-      }
-    } catch (e) {
-      if (e is DioException) {
-        return e.response?.data?['message'] ?? "서버 오류 (좋아요 로드)";
-      }
-      throw Exception("알 수 없는 오류 발생 / 좋아요 로드");
-    }
-  }
-
-  //좋아요 누르기
-  Future<void> setLike(String url, Map<String, dynamic> request) async {
-    try {
-      final response = await dio.post(url, queryParameters: request);
-      if (response.statusCode == 200) {
-        print("좋아요 성공 / ApiService");
-      } else {
-        print("에러 코드: ${response.statusCode} / 좋아요 실패");
-        throw Exception("좋아요 저장 실패");
-      }
-    } catch (e) {
-      if (e is DioException) {
-        return e.response?.data?['message'] ?? "서버 오류 (좋아요 클릭)";
-      }
-      print("알 수 없는 에러 발생 / ApiService");
-    }
-  }
+  // //리뷰 저장
+  // Future<String> postReview(String url, Map<String, dynamic> request) async {
+  //   try {
+  //     final response = await dio.post(url, data: request);
+  //     if (response.statusCode == 200) {
+  //       return "리뷰가 저장되었습니다.";
+  //     } else {
+  //       print("에러 코드: ${response.statusCode} / 리뷰 저장 실패");
+  //       throw Exception("리뷰 저장 실패");
+  //     }
+  //   } catch (e) {
+  //     if (e is DioException) {
+  //       return e.response?.data?['message'] ?? "서버 오류 (리뷰 저장)";
+  //     }
+  //     return "알 수 없는 오류 발생";
+  //   }
+  // }
+  //
+  // //리뷰 좋아요 개수 불러오기
+  // Future<ReviewLike> getLikeCount(String url, Map<String, int> request) async {
+  //   try {
+  //     final response = await dio.get(url, queryParameters: request);
+  //     if (response.statusCode == 200) {
+  //       //print("좋아요 로드 성공 / ApiService");
+  //       return ReviewLike.fromJson(response.data);
+  //     } else {
+  //       print("에러 코드: ${response.statusCode} / 좋아요 로드");
+  //       throw Exception("좋아요 로드 실패");
+  //     }
+  //   } catch (e) {
+  //     if (e is DioException) {
+  //       return e.response?.data?['message'] ?? "서버 오류 (좋아요 로드)";
+  //     }
+  //     throw Exception("알 수 없는 오류 발생 / 좋아요 로드");
+  //   }
+  // }
+  //
+  // //좋아요 누르기
+  // Future<void> setLike(String url, Map<String, dynamic> request) async {
+  //   try {
+  //     final response = await dio.post(url, queryParameters: request);
+  //     if (response.statusCode == 200) {
+  //       print("좋아요 성공 / ApiService");
+  //     } else {
+  //       print("에러 코드: ${response.statusCode} / 좋아요 실패");
+  //       throw Exception("좋아요 저장 실패");
+  //     }
+  //   } catch (e) {
+  //     if (e is DioException) {
+  //       return e.response?.data?['message'] ?? "서버 오류 (좋아요 클릭)";
+  //     }
+  //     print("알 수 없는 에러 발생 / ApiService");
+  //   }
+  // }
 
   Future<List<Region>> fetchRegions() async {
     final response = await dio.get("v1/regions/getAll");
