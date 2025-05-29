@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie/Response/MyTheater.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/ApiService.dart';
 import '../Common/navbar.dart';
@@ -19,6 +20,9 @@ class _TheaterUIState extends State<TheaterUI> {
   String searchKeyword = '';
   int? userId;
   String? userCinema;
+  List<MyTheater> myTheaterList = [];
+
+  Apiservicev2 apiservicev2 = new Apiservicev2();
 
   @override
   void initState() {
@@ -31,7 +35,12 @@ class _TheaterUIState extends State<TheaterUI> {
     userId = prefs.getInt('user_id');
     userCinema = prefs.getString('user_cinema');
     await loadCinemaMap();
+
   }
+
+  // 결과 저장할 리스트
+  List<String> matchedSpotNames = [];
+
 
   final PageController _pageController = PageController(viewportFraction: 1.0);
   final int daysPerPage = 3;
@@ -45,8 +54,23 @@ class _TheaterUIState extends State<TheaterUI> {
     final regions = await api.fetchRegions();
     final spots = await api.fetchSpots();
 
+    myTheaterList = await apiservicev2.getMyTheater(userId!);
+    for (var theater in myTheaterList) {
+      final spotId = theater.spotId;
+      print("spotId: "+spotId.toString());
+
+      for (var spot in spots) {
+        print("spot.id: "+spot.id.toString()+" spot.name: "+spot.name);
+        if (spot.id == spotId) {
+          matchedSpotNames.add(spot.name);
+          print("spot.name: "+spot.name);
+        }
+      }
+    }
+    print("matchedSpotNames length: "+matchedSpotNames.length.toString());
+    print("mytheater 완료");
     Map<String, List<String>> tempMap = {
-      '내영화관': userCinema != null ? [userCinema!] : [],
+      '내영화관': matchedSpotNames,
     };
 
     for (var region in regions) {
@@ -59,6 +83,8 @@ class _TheaterUIState extends State<TheaterUI> {
     setState(() {
       cinemaMap = tempMap;
     });
+
+    setState(() {});
   }
 
   List<DateTime> generateDates() {
@@ -188,7 +214,8 @@ class _TheaterUIState extends State<TheaterUI> {
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600)),
-                    children: cinemas.map((cinema) {
+                    children:
+                    cinemas.map((cinema) {
                       final isSelected =
                           selectedCinema == cinema;
                       return ListTile(
