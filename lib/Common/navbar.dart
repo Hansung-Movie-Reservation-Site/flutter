@@ -37,42 +37,45 @@ class _NavBarState extends State<NavBar> {
     const activeColor = Colors.blueAccent;
     const inactiveColor = Colors.grey;
 
-    return Container(
-      height: 70,
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
-        color: Colors.white,
-      ),
-      child: Row(
-        children: [
-          _buildNavItem(
-            context,
-            icon: Icons.search,
-            label: '영화 추천',
-            routeName: '/recommendpage',
-            isActive: currentPage == '/recommendpage',
-            activeColor: activeColor,
-            inactiveColor: inactiveColor,
-          ),
-          _buildNavItem(
-            context,
-            icon: Icons.map_outlined,
-            label: '예매',
-            routeName: '/Reserve', // 이후 수정 필요
-            isActive: currentPage == '/Reserve',
-            activeColor: activeColor,
-            inactiveColor: inactiveColor,
-          ),
-          _buildNavItem(
-            context,
-            icon: Icons.person_outline,
-            label: '마이페이지',
-            routeName: myPageRoute,
-            isActive: currentPage == myPageRoute,
-            activeColor: activeColor,
-            inactiveColor: inactiveColor,
-          ),
-        ],
+    return SafeArea(
+      // minimum: const EdgeInsets.only(bottom: 8), // 추가 여백 필요하면
+      child: Container(
+        height: 70,
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
+          color: Colors.white,
+        ),
+        child: Row(
+          children: [
+            _buildNavItem(
+              context,
+              icon: Icons.search,
+              label: '영화 추천',
+              routeName: '/recommendpage',
+              isActive: currentPage == '/recommendpage',
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+            ),
+            _buildNavItem(
+              context,
+              icon: Icons.map_outlined,
+              label: '예매',
+              routeName: '/Reserve', // 이후 수정 필요
+              isActive: currentPage == '/Reserve',
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+            ),
+            _buildNavItem(
+              context,
+              icon: Icons.person_outline,
+              label: '마이페이지',
+              routeName: myPageRoute,
+              isActive: currentPage == myPageRoute,
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+            ),
+          ],
+        ),
       ),
     );
   }
