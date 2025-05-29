@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie/auth/Apiservicev2.dart';
 import 'SignupUI.dart';
 import 'package:movie/auth/SignupFeatures.dart';
 import 'LoginPage.dart';
@@ -18,7 +19,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _verificationCodeController = TextEditingController();
 
-  final ApiService _apiService = ApiService();
+  //final ApiService _apiService = ApiService();
+  Apiservicev2 apiservicev2 = new Apiservicev2();
 
   String? _nameError;
   String? _emailError;
@@ -52,7 +54,7 @@ class _SignupPageState extends State<SignupPage> {
         _verificationMessage = '인증 코드 전송 완료.';
       }
     });
-    await _apiService.sendVerificationEmail("v1/user/verifyEmail", {"email": _emailController.text});
+    await apiservicev2.sendVerificationEmail("v1/user/verifyEmail", {"email": _emailController.text});
   }
 
   // 이메일 인증 코드 확인
