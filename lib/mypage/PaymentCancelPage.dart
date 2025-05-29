@@ -1,104 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:movie/auth/Apiservicev2.dart';
 import 'package:movie/mypage/Mypage_login.dart';
 import 'package:movie/mypage/PaymentCancelUI.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Response/OrderSummary.dart';
 
 // 우선 샘플 데이터로 화면 구성, API 연동 추가 예정
 
-class PaymentCancelScreen extends StatelessWidget {
-  final List<Map<String, String>> paymentcancel = [
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "인셉션",
-      "date": "2025-03-26",
-      "theater": "롯데시네마 홍대",
-      "price": "30000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "60000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "45000"
-    },
-    {
-      "title": "어벤져스: 엔드게임",
-      "date": "2025-03-25",
-      "theater": "CGV 강남",
-      "price": "15000"
-    },
-  ];
+class PaymentCancelScreen extends StatefulWidget {
+  @override
+  State<PaymentCancelScreen> createState() => _PaymentCancelScreenState();
+}
+
+class _PaymentCancelScreenState extends State<PaymentCancelScreen> {
+  Future<List<OrderSummary>>? _ordersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id');
+    if (userId != null) {
+      setState(() {
+        _ordersFuture = Apiservicev2().fetchOrders(userId);
+      });
+    } else {
+      setState(() {
+        _ordersFuture = Future.value([]); // 빈 리스트 반환
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight), // AppBar height
-        child: AppBar(
-          backgroundColor: Colors.white, // Ensure it's always white
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, size: 35),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MyPage_Login()),
-              );
-            },
-          ),
-          title: Text(
-            '결제 취소',
-            style: TextStyle(
-              fontSize: 27,
-              color: Colors.black,
-            ),
-          ),
-          centerTitle: true,
-          elevation: 0,
+      appBar: AppBar(
+        title: Text('예매 내역 / 결제 취소', style: TextStyle(fontSize: 27, color: Colors.black)),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, size: 35),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: PaymentCancelUI(paymentcancel: paymentcancel),
+      body: _ordersFuture == null
+          ? Center(child: CircularProgressIndicator())
+          : FutureBuilder<List<OrderSummary>>(
+        future: _ordersFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('에러 발생: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('결제 내역이 없습니다.'));
+          }
+          return PaymentCancelUI(paymentcancel: snapshot.data!, onOrderCanceled: _loadOrders,);
+        },
       ),
     );
   }

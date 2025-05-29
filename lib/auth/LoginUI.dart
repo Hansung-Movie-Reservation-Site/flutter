@@ -50,11 +50,7 @@ class LoginUI extends StatelessWidget {
                   // 로그인 버튼
                   _buildLoginButton(onLogin),
 
-                  const SizedBox(height: 20),
-
-                  _buildSocialLoginButton(onSocialLogin),
-
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 80),
                   // 에러 메시지
                   if (errorMessage.isNotEmpty)
                     _buildErrorMessage(errorMessage),
