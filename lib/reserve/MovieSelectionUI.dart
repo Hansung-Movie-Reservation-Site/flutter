@@ -129,7 +129,15 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                               date.day == selectedDate!.day;
 
                           return GestureDetector(
-                            onTap: () => setState(() => selectedDate = date),
+                            onTap: () {
+                              setState(() {
+                                selectedDate = date;
+                              });
+                            loadGroupedMovies(
+                              cinema!,
+                              "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}"
+                            );
+                            },
                             child: Container(
                               width: 75,
                               margin: const EdgeInsets.symmetric(horizontal: 6),
