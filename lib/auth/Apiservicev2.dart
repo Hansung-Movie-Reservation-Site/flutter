@@ -449,5 +449,19 @@ class Apiservicev2 {
       return false;
     }
   }
+
+  // 리뷰 삭제
+  Future<bool> deleteReview(int reviewId, int userId) async {
+    try {
+      final response = await dio.delete(
+        '/v1/review/deleteReview/$reviewId',
+        queryParameters: {'userId': userId},
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('리뷰 삭제 오류: $e');
+      return false;
+    }
+  }
 }
 

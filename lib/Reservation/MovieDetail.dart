@@ -25,6 +25,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   Movie? movie;
   int? movieId;
   int? userId;
+  String? myUsername;
   String movieName = '';
   String runTime = '';
   String Genre = '';
@@ -108,6 +109,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   Future<void> initMovies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
+    myUsername = prefs.getString('username');
     final api2 = Apiservicev2();
     Movie? movieData = await api2.findMovie(widget.movieId);
 
@@ -278,6 +280,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         final isSpoiler = review['spoiler'] == true;
                         final isExpanded = spoilerExpanded.contains(index);
                         final displayText = review['review'];
+
+                        bool isMyReview = false;
+                        if (userId != null) {
+                          if (review['username'] == myUsername) {
+                            isMyReview = true;
+                          }
+                        }
+
                         return GestureDetector(
                           onTap: () {
                             if (isSpoiler) {
@@ -309,6 +319,47 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                         review['timestamp'].toString(),
                                         style: const TextStyle(fontSize: 13),
                                       ),
+                                      Spacer(), // 이 부분이 오른쪽 정렬의 핵심!
+                                      if (review['username'] == myUsername)
+                                        IconButton(
+                                          icon: Icon(Icons.delete, color: Colors.redAccent, size: 22),
+                                          onPressed: () async {
+                                            final confirm = await showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: Text('리뷰 삭제'),
+                                                content: Text('정말로 리뷰를 삭제하시겠습니까?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(ctx).pop(false),
+                                                    child: Text('취소'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(ctx).pop(true),
+                                                    child: Text('삭제'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              final api = Apiservicev2();
+                                              final result = await api.deleteReview(
+                                                review['reviewId'],
+                                                userId!,
+                                              );
+                                              if (result) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('리뷰가 삭제되었습니다.')),
+                                                );
+                                                await _fetchReviews();
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('리뷰 삭제 실패')),
+                                                );
+                                              }
+                                            }
+                                          },
+                                        ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
