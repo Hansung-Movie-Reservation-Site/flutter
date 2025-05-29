@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie/Common/ApiService.dart';
+import '../Reservation/MovieDetail.dart';
 import '../auth/Apiservicev2.dart';
 import 'SeatPage.dart';
 
@@ -30,9 +31,15 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
     final api = Apiservicev2();
     final screenings = await api.fetchScreenings(spotName, date);
 
+    final Map<String, Map<String, dynamic>> movieInfoMap = {};
     final Map<String, List<Map<String, dynamic>>> grouped = {};
 
     for (final s in screenings) {
+      movieInfoMap[s.title] = {
+        "posterImage": s.posterImage,
+        "movieId": s.movieId,
+      };
+
       grouped.putIfAbsent(s.title, () => []);
       grouped[s.title]!.add({
         "id": s.id,
@@ -44,6 +51,8 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
       movies = grouped.entries.map((e) => {
         "title": e.key,
         "times": e.value,
+        "posterImage": movieInfoMap[e.key]?["posterImage"],
+        "movieId": movieInfoMap[e.key]?["movieId"],
       }).toList();
     });
   }
@@ -204,15 +213,30 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 60,
-                        height: 55,
-                        decoration: BoxDecoration(
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: (movie['posterImage'] != null && movie['posterImage'].toString().isNotEmpty)
+                            ? Image.network(
+                          movie['posterImage'],
+                          width: 60,
+                          height: 55,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            width: 60,
+                            height: 55,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Text('포스터', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                            ),
+                          ),
+                        )
+                            : Container(
+                          width: 60,
+                          height: 55,
                           color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Center(
-                          child: Text('포스터', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                          child: const Center(
+                            child: Text('포스터', style: TextStyle(fontSize: 10, color: Colors.black54)),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -224,7 +248,15 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // 영화 상세 정보 이동
+                          final movieId = movie['movieId'];
+                          if (movieId != null) {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (_) => MovieDetailPage(movieId: movieId),
+                              ),
+                                  (route) => route.settings.name == '/recommendpage',
+                            );
+                          }
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.grey[300],
@@ -238,6 +270,7 @@ class _MovieSelectionUIState extends State<MovieSelectionUI> {
                         ),
                         child: const Text('영화정보', style: TextStyle(fontSize: 12)),
                       ),
+
                     ],
                   ),
                   const SizedBox(height: 10),

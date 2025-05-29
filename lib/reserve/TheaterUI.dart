@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/ApiService.dart';
 import '../Common/navbar.dart';
 import '../auth/Apiservicev2.dart';
+import '../auth/AuthService.dart';
 import 'MovieSelectionPage.dart';
 
 class TheaterUI extends StatefulWidget {
@@ -31,12 +32,29 @@ class _TheaterUIState extends State<TheaterUI> {
   }
 
   Future<void> init() async {
+    bool isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('로그인 후 이용 가능합니다.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/MyPage_Logout',
+              (route) => false,
+        );
+      });
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userId = prefs.getInt('user_id');
     userCinema = prefs.getString('user_cinema');
     await loadCinemaMap();
-
   }
+
 
   // 결과 저장할 리스트
   List<String> matchedSpotNames = [];

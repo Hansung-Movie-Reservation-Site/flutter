@@ -74,7 +74,7 @@ class Apiservicev2 {
         await prefs.setBool('isLoggedIn', true);
 
         await DialogMaker.dialog(context, '로그인 성공!', '환영합니다! $userName님');
-        Navigator.pushNamed(context, '/recommendpage');
+        Navigator.pushNamedAndRemoveUntil(context, '/recommendpage', (route) => false);
       } else {
         await DialogMaker.dialog(context, '로그인 실패', '에러 코드: ${response.statusCode}');
       }
@@ -480,6 +480,88 @@ class Apiservicev2 {
       print('리뷰 삭제 오류: $e');
       return false;
     }
+  }
+  Future<List<Movie>> dailyMovie() async {
+    try {
+      final response = await dio.get("v1/movies/daily");
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        final fetched = data.map((json) => Movie.fromJson(json)).toList();
+        return fetched;
+      } else {
+        print('에러 코드: ${response.statusCode} / 영화 데이터를 불러올 수 없습니다.');
+        return [];
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return e.response?.data?['message'] ?? "서버에 연결할 수 없습니다.";
+      }
+      return [];
+    }
+  }
+
+  Future<Movie?> findmoviebyid(int movie_id) async {
+    try {
+      //final response = await dio.get('v1/movies/searchById?id=$id');
+
+      final response = await dio.get(
+        'v1/movies/search',
+        queryParameters: {'keyword': movie_id},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        print("findmovie 성공");
+        //if (data['errorCode'] == 'SUCCESS') {
+        return Movie.fromJson(data);
+        // }
+        // return [];
+      }
+    }
+    on DioException catch (e) {
+      if(e.response?.statusCode == 403){
+      }
+      print("Dio 예외: ${e.message}");
+      print("응답 본문: ${e.response?.data}");
+      return null;
+    } catch (e) {
+      print("기타 예외: $e");
+      return null;
+    }
+    return null;
+  }
+
+  Future<Movie?> findmoviebyTitle(String title) async {
+    try {
+      //final response = await dio.get('v1/movies/searchById?id=$id');
+
+      final response = await dio.get(
+        'v1/movies/search',
+        queryParameters: {'keyword': title},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        print("findmovie 성공");
+        //if (data['errorCode'] == 'SUCCESS') {
+        return Movie.fromJson(data);
+        // }
+        // return [];
+      }
+    }
+    on DioException catch (e) {
+      if(e.response?.statusCode == 403){
+      }
+      print("Dio 예외: ${e.message}");
+      print("응답 본문: ${e.response?.data}");
+      return null;
+    } catch (e) {
+      print("기타 예외: $e");
+      return null;
+    }
+    return null;
   }
 }
 

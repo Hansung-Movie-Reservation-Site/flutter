@@ -23,7 +23,7 @@ class OrderSummary {
       title: json['screening']['movie']['title'],
       date: json['screening']['date'],
       theater: json['screening']['room']['spot']['name'],
-      price: json['screening']['price'],
+      price: json['totalAmount'],
       tid: json['tid'] ?? '',
       posterImage: json['screening']['movie']['posterImage'],
     );

@@ -14,6 +14,7 @@ import '../Reservation/MovieDetail.dart';
 import '../Response/Movie.dart';
 import '../Response/RecommandMovie.dart';
 import '../auth/Apiservicev2.dart';
+import '../auth/AuthService.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -33,7 +34,6 @@ class _MainpageState extends State<Mainpage> {
 
   Timer? _timer;
   final Apiservicev2 apiservicev2 = Apiservicev2();
-  final Apiservicev3 apiservicev3 = Apiservicev3();
   int user_id = -1;
   List<Recommendmovie> result = [];
   List<Reviews> reviewresult = [];
@@ -52,7 +52,7 @@ class _MainpageState extends State<Mainpage> {
     // (비동기 병렬화 고려 가능, 여기선 순차 진행)
     final reviews = await apiservicev2.getReviewAll();
     final recommends = await apiservicev2.getRecommandMovies(user_id);
-    final fetched = await apiservicev3.dailyMovie();
+    final fetched = await apiservicev2.dailyMovie();
 
     setState(() {
       reviewresult = reviews;
@@ -220,7 +220,6 @@ class _MainpageState extends State<Mainpage> {
                   child: Text("상영 중인 영화를 확인해보세요", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black), textAlign: TextAlign.center),
                 ),
               ),
-              const MovieCategoryChips(),
               products.isEmpty
                   ? (_currentIndex == 5
                   ? const Center(child: Text("상영 데이터를 불러오는데 실패했습니다."))
@@ -236,7 +235,26 @@ class _MainpageState extends State<Mainpage> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: products.map((product) {
                     return GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        // 1. 로그인 체크
+                        bool isLoggedIn = await AuthService.isLoggedIn();
+                        if (!isLoggedIn) {
+                          // 2. 안내 + 페이지 스택 정리하며 이동
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('로그인 후 이용 가능합니다.'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          // 3. 스택 비우고 MyPage_Logout으로 이동
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/MyPage_Logout',
+                                (route) => false,
+                          );
+                          return; // 아래 이동 막기
+                        }
+
+                        // 4. 로그인 상태면 상세페이지로 이동
                         Navigator.push(
                           context,
                           MaterialPageRoute(

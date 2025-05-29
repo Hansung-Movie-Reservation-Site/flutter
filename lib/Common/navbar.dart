@@ -14,6 +14,7 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   String myPageRoute = '/MyPage_Logout'; // 기본값
+  String reserveRoute = '/MyPage_Logout';
 
   @override
   void initState() {
@@ -31,14 +32,12 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    // 선택된 페이지 이름 추적 (선택 상태 표시용)
     String currentPage = ModalRoute.of(context)?.settings.name ?? '';
 
     const activeColor = Colors.blueAccent;
     const inactiveColor = Colors.grey;
 
     return SafeArea(
-      // minimum: const EdgeInsets.only(bottom: 8), // 추가 여백 필요하면
       child: Container(
         height: 70,
         decoration: const BoxDecoration(
@@ -60,7 +59,7 @@ class _NavBarState extends State<NavBar> {
               context,
               icon: Icons.map_outlined,
               label: '예매',
-              routeName: '/Reserve', // 이후 수정 필요
+              routeName: '/Reserve',
               isActive: currentPage == '/Reserve',
               activeColor: activeColor,
               inactiveColor: inactiveColor,
@@ -93,7 +92,11 @@ class _NavBarState extends State<NavBar> {
       child: InkWell(
         onTap: () {
           if (ModalRoute.of(context)?.settings.name != routeName) {
-            Navigator.pushNamed(context, routeName);
+            if (label == '예매') {
+              Navigator.pushNamed(context, routeName);
+            } else {
+              Navigator.pushReplacementNamed(context, routeName);
+            }
           }
         },
         child: Column(
@@ -118,4 +121,5 @@ class _NavBarState extends State<NavBar> {
       ),
     );
   }
+
 }

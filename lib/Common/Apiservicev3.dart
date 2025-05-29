@@ -22,7 +22,7 @@ class Apiservicev3{
         },
       )
   );
-
+/*
   Future<List<Movie>> dailyMovie() async {
     try {
       final response = await dio.get("v1/movies/daily");
@@ -105,4 +105,5 @@ class Apiservicev3{
     }
     return [];
   }
+ */
 }

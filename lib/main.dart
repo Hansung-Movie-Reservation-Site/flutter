@@ -20,7 +20,10 @@ void main() async {
 
 logout() async{
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString('username','알수없음');
+  await prefs.remove('username');
+  await prefs.remove('user_id');
+  await prefs.remove('email');
+  await prefs.setBool('isLoggedIn', false);
 }
 
 class MyApp extends StatelessWidget {

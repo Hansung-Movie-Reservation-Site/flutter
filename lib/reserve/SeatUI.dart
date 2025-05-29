@@ -50,7 +50,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
   final int totalColumns = 2 + 1 + 5 + 1 + 2; // 좌석 + 통로
 
   int get totalAllowed => widget.generalCount + widget.youthCount;
-  int get totalPrice => (widget.generalCount * 13000) + (widget.youthCount * 10000);
+  int get totalPrice => (widget.generalCount * 10000) + (widget.youthCount * 8000);
 
   Future<void> loadSeats() async {
     final api = Apiservicev2();
@@ -431,7 +431,7 @@ class _SeatSelectionUIState extends State<SeatSelectionUI> {
                         return;
                       }
                       // ✅ 결제하기 누르기만 하면 알림 나타나게 하는 테스트 : 추후에 지울 것
-                      await showNotification('CINEMAGIX', '결제 알림 테스트');
+                      // await showNotification('CINEMAGIX', '결제 알림 테스트');
 
                       final seatIds = getSelectedSeatIds();
                       setOrder(userId!, widget.screeningId, seatIds);

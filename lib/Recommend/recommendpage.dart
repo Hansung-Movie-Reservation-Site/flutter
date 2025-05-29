@@ -8,6 +8,7 @@ import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/SearchModal.dart';
 import '../Reservation/MovieDetail.dart';
+import '../auth/Apiservicev2.dart';
 import '../reserve/TheaterPage.dart';
 import 'package:movie/Recommend/recommendmovie.dart';
 
@@ -28,8 +29,6 @@ class _ProductListPageState extends State<ProductListPage> {
   List<Movie> products = [];
   bool isLoading = true;
 
-  Apiservicev3 apiServicev3 = new Apiservicev3();
-
   @override
   void initState() {
     super.initState();
@@ -37,7 +36,8 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   Future<void> fetchProducts() async {
-    final fetched = await apiServicev3.dailyMovie();
+    final api = Apiservicev2();
+    final fetched = await api.dailyMovie();
 
     if (fetched != []) {
       print('받아온 영화 수: ${fetched.length}');

@@ -29,7 +29,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String movieName = '';
   String runTime = '';
   String Genre = '';
-  String Mytheater = '없음';
+  String Mytheater = '건대입구';
   String StartDate = '';
   String Director = '';
   String ShortStory = '';
@@ -460,16 +460,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                     alignment: Alignment.centerRight,
                     child: OutlinedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailReservation(
-                              movieName: movieName,
-                              cinema: cinema,
-                              runTime: runTime,
-                            ),
-                          ),
-                        );
+
+                        Navigator.pushNamed(context, '/Reserve');
                       },
                       child: const Text('예매 하기', style: TextStyle(color: Colors.black)),
                     ),
