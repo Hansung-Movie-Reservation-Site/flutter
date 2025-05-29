@@ -8,6 +8,7 @@ import '../Common/ApiService.dart';
 import '../Response/Movie.dart';
 import '../Common/navbar.dart';
 import '../Common/ExpandableText.dart';
+import '../Response/MyTheater.dart';
 import '../auth/Apiservicev2.dart';
 import 'DetailReservation.dart';
 
@@ -29,7 +30,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String movieName = '';
   String runTime = '';
   String Genre = '';
-  String Mytheater = '건대입구';
+  String Mytheater = '극장 미지정';
   String StartDate = '';
   String Director = '';
   String ShortStory = '';
@@ -68,6 +69,20 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   }
 
+  String getMyTheaterNameFromList(List<MyTheater> myTheaterList, Map<String, Map<int, String>> spotData) {
+    List<String> names = [];
+    for (final theater in myTheaterList) {
+      for (final entry in spotData.entries) {
+        if (entry.value.containsKey(theater.spotId)) {
+          names.add(entry.value[theater.spotId]!);
+          break;
+        }
+      }
+    }
+    return names.isNotEmpty ? names.join(', ') : '극장 미지정';
+  }
+
+
   //평균 별점
   Future<void> setAverageRating() async {
     final api = Apiservicev2();
@@ -105,6 +120,17 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     await _fetchReviews();
   }
 
+  final Map<String, Map<int, String>> spotData = {
+    '서울': {1: '강남', 2: '건대입구', 3: '대학로', 4: '미아'},
+    '경기': {5: '남양주', 6: '동탄', 7: '분당', 8: '수원'},
+    '인천': {9: '검단', 10: '송도', 11: '영종', 12: '인천논현'},
+    '강원': {13: '남춘천', 14: '속초', 15: '원주혁신', 16: '춘천석사'},
+    '대구': {17: '대구신세계', 18: '대구이시아', 19: '마산', 20: '창원'},
+    '부산': {21: '경상대', 22: '덕천', 23: '부산대', 24: '해운대'},
+    '제주': {25: '서귀포', 26: '제주삼화', 27: '제주아라'},
+  };
+
+
   //영화 데이터 불러오기 및 별점과 리뷰 불러오기 실행
   Future<void> initMovies() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -112,6 +138,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     myUsername = prefs.getString('username');
     final api2 = Apiservicev2();
     Movie? movieData = await api2.findMovie(widget.movieId);
+    final myTheaterList = api2.getMyTheater(userId!);
+    Mytheater = getMyTheaterNameFromList(await myTheaterList, spotData);
 
     if (movieData != null) {
       final videoId = YoutubePlayer.convertUrlToId(movieData.fullVideoLink ?? "");
