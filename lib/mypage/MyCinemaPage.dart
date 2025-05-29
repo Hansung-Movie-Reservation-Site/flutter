@@ -22,7 +22,6 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
   void initState() {
     super.initState();
     getMyTheater();
-    loadPrefs();
   }
   Future<void> getMyTheater() async {
     prefs = await SharedPreferences.getInstance();
@@ -34,25 +33,18 @@ class _MyCinemaScreenState extends State<MyCinemaScreen> {
     setState(() {});
   }
 
-  Future<void> loadPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    // setState(() {
-    //     selectedCinemas = myTheaterList;
-    // });
-  }
-
   String? selectedRegion;
   String? selectedRecentCinema;
 
   // 샘플 데이터
   final Map<String, Map<int, String>> spotData = {
     '서울': {1: '강남', 2: '건대입구', 3: '대학로', 4: '미아'},
-    '경기': {5: '남양주', 6: '수원', 7: '동탄', 8: '분당'},
-    '인천': {9: '인천논현', 10: '송도', 11: '영종', 12: '검단'},
+    '경기': {5: '남양주', 6: '동탄', 7: '분당', 8: '수원'},
+    '인천': {9: '검단', 10: '송도', 11: '영종', 12: '인천논현'},
     '강원': {13: '남춘천', 14: '속초', 15: '원주혁신', 16: '춘천석사'},
-    '대구': {17: '대구이시아', 18: '대구신세계', 19: '마산', 20: '창원'},
-    '부산': {21: '덕천', 22: '해운대', 23: '부산대', 24: '경상대'},
-    '제주': {25: '제주삼화', 26: '서귀포', 27: '제주아라'},
+    '대구': {17: '대구신세계', 18: '대구이시아', 19: '마산', 20: '창원'},
+    '부산': {21: '경상대', 22: '덕천', 23: '부산대', 24: '해운대'},
+    '제주': {25: '서귀포', 26: '제주삼화', 27: '제주아라'},
   };
 
   // 영화관 지정 버튼 눌렀을 때 실행할 작업

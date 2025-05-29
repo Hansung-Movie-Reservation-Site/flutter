@@ -58,12 +58,10 @@ class _TheaterUIState extends State<TheaterUI> {
     for (var theater in myTheaterList) {
       final spotId = theater.spotId;
       print("spotId: "+spotId.toString());
-
-      for (var spot in spots) {
-        print("spot.id: "+spot.id.toString()+" spot.name: "+spot.name);
-        if (spot.id == spotId) {
-          matchedSpotNames.add(spot.name);
-          print("spot.name: "+spot.name);
+      for(var i = 0; i < spots.length; i++){
+        print("순서 :"+i.toString()+" spot.name: "+spots[i].name);
+        if(i+1 == spotId){
+          matchedSpotNames.add(spots[i].name);
         }
       }
     }
