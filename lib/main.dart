@@ -5,6 +5,7 @@ import 'package:movie/mypage/Mypage_logout.dart';
 import 'package:movie/mypage/ProfilePage.dart';
 import 'package:movie/reserve/TheaterPage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Common/notification.dart';
 import 'Recommend/Abc.dart';
 import 'Recommend/MainPage.dart';
@@ -13,7 +14,13 @@ import 'mypage/Mypage_login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initNotification(); // 앱 실행 전 알림 초기화
+  await logout();
   runApp(const MyApp());
+}
+
+logout() async{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setString('username','알수없음');
 }
 
 class MyApp extends StatelessWidget {

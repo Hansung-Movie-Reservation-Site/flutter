@@ -144,6 +144,7 @@ class Apiservicev2 {
     try {
       //final response = await dio.get('v1/movies/searchById?id=$id');
 
+      if(user_id == -1) return [];
       final response = await dio.get(
         'v1/AIRecommand/recommended',
         queryParameters: {'userId': user_id},
