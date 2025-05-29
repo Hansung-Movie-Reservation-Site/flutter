@@ -14,6 +14,7 @@ import '../Response/Movie.dart';
 import '../Response/MovieRating.dart';
 import '../Response/MovieReview.dart';
 import '../Response/MyTheater.dart';
+import '../Response/OrderSummary.dart';
 import '../Response/RecommandMovie.dart';
 import '../Response/Region.dart';
 import '../Response/Reviews.dart';
@@ -429,6 +430,23 @@ class Apiservicev2 {
         throw Exception(e.response?.data?['message'] ?? "서버에 연결할 수 없습니다. / 리뷰");
       }
       throw Exception("알 수 없는 오류 발생");
+    }
+  }
+
+  //결제내역
+  Future<List<OrderSummary>> fetchOrders(int userId) async {
+    final response = await dio.get("/v1/orders/user/$userId");
+    final data = response.data as List;
+    return data.map((e) => OrderSummary.fromJson(e)).toList();
+  }
+
+  Future<bool> cancelOrder(int orderId) async {
+    try {
+      final response = await dio.put('/v1/orders/cancel/$orderId');
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print('결제 취소 실패: $e');
+      return false;
     }
   }
 }
